@@ -4,18 +4,93 @@
 #include <SDL3/SDL_timer.h>
 #include <SDL3/SDL_render.h>
 
-#define WINX 800
-#define WINY 600
-#define APPNAME "HUMANS VS MACHINES"
+#include "unit.h"
+#include "gcfg.h"
 
 SDL_Window *window;
 SDL_Renderer *renderer;
-SDL_Surface *char_surf;
-SDL_Texture *char_tex;
+
+SDL_Surface *sample_surf;
+SDL_Texture *sample_tex;
+
+unit_t *unit_head = NULL;
+
+Uint64 ticks_total = 0;
+Uint64 last_spawn = 0;
+Uint64 g_delta = 0;
+
+ret_e assets_load()
+{
+  //sample_surf = SDL_LoadPNG("./img/black_square.png");
+  sample_surf = SDL_LoadPNG("./img/cage.png");
+  if(!sample_surf)
+  {
+    SDL_Log("error: %s", SDL_GetError());
+    return RET_ERR;
+  }
+
+  sample_tex = SDL_CreateTextureFromSurface(renderer, sample_surf);
+  if(!sample_tex)
+  {
+    SDL_Log("error: %s", SDL_GetError());
+    return RET_ERR;
+  }
+
+  return RET_OK;
+}
+
+void spawn_sample()
+{
+  unit_t *unit;
+  attr_t *attr;
+  psyh_t *psyh;
+  visu_t *visu;
+  behv_t *behv;
+
+  unit = unit_add(&unit_head);
+  unit->active = 1;
+
+  psyh = psyh_new();
+  psyh->pos_x = WINX / 2;
+  psyh->pos_y = WINY / 2;
+  psyh->vel_x = 1;
+  psyh->vel_y = 1;
+  psyh->size_x = 128;
+  psyh->size_y = 128;
+  attr = unit_attr_add(unit);
+  attr->type = ATTR_PSYH;
+  attr->data = (void*)psyh;
+
+  behv = behv_new();
+  behv->f = behv_drift;
+  attr = unit_attr_add(unit);
+  attr->type = ATTR_BEHV;
+  attr->data = (void*)behv;
+
+  visu = visu_new();
+  visu->visible = 1;
+  visu->tex = sample_tex;
+  visu->renderer = renderer;
+  attr = unit_attr_add(unit);
+  attr->type = ATTR_VISU;
+  attr->data = (void*)visu;
+
+  behv = behv_new();
+  behv->f = behv_draw;
+  attr = unit_attr_add(unit);
+  attr->type = ATTR_BEHV;
+  attr->data = (void*)behv;
+}
+
+ret_e game_init()
+{
+
+}
 
 void deinit()
 {
-  if(char_surf) SDL_DestroySurface(char_surf);
+  if(sample_tex) SDL_DestroyTexture(sample_tex);
+  if(sample_surf) SDL_DestroySurface(sample_surf);
   if(window) SDL_DestroyWindow(window);
 }
 
@@ -28,55 +103,53 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv)
 
   if(!SDL_Init(SDL_INIT_VIDEO))
   {
-    SDL_Log("Error: %s", SDL_GetError());
+    SDL_Log("error: %s", SDL_GetError());
     return SDL_APP_FAILURE;
   }
 
   if(!SDL_CreateWindowAndRenderer(APPNAME, WINX, WINY, 0, &window, &renderer))
   {
-    SDL_Log("Error: %s", SDL_GetError());
+    SDL_Log("error: %s", SDL_GetError());
     return SDL_APP_FAILURE;
   }
 
-  char_surf = SDL_LoadPNG("./img/black_square.png");
-  if(!char_surf)
+  if(!assets_load())
   {
-    SDL_Log("Error: %s", SDL_GetError());
+    SDL_Log("error: failed to load assets");
     return SDL_APP_FAILURE;
   }
 
-  char_tex = SDL_CreateTextureFromSurface(renderer, char_surf);
-  if(!char_tex)
-  {
-    SDL_Log("Error: %s", SDL_GetError());
-    return SDL_APP_FAILURE;
-  }
+  game_init();
 
   return SDL_APP_CONTINUE;
 }
 
-#define CHAR_SIZE 32
-//float xpos = (WINX / 2) - (CHAR_SIZE / 2), ypos = (WINY / 2) - (CHAR_SIZE / 2);
-float xpos = 0, ypos = 0;
-#if 0
-float xmax = WINX - 32, ymax = WINY - 32;
-uint8_t xdir = 0, ydir = 0;
-#endif
 SDL_AppResult SDL_AppIterate(void *appstate)
 {
-#if 0
-  if(xdir == 0) { xpos++; } else { xpos--; };
-  if(ydir == 0) { ypos++; } else { ypos--; };
-  if(xpos == 0) xdir = 0;
-  if(xpos == xmax) xdir = 1;
-  if(ypos == 0) ydir = 0;
-  if(ypos == ymax) ydir = 1;
-#endif
+  Uint64 ticks = SDL_GetTicksNS();
+  if(ticks_total == 0)
+  {
+    ticks_total = ticks;
+    return SDL_APP_CONTINUE;
+  }
+  g_delta = ticks - ticks_total;
+  ticks_total = ticks;
+
+  if(last_spawn + 1000000000 < ticks_total)
+  {
+    spawn_sample();
+    last_spawn = ticks_total;
+  }
 
   SDL_SetRenderDrawColor(renderer, 0, 200, 200, 0);
   SDL_RenderFillRect(renderer, NULL);
-  SDL_FRect rect = {xpos, ypos, CHAR_SIZE, CHAR_SIZE};
-  SDL_RenderTexture(renderer, char_tex, NULL, &rect);
+
+  unit_t *unit = unit_head;
+  while(unit)
+  {
+    unit_proc(unit);
+    unit = unit->next;
+  }
 
   SDL_RenderPresent(renderer);
 
@@ -89,13 +162,10 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
   {
     case SDL_EVENT_KEY_DOWN:
       const bool *keys = SDL_GetKeyboardState(NULL);
-      //switch(event->key.key)
-      //{
-        if(keys[SDL_SCANCODE_UP])    if(ypos >= CHAR_SIZE) ypos -= CHAR_SIZE;
-        if(keys[SDL_SCANCODE_DOWN])  if(ypos < WINY - CHAR_SIZE) ypos += CHAR_SIZE;
-        if(keys[SDL_SCANCODE_LEFT])  if(xpos >= CHAR_SIZE) xpos -= CHAR_SIZE;
-        if(keys[SDL_SCANCODE_RIGHT]) if(xpos < WINX - CHAR_SIZE) xpos += CHAR_SIZE;
-      //}
+      //if(keys[SDL_SCANCODE_UP])    if(ypos >= CHAR_SIZE) ypos -= CHAR_SIZE;
+      //if(keys[SDL_SCANCODE_DOWN])  if(ypos < WINY - CHAR_SIZE) ypos += CHAR_SIZE;
+      //if(keys[SDL_SCANCODE_LEFT])  if(xpos >= CHAR_SIZE) xpos -= CHAR_SIZE;
+      //if(keys[SDL_SCANCODE_RIGHT]) if(xpos < WINX - CHAR_SIZE) xpos += CHAR_SIZE;
       break;
     case SDL_EVENT_QUIT:
       deinit();
