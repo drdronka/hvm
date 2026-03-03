@@ -12,6 +12,7 @@ add_subdirectory(vendored/SDL EXCLUDE_FROM_ALL)
 # Create your game executable target as usual
 add_executable(hvm WIN32 
     src/main.c
+    src/asset_def.c
     src/core/game.c
     src/core/list.c
     src/core/attr.c

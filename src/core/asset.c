@@ -5,22 +5,12 @@
 #include "gcfg.h"
 #include "game.h"
 
-typedef struct asset_texture 
-{
-  const char* name;
-  const char* path;
-  SDL_Texture* texture;
-} asset_texture_t;
-
-asset_texture_t textures[] = 
-{
-  {"black_square", "assets/img/black_square.png", NULL},
-  {"cage", "assets/img/cage.png", NULL},
-};
+extern asset_texture_t textures[];
+extern Uint32 textures_size;
 
 ret_e asset_texture_load_all()
 {
-  for(Uint32 n = 0; n < sizeof(textures) / sizeof(asset_texture_t); n++)
+  for(Uint32 n = 0; n < textures_size; n++)
   {
     SDL_Surface *surface = SDL_LoadPNG(textures[n].path);
     if(!surface)
@@ -41,7 +31,7 @@ ret_e asset_texture_load_all()
 
 void asset_texture_free_all()
 {
-  for(Uint32 n = 0; n < sizeof(textures) / sizeof(asset_texture_t); n++)
+  for(Uint32 n = 0; n < textures_size; n++)
   {
     SDL_DestroyTexture(textures[n].texture);
   }
@@ -49,7 +39,7 @@ void asset_texture_free_all()
 
 SDL_Texture *asset_texture_get(char* name)
 {
-  for(Uint32 n = 0; n < sizeof(textures) / sizeof(asset_texture_t); n++)
+  for(Uint32 n = 0; n < textures_size; n++)
   {
     if(!strncmp(name, textures[n].name, strlen(name)))
       return textures[n].texture;
