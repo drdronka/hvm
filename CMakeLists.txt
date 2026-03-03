@@ -16,6 +16,7 @@ add_executable(hvm WIN32
     src/core/list.c
     src/core/attr.c
     src/core/unit.c
+    src/core/asset.c
     src/attr/psyh.c
     src/attr/visu.c
     src/attr/drift.c

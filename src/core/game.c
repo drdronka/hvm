@@ -13,35 +13,12 @@
 #include "psyh.h"
 #include "visu.h"
 #include "drift.h"
-
-SDL_Surface *sample_surf;
-SDL_Texture *sample_tex;
+#include "asset.h"
 
 unit_t *unit_head = NULL;
-
 Uint64 last_spawn = 0;
 
 game_context_t context;
-
-ret_e assets_load()
-{
-  //sample_surf = SDL_LoadPNG("./img/black_square.png");
-  sample_surf = SDL_LoadPNG("./assets/img/cage.png");
-  if(!sample_surf)
-  {
-    SDL_Log("error: %s", SDL_GetError());
-    return RET_ERR;
-  }
-
-  sample_tex = SDL_CreateTextureFromSurface(context.renderer, sample_surf);
-  if(!sample_tex)
-  {
-    SDL_Log("error: %s", SDL_GetError());
-    return RET_ERR;
-  }
-
-  return RET_OK;
-}
 
 void spawn_sample()
 {
@@ -66,7 +43,7 @@ void spawn_sample()
 
   visu = visu_new();
   visu->visible = 1;
-  visu->tex = sample_tex;
+  visu->tex = asset_texture_get("cage");
   visu->renderer = context.renderer;
   attr = unit_attr_add(unit);
   attr->type = ATTR_VISU;
@@ -82,9 +59,9 @@ void deinit()
 {
   SDL_Log("game: deinitializing");
 
-  if(sample_tex) SDL_DestroyTexture(sample_tex);
-  if(sample_surf) SDL_DestroySurface(sample_surf);
+  asset_texture_free_all();
   if(context.window) SDL_DestroyWindow(context.window);
+  if(context.renderer) SDL_DestroyRenderer(context.renderer);
 
   SDL_Log("game: deinitialization finished");
 }
@@ -123,7 +100,7 @@ SDL_AppResult game_init()
   }
 
   SDL_Log("game: loading assets");
-  if(!assets_load())
+  if(!asset_texture_load_all())
   {
     SDL_Log("game: error: failed to load assets");
     return SDL_APP_FAILURE;
