@@ -11,13 +11,21 @@ add_subdirectory(vendored/SDL EXCLUDE_FROM_ALL)
 
 # Create your game executable target as usual
 add_executable(hvm WIN32 
-    src/hvm.c
-    src/unit.c
+    src/main.c
+    src/core/game.c
+    src/core/list.c
+    src/core/attr.c
+    src/core/unit.c
+    src/attr/psyh.c
+    src/attr/visu.c
+    src/attr/drift.c
 )
 
 target_include_directories(hvm
     PRIVATE
     inc/
+    inc/core/
+    inc/attr
 )
 
 # Link to the actual SDL3 library.

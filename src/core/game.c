@@ -1,14 +1,18 @@
-#define SDL_MAIN_USE_CALLBACKS
-#include <SDL3/SDL_main.h>
+#include <SDL3/SDL_init.h>
+#include <SDL3/SDL_render.h>
 #include <SDL3/SDL_log.h>
 #include <SDL3/SDL_timer.h>
 #include <SDL3/SDL_render.h>
 
-#include "unit.h"
 #include "gcfg.h"
+#include "game.h"
+#include "unit.h"
+#include "list.h"
+#include "attr.h"
+#include "psyh.h"
+#include "visu.h"
 
-SDL_Window *window;
-SDL_Renderer *renderer;
+
 
 SDL_Surface *sample_surf;
 SDL_Texture *sample_tex;
@@ -19,17 +23,19 @@ Uint64 ticks_total = 0;
 Uint64 last_spawn = 0;
 Uint64 g_delta = 0;
 
+game_context_t context;
+
 ret_e assets_load()
 {
   //sample_surf = SDL_LoadPNG("./img/black_square.png");
-  sample_surf = SDL_LoadPNG("./img/cage.png");
+  sample_surf = SDL_LoadPNG("./assets/img/cage.png");
   if(!sample_surf)
   {
     SDL_Log("error: %s", SDL_GetError());
     return RET_ERR;
   }
 
-  sample_tex = SDL_CreateTextureFromSurface(renderer, sample_surf);
+  sample_tex = SDL_CreateTextureFromSurface(context.renderer, sample_surf);
   if(!sample_tex)
   {
     SDL_Log("error: %s", SDL_GetError());
@@ -45,7 +51,6 @@ void spawn_sample()
   attr_t *attr;
   psyh_t *psyh;
   visu_t *visu;
-  behv_t *behv;
 
   unit = unit_add(&unit_head);
   unit->active = 1;
@@ -61,76 +66,82 @@ void spawn_sample()
   attr->type = ATTR_PSYH;
   attr->data = (void*)psyh;
 
-  behv = behv_new();
-  behv->f = behv_drift;
-  attr = unit_attr_add(unit);
-  attr->type = ATTR_BEHV;
-  attr->data = (void*)behv;
-
   visu = visu_new();
   visu->visible = 1;
   visu->tex = sample_tex;
-  visu->renderer = renderer;
+  visu->renderer = context.renderer;
   attr = unit_attr_add(unit);
   attr->type = ATTR_VISU;
   attr->data = (void*)visu;
 
-  behv = behv_new();
-  behv->f = behv_draw;
+  visu = visu_new();
+  visu->visible = 1;
+  visu->tex = sample_tex;
+  visu->renderer = context.renderer;
   attr = unit_attr_add(unit);
-  attr->type = ATTR_BEHV;
-  attr->data = (void*)behv;
-}
-
-ret_e game_init()
-{
-
+  attr->type = ATTR_VISU;
+  attr->data = (void*)visu;
 }
 
 void deinit()
 {
+  SDL_Log("game: deinit");
+
   if(sample_tex) SDL_DestroyTexture(sample_tex);
   if(sample_surf) SDL_DestroySurface(sample_surf);
-  if(window) SDL_DestroyWindow(window);
+  if(context.window) SDL_DestroyWindow(context.window);
 }
 
-SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv)
+// ===================== GLOBAL FUNC ===================== //
+
+ret_e game_init()
 {
   SDL_Log("%s", APPNAME);
 
-  window = NULL;
-  renderer = NULL;
+  context.win_x = WINX;
+  context.win_y = WINY;
+  context.app_name = APPNAME;
+  context.window = NULL;
+  context.renderer = NULL;
 
+  SDL_Log("initializing SDL");
   if(!SDL_Init(SDL_INIT_VIDEO))
   {
     SDL_Log("error: %s", SDL_GetError());
-    return SDL_APP_FAILURE;
+    return RET_ERR;
   }
 
-  if(!SDL_CreateWindowAndRenderer(APPNAME, WINX, WINY, 0, &window, &renderer))
+  SDL_Log("creating window x[%d] y[%d]", context.win_x, context.win_y);
+  if(!SDL_CreateWindowAndRenderer(
+    APPNAME, 
+    context.win_x, 
+    context.win_y, 0, 
+    &context.window, 
+    &context.renderer))
   {
     SDL_Log("error: %s", SDL_GetError());
-    return SDL_APP_FAILURE;
+    return RET_ERR;
   }
 
+  SDL_Log("loading assets");
   if(!assets_load())
   {
     SDL_Log("error: failed to load assets");
-    return SDL_APP_FAILURE;
+    return RET_ERR;
   }
 
-  game_init();
+  SDL_Log("initialization finished");
 
-  return SDL_APP_CONTINUE;
+  return RET_OK;
 }
 
-SDL_AppResult SDL_AppIterate(void *appstate)
+ret_e game_update()
 {
   Uint64 ticks = SDL_GetTicksNS();
   if(ticks_total == 0)
   {
     ticks_total = ticks;
-    return SDL_APP_CONTINUE;
+    return RET_OK;
   }
   g_delta = ticks - ticks_total;
   ticks_total = ticks;
@@ -141,8 +152,8 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     last_spawn = ticks_total;
   }
 
-  SDL_SetRenderDrawColor(renderer, 0, 200, 200, 0);
-  SDL_RenderFillRect(renderer, NULL);
+  SDL_SetRenderDrawColor(context.renderer, 0, 200, 200, 0);
+  SDL_RenderFillRect(context.renderer, NULL);
 
   unit_t *unit = unit_head;
   while(unit)
@@ -151,32 +162,46 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     unit = unit->next;
   }
 
-  SDL_RenderPresent(renderer);
+  SDL_RenderPresent(context.renderer);
 
-  return SDL_APP_CONTINUE;
+  return RET_OK;
 }
 
-SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
+ret_e game_event(SDL_Event *event)
 {
   switch(event->type)
   {
     case SDL_EVENT_KEY_DOWN:
       const bool *keys = SDL_GetKeyboardState(NULL);
+      if(keys[SDL_SCANCODE_ESCAPE])
+      {
+        //game_exit();
+        SDL_Quit();
+        break;;
+      }
       //if(keys[SDL_SCANCODE_UP])    if(ypos >= CHAR_SIZE) ypos -= CHAR_SIZE;
       //if(keys[SDL_SCANCODE_DOWN])  if(ypos < WINY - CHAR_SIZE) ypos += CHAR_SIZE;
       //if(keys[SDL_SCANCODE_LEFT])  if(xpos >= CHAR_SIZE) xpos -= CHAR_SIZE;
       //if(keys[SDL_SCANCODE_RIGHT]) if(xpos < WINX - CHAR_SIZE) xpos += CHAR_SIZE;
       break;
+
     case SDL_EVENT_QUIT:
-      deinit();
+      //game_exit();
       SDL_Quit();
       break;
   }
 
-  return SDL_APP_CONTINUE;
+  return RET_OK;
 }
 
-void SDL_AppQuit(void *appstate, SDL_AppResult result)
+ret_e game_exit()
 {
   deinit();
+
+  return RET_OK;
+}
+
+game_context_t *game_context_get()
+{
+  return &context;
 }
