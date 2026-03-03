@@ -95,14 +95,11 @@ SDL_AppResult game_init()
 {
   SDL_Log("%s", APPNAME);
   
+  memset(&context, 0, sizeof(context));
   context.win_x = WINX;
   context.win_y = WINY;
   context.app_name = APPNAME;
-  context.window = NULL;
-  context.renderer = NULL;
-  context.ticks_delta_ms = 0;
-  context.ticks_total_ms = 0;
-
+  
   SDL_Log("game: fps limit: %s", FPS_LIMIT);
   SDL_SetHint(SDL_HINT_MAIN_CALLBACK_RATE, FPS_LIMIT);
 
