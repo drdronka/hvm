@@ -6,6 +6,7 @@ typedef enum
   ATTR_NONE = 0,
   ATTR_PSYH,
   ATTR_VISU, 
+  ATTR_DRIFT,
 } attr_type_e;
 
 typedef void (attr_f)(void *ref);

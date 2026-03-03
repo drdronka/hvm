@@ -1,6 +1,7 @@
 #ifndef __GAME_H__
 #define __GAME_H__
 
+#include <SDL3/SDL_init.h>
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_render.h>
 
@@ -16,10 +17,10 @@ typedef struct game_context
   SDL_Renderer *renderer;
 } game_context_t;
 
-ret_e game_init();
-ret_e game_update();
-ret_e game_event(SDL_Event *event);
-ret_e game_exit();
+SDL_AppResult game_init();
+SDL_AppResult game_update();
+SDL_AppResult game_event(SDL_Event *event);
+void game_exit();
 game_context_t *game_context_get();
 
 #endif // __GAME_H__

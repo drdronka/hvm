@@ -54,8 +54,8 @@ void unit_proc(unit_t *unit)
   while(attr)
   {
     //SDL_Log("proc type [%d]", attr->type);
-    //if(attr->type == ATTR_BEHV)
-    //  ((behv_t*)(attr->data))->f((void*)unit);
+    if(attr->func)
+      (attr->func)((void*)unit);
     attr = attr->next;
   }
 }

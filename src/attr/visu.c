@@ -1,5 +1,7 @@
 #include <malloc.h>
+#include <SDL3/SDL_log.h>
 
+#include "gcfg.h"
 #include "visu.h"
 #include "unit.h"
 #include "attr.h"
@@ -12,9 +14,12 @@ visu_t *visu_new()
   return visu;
 }
 
-void behv_draw(void *ref)
+void visu_func(void *ref)
 {
-  //SDL_Log("draw");
+  #if STEP_MODE
+    SDL_Log("visu_func");
+  #endif
+
   unit_t *unit = (unit_t*)ref;
   if(unit->active)
   {

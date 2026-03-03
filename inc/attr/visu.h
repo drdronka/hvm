@@ -13,6 +13,6 @@ typedef struct visu
 } visu_t;
 
 visu_t *visu_new();
-void behv_draw(void *ref);
+void visu_func(void *ref);
 
 #endif // __VISU_H__
