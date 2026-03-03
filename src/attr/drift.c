@@ -24,18 +24,18 @@ void drift_func(void *ref)
         SDL_Log("drifting");
       #endif
 
-      float mov_x = psyh->vel_x * (context->tick_delta / 1000000);
-      float mov_y = psyh->vel_y * (context->tick_delta / 1000000);
+      float mov_x = (psyh->vel_x * (float)context->ticks_delta_ms) / (float)1000;
+      float mov_y = (psyh->vel_y * (float)context->ticks_delta_ms) / (float)1000;
 
       if(psyh->pos_x + mov_x < 0 || psyh->pos_x + mov_x > context->win_x)
       {
         psyh->vel_x = 0 - psyh->vel_x;
-        mov_x = psyh->vel_x * (context->tick_delta / 1000000);
+        mov_x = psyh->vel_x * (context->ticks_delta_ms / 1000);
       }
       if(psyh->pos_y + mov_y < 0 || psyh->pos_y + mov_y > context->win_y)
       {
         psyh->vel_y = 0 - psyh->vel_y;
-        mov_y = psyh->vel_y * (context->tick_delta / 1000000);
+        mov_y = psyh->vel_y * (context->ticks_delta_ms / 1000);
       }
 
       psyh->pos_x += mov_x;

@@ -12,7 +12,8 @@ typedef struct game_context
   int win_x;
   int win_y;
   char* app_name;
-  Uint64 tick_delta;
+  Uint64 ticks_delta_ms;
+  Uint64 ticks_total_ms;
   SDL_Window *window;
   SDL_Renderer *renderer;
 } game_context_t;

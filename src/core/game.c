@@ -19,7 +19,6 @@ SDL_Texture *sample_tex;
 
 unit_t *unit_head = NULL;
 
-Uint64 ticks_total = 0;
 Uint64 last_spawn = 0;
 
 game_context_t context;
@@ -101,6 +100,8 @@ SDL_AppResult game_init()
   context.app_name = APPNAME;
   context.window = NULL;
   context.renderer = NULL;
+  context.ticks_delta_ms = 0;
+  context.ticks_total_ms = 0;
 
   SDL_Log("game: fps limit: %s", FPS_LIMIT);
   SDL_SetHint(SDL_HINT_MAIN_CALLBACK_RATE, FPS_LIMIT);
@@ -142,19 +143,19 @@ SDL_AppResult game_update()
     SDL_Log("game: update");
   #endif
 
-  Uint64 ticks = SDL_GetTicksNS();
-  if(ticks_total == 0)
+  Uint64 ticks_ms = SDL_GetTicksNS() / 1000;
+  if(context.ticks_total_ms == 0)
   {
-    ticks_total = ticks;
+    context.ticks_total_ms = ticks_ms;
     return SDL_APP_CONTINUE;
   }
-  context.tick_delta = ticks - ticks_total;
-  ticks_total = ticks;
+  context.ticks_delta_ms = ticks_ms - context.ticks_total_ms;
+  context.ticks_total_ms = ticks_ms;
 
-  if(last_spawn + 1000000000 < ticks_total)
+  if(last_spawn + 1000000 < ticks_ms)
   {
     spawn_sample();
-    last_spawn = ticks_total;
+    last_spawn = context.ticks_total_ms;
   }
 
   SDL_SetRenderDrawColor(context.renderer, 0, 200, 200, 0);
