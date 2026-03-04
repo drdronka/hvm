@@ -1,8 +1,8 @@
 #include <malloc.h>
 #include <string.h>
 
-#include "list.h"
 #include "log.h"
+#include "list.h"
 
 // ======================== LOCAL DATA ========================= //
 

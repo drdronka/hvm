@@ -1,5 +1,6 @@
 #include <malloc.h>
 
+#include "log.h"
 #include "gcfg.h"
 #include "unit.h"
 #include "attr.h"

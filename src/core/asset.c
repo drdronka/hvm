@@ -1,9 +1,8 @@
 #include <SDL3/SDL_render.h>
 
-#include "asset.h"
 #include "gcfg.h"
-#include "game.h"
 #include "log.h"
+#include "asset.h"
 
 extern asset_texture_t textures[];
 extern Uint32 textures_size;

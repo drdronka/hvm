@@ -2,8 +2,6 @@
 #include <SDL3/SDL_render.h>
 
 #include "attr.h"
-#include "unit.h"
-#include "game.h"
 
 // ======================== LOCAL DATA ========================= //
 

@@ -34,4 +34,7 @@ target_include_directories(hvm
 )
 
 # Link to the actual SDL3 library.
-target_link_libraries(hvm PRIVATE SDL3::SDL3)
+target_link_libraries(hvm PRIVATE 
+    SDL3::SDL3
+    m
+)
