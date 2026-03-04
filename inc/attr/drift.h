@@ -3,6 +3,6 @@
 
 #include "attr.h"
 
-void drift_func(void *ref);
+attr_t *drift_new();
 
 #endif // __DRIFT_H__

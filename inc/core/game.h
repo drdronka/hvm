@@ -6,6 +6,7 @@
 #include <SDL3/SDL_render.h>
 
 #include "gcfg.h"
+#include "list.h"
 
 typedef struct game_context
 {
@@ -16,6 +17,7 @@ typedef struct game_context
   Uint64 ticks_total_ms;
   SDL_Window *window;
   SDL_Renderer *renderer;
+  list_t *unit_list;
 } game_context_t;
 
 SDL_AppResult game_init();

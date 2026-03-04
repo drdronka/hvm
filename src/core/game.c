@@ -15,44 +15,28 @@
 #include "drift.h"
 #include "asset.h"
 
-unit_t *unit_head = NULL;
+#include <stdio.h>
+
 Uint64 last_spawn = 0;
 
 game_context_t context;
 
 void spawn_sample()
 {
-  unit_t *unit;
+  SDL_Log("spawning sample");
+
+  unit_t *unit = unit_new(1);
+  unit_attr_add(unit, psyh_new(context.win_x / 2, context.win_y / 2, 1, 1, 128, 128));
+  unit_attr_add(unit, visu_new(asset_texture_get("cage"), 1));
+  unit_attr_add(unit, drift_new());
+  list_add(context.unit_list, (void*)unit);
+
   attr_t *attr;
-  psyh_t *psyh;
-  visu_t *visu;
-
-  unit = unit_add(&unit_head);
-  unit->active = 1;
-
-  psyh = psyh_new();
-  psyh->pos_x = WINX / 2;
-  psyh->pos_y = WINY / 2;
-  psyh->vel_x = 1;
-  psyh->vel_y = 1;
-  psyh->size_x = 128;
-  psyh->size_y = 128;
-  attr = unit_attr_add(unit);
-  attr->type = ATTR_PSYH;
-  attr->data = (void*)psyh;
-
-  visu = visu_new();
-  visu->visible = 1;
-  visu->tex = asset_texture_get("cage");
-  visu->renderer = context.renderer;
-  attr = unit_attr_add(unit);
-  attr->type = ATTR_VISU;
-  attr->data = (void*)visu;
-  attr->func = visu_func;
-
-  attr = unit_attr_add(unit);
-  attr->type = ATTR_DRIFT;
-  attr->func = drift_func;
+  list_node_t *iter = list_iter_init(unit->attr_list);
+  while(attr = list_iter_next(&iter))
+  {
+    fprintf(stderr, "attr type [%d]\n", attr->type);
+  }
 }
 
 void deinit()
@@ -60,8 +44,8 @@ void deinit()
   SDL_Log("game: deinitializing");
 
   asset_texture_free_all();
-  if(context.window) SDL_DestroyWindow(context.window);
   if(context.renderer) SDL_DestroyRenderer(context.renderer);
+  if(context.window) SDL_DestroyWindow(context.window);
 
   SDL_Log("game: deinitialization finished");
 }
@@ -76,9 +60,17 @@ SDL_AppResult game_init()
   context.win_x = WINX;
   context.win_y = WINY;
   context.app_name = APPNAME;
+  context.unit_list = list_new();
   
-  SDL_Log("game: fps limit: %s", FPS_LIMIT);
-  SDL_SetHint(SDL_HINT_MAIN_CALLBACK_RATE, FPS_LIMIT);
+  char *fps_limit;
+  #if STEP_MODE  
+    fps_limit = "1";
+  #else
+    fps_limit = FPS_LIMIT;
+  #endif
+
+  SDL_Log("game: fps limit: %s", fps_limit);
+  SDL_SetHint(SDL_HINT_MAIN_CALLBACK_RATE, fps_limit);
 
   SDL_Log("game: initializing SDL");
   if(!SDL_Init(SDL_INIT_VIDEO))
@@ -94,7 +86,7 @@ SDL_AppResult game_init()
     context.win_y, 0, 
     &context.window, 
     &context.renderer))
-  {
+  { 
     SDL_Log("game: error: %s", SDL_GetError());
     return SDL_APP_FAILURE;
   }
@@ -113,10 +105,6 @@ SDL_AppResult game_init()
 
 SDL_AppResult game_update()
 {
-  #if STEP_MODE
-    SDL_Log("game: update");
-  #endif
-
   Uint64 ticks_ms = SDL_GetTicksNS() / 1000;
   if(context.ticks_total_ms == 0)
   {
@@ -133,13 +121,17 @@ SDL_AppResult game_update()
   }
 
   SDL_SetRenderDrawColor(context.renderer, 0, 200, 200, 0);
-  SDL_RenderFillRect(context.renderer, NULL);
+  SDL_RenderFillRect(context.renderer, NULL);  
 
-  unit_t *unit = unit_head;
-  while(unit)
+  unit_t *unit;
+  list_node_t *unit_iter = list_iter_init(context.unit_list);
+  while(unit = list_iter_next(&unit_iter))
   {
-    unit_proc(unit);
-    unit = unit->next;
+    attr_t *attr;
+    list_node_t *attr_iter = list_iter_init(unit->attr_list);
+    while(attr = list_iter_next(&attr_iter))
+      if(attr->run) 
+        attr->run((void*)unit);
   }
 
   SDL_RenderPresent(context.renderer);

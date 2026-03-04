@@ -1,14 +1,18 @@
 #ifndef __GCFG_H__
 #define __GCFG_H__
 
-#define STEP_MODE 0
-
 #define APPNAME "HUMANS VS MACHINES"
 #define WINX 1024
 #define WINY 768
 #define FWINX ((float)(WINX))
 #define FWINY ((float)(WINY))
-#define FPS_LIMIT "120"
+
+#define STEP_MODE 0
+#if STEP_MODE
+  #define FPS_LIMIT "1"
+#else
+  #define FPS_LIMIT "120"
+#endif
 
 typedef enum 
 {

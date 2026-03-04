@@ -3,7 +3,7 @@
 
 #include "attr.h"
 
-typedef struct psyh
+typedef struct psyh_data
 {
   float pos_x;
   float pos_y;
@@ -11,8 +11,8 @@ typedef struct psyh
   float vel_y;
   float size_x;
   float size_y;
-} psyh_t;
+} psyh_data_t;
 
-psyh_t *psyh_new();
+attr_t *psyh_new(float pos_x, float pos_y, float vel_x, float vel_y, float size_x, float size_y);
 
 #endif // __PSYH_H__

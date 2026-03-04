@@ -6,35 +6,35 @@
 #include "unit.h"
 #include "attr.h"
 #include "psyh.h"
+#include "game.h"
 
-visu_t *visu_new()
+static void run(void *ref)
 {
-  visu_t *visu = (visu_t*)malloc(sizeof(visu_t));
-  memset(visu, 0, sizeof(visu_t));
-  return visu;
-}
-
-void visu_func(void *ref)
-{
-  #if STEP_MODE
-    SDL_Log("visu_func");
-  #endif
-
   unit_t *unit = (unit_t*)ref;
   if(unit->active)
   {
-    psyh_t *psyh = (psyh_t*)unit_attr_get(unit, ATTR_PSYH);
-    visu_t *visu = (visu_t*)unit_attr_get(unit, ATTR_VISU);
+    psyh_data_t *psyh_data = (psyh_data_t*)unit_attr_data_get(unit, ATTR_PSYH);
+    visu_data_t *visu_data = (visu_data_t*)unit_attr_data_get(unit, ATTR_VISU);
     //SDL_Log("psyh[%x] visu[%x]", psyh, visu);
-    if(psyh && visu)
+    if(psyh_data && visu_data)
     {
       SDL_FRect rect;
-      rect.x = psyh->pos_x - (psyh->size_x / 2);
-      rect.y = psyh->pos_y - (psyh->size_y / 2);
-      rect.w = psyh->size_x;
-      rect.h = psyh->size_y;
+      rect.x = psyh_data->pos_x - (psyh_data->size_x / 2);
+      rect.y = psyh_data->pos_y - (psyh_data->size_y / 2);
+      rect.w = psyh_data->size_x;
+      rect.h = psyh_data->size_y;
       //SDL_Log("drawing [%f][%f][%f][%f]", rect.x, rect.y, rect.w, rect.h);
-      SDL_RenderTexture(visu->renderer, visu->tex, NULL, &rect);
+      SDL_RenderTexture(game_context_get()->renderer, visu_data->tex, NULL, &rect);
     }
   }
+}
+
+/// GLOBAL FUNC ///
+
+attr_t *visu_new(SDL_Texture *tex, Uint8 visible)
+{
+  visu_data_t *visu_data = (visu_data_t*)malloc(sizeof(visu_data_t));
+  visu_data->tex = tex;
+  visu_data->visible = visible;
+  return attr_new(ATTR_VISU, visu_data, run);
 }

@@ -3,43 +3,11 @@
 
 #include "attr.h"
 
-attr_t *attr_add(attr_t **head)
+attr_t *attr_new(attr_type_e type, void *data, attr_f *run)
 {
   attr_t *attr = (attr_t*)malloc(sizeof(attr_t));
-  memset(attr, 0, sizeof(attr_t));
-  attr->next = *head;
-  *head = attr;
+  attr->type = type;
+  attr->data = data;
+  attr->run = run;
   return attr;
-}
-
-void attr_del(attr_t **head, attr_t *attr)
-{
-  Uint8 found = 0;
-
-  if(*head == NULL)
-    return;
-
-  if(attr == *head)
-  {
-    if(attr->next)
-      *head = attr->next;
-    found = 1;
-  }
-
-  attr_t *attr_tmp = *head;
-  while(attr_tmp)
-  {
-    if(attr_tmp->next == attr)
-    {
-      attr_tmp = attr->next;
-      found = 1;
-    }
-  }
-
-  if(found)
-  {
-    if(attr->data) 
-      free(attr->data);
-    free(attr);
-  }
 }

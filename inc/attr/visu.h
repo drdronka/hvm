@@ -5,14 +5,12 @@
 
 #include "attr.h"
 
-typedef struct visu
-{
-  uint8_t visible;
-  SDL_Renderer *renderer;
+typedef struct visu_data
+{  
   SDL_Texture *tex;
-} visu_t;
+  Uint8 visible;
+} visu_data_t;
 
-visu_t *visu_new();
-void visu_func(void *ref);
+attr_t *visu_new(SDL_Texture *tex, Uint8 visible);
 
 #endif // __VISU_H__

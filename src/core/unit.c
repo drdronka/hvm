@@ -5,75 +5,28 @@
 #include "unit.h"
 #include "attr.h"
 
-extern Uint32 g_delta;
+/// GLOBAL FUNC ///
 
-unit_t *unit_add(unit_t **head)
+unit_t *unit_new(Uint8 active)
 {
   unit_t *unit = (unit_t*)malloc(sizeof(unit_t));
   memset(unit, 0, sizeof(unit_t));
-  unit->next = *head;
-  *head = unit;
+  unit->attr_list = list_new();
+  unit->active = active;
   return unit;
 }
 
-void unit_del(unit_t **head, unit_t *unit)
+void unit_attr_add(unit_t *unit, attr_t *attr)
 {
-  uint8_t found = 0;
-
-  if(*head == NULL)
-    return;
-
-  if(unit == *head)
-  {
-    if(unit->next)
-      *head = unit->next;
-    found = 1;
-  }
-
-  unit_t *attr_tmp = *head;
-  while(attr_tmp)
-  {
-    if(attr_tmp->next == unit)
-    {
-      attr_tmp = unit->next;
-      found = 1;
-    }
-  }
-
-  if(found)
-  {
-    while((volatile attr_t*)unit->attr_head)
-      attr_del(&unit->attr_head, unit->attr_head);
-    free(unit);
-  }
+  list_add(unit->attr_list, (void*)attr);
 }
 
-void unit_proc(unit_t *unit)
+void *unit_attr_data_get(unit_t *unit, attr_type_e type)
 {
-  attr_t *attr = unit->attr_head;
-  while(attr)
-  {
-    //SDL_Log("proc type [%d]", attr->type);
-    if(attr->func)
-      (attr->func)((void*)unit);
-    attr = attr->next;
-  }
-}
-
-attr_t *unit_attr_get(unit_t *unit, attr_type_e type)
-{
-  attr_t *attr = unit->attr_head;
-  while(attr)
-  {
-    //SDL_Log("attr_get [%d] looking for [%d]", attr->type, type);
+  attr_t *attr;
+  list_node_t *iter = list_iter_init(unit->attr_list);
+  while(attr = list_iter_next(&iter))
     if(attr->type == type)
       return attr->data;
-    attr = attr->next;
-  }
   return NULL;
-}
-
-attr_t *unit_attr_add(unit_t *unit)
-{
-  return attr_add(&unit->attr_head);
 }
