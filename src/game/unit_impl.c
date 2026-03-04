@@ -1,10 +1,8 @@
 #include <malloc.h>
 
-#include "unit.h"
 #include "unit_impl.h"
-#include "attr.h"
 #include "attr_impl.h"
-#include "game.h"
+#include "game_context.h"
 #include "asset.h"
 
 // ------------------------------------------------------------- //

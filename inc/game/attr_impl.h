@@ -5,6 +5,14 @@
 
 #include "attr.h"
 
+typedef enum 
+{
+  ATTR_NONE = 0,
+  ATTR_PSYH,
+  ATTR_VISU, 
+  ATTR_DRIFT,
+} attr_type_e;
+
 // ------------------------------------------------------------- //
 
 typedef struct attr_psyh_data

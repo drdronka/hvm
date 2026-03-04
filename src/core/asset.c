@@ -14,7 +14,7 @@ extern Uint32 textures_size;
 
 // ======================== GLOBAL FUNC ======================== //
 
-ret_e asset_texture_load_all()
+ret_e asset_texture_load_all(asset_texture_t *textures, Uint32 textures_size, SDL_Renderer *renderer)
 {
   for(Uint32 n = 0; n < textures_size; n++)
   {
@@ -24,7 +24,7 @@ ret_e asset_texture_load_all()
       LOG_ERROR("asset: error: %s", SDL_GetError());
       return RET_ERR;
     }
-    textures[n].texture = SDL_CreateTextureFromSurface(game_context_get()->renderer, surface);
+    textures[n].texture = SDL_CreateTextureFromSurface(renderer, surface);
     if(!textures[n].texture)
     {
       LOG_ERROR("asset: errpr: %s", SDL_GetError());
@@ -37,7 +37,7 @@ ret_e asset_texture_load_all()
 
 // ------------------------------------------------------------- //
 
-void asset_texture_free_all()
+void asset_texture_free_all(asset_texture_t *textures, Uint32 textures_size)
 {
   for(Uint32 n = 0; n < textures_size; n++)
   {

@@ -30,7 +30,7 @@ void unit_attr_add(unit_t *unit, attr_t *attr)
 
 // ------------------------------------------------------------- //
 
-void *unit_attr_data_get(unit_t *unit, attr_type_e type)
+void *unit_attr_data_get(unit_t *unit, Uint32 type)
 {
   attr_t *attr;
   list_node_t *iter = list_iter_init(unit->attr_list);

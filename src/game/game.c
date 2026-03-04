@@ -9,15 +9,17 @@
 #include "list.h"
 #include "unit_impl.h"
 #include "attr_impl.h"
+#include "game_context.h"
 #include "asset.h"
 #include "log.h"
 
-#include <stdio.h>
+extern asset_texture_t textures[];
+extern const Uint32 textures_size;
 
 // ======================== LOCAL DATA ========================= //
 
+static game_context_t *context = NULL;
 static Uint64 last_spawn = 0;
-static game_context_t context;
 
 // ======================== LOCAL FUNC ========================= //
 
@@ -25,9 +27,9 @@ static void deinit()
 {
   LOG_INFO("game: deinitializing\n");
 
-  asset_texture_free_all();
-  if(context.renderer) SDL_DestroyRenderer(context.renderer);
-  if(context.window) SDL_DestroyWindow(context.window);
+  asset_texture_free_all(textures, textures_size);
+  if(context->renderer) SDL_DestroyRenderer(context->renderer);
+  if(context->window) SDL_DestroyWindow(context->window);
 
   LOG_INFO("game: deinitialization finished\n");
 }
@@ -36,13 +38,14 @@ static void deinit()
 
 SDL_AppResult game_init()
 {
-  LOG_INFO("%s\n", APPNAME);
-  
-  memset(&context, 0, sizeof(context));
-  context.win_x = WINX;
-  context.win_y = WINY;
-  context.app_name = APPNAME;
-  context.unit_list = list_new();
+  LOG_INFO("game: init");
+
+  game_context_init();
+  context = game_context_get();
+  context->win_x = WINX;
+  context->win_y = WINY;
+  context->app_name = APPNAME;
+  context->unit_list = list_new();
   
   char *fps_limit;
   #if STEP_MODE  
@@ -61,20 +64,20 @@ SDL_AppResult game_init()
     return SDL_APP_FAILURE;
   }
 
-  LOG_INFO("game: creating window x[%d] y[%d]\n", context.win_x, context.win_y);
+  LOG_INFO("game: creating window x[%d] y[%d]\n", context->win_x, context->win_y);
   if(!SDL_CreateWindowAndRenderer(
     APPNAME, 
-    context.win_x, 
-    context.win_y, 0, 
-    &context.window, 
-    &context.renderer))
+    context->win_x, 
+    context->win_y, 0, 
+    &context->window, 
+    &context->renderer))
   { 
     LOG_ERROR("game: error: %s\n", SDL_GetError());
     return SDL_APP_FAILURE;
   }
 
   LOG_INFO("game: loading assets\n");
-  if(!asset_texture_load_all())
+  if(!asset_texture_load_all(textures, textures_size, context->renderer))
   {
     LOG_ERROR("game: error: failed to load assets\n");
     return SDL_APP_FAILURE;
@@ -92,25 +95,25 @@ SDL_AppResult game_update()
   LOG_TRACE("game: update\n");
 
   Uint64 ticks_ms = SDL_GetTicksNS() / 1000;
-  if(context.ticks_total_ms == 0)
+  if(context->ticks_total_ms == 0)
   {
-    context.ticks_total_ms = ticks_ms;
+    context->ticks_total_ms = ticks_ms;
     return SDL_APP_CONTINUE;
   }
-  context.ticks_delta_ms = ticks_ms - context.ticks_total_ms;
-  context.ticks_total_ms = ticks_ms;
+  context->ticks_delta_ms = ticks_ms - context->ticks_total_ms;
+  context->ticks_total_ms = ticks_ms;
 
   if(last_spawn + 1000000 < ticks_ms)
   {
-    list_add(context.unit_list, (void*)unit_drifter_new());
-    last_spawn = context.ticks_total_ms;
+    list_add(context->unit_list, (void*)unit_drifter_new());
+    last_spawn = context->ticks_total_ms;
   }
 
-  SDL_SetRenderDrawColor(context.renderer, 0, 200, 200, 0);
-  SDL_RenderFillRect(context.renderer, NULL);  
+  SDL_SetRenderDrawColor(context->renderer, 0, 200, 200, 0);
+  SDL_RenderFillRect(context->renderer, NULL);  
 
   unit_t *unit;
-  list_node_t *unit_iter = list_iter_init(context.unit_list);
+  list_node_t *unit_iter = list_iter_init(context->unit_list);
   while(unit = list_iter_next(&unit_iter))
   {
     attr_t *attr;
@@ -120,7 +123,7 @@ SDL_AppResult game_update()
         attr->run((void*)unit);
   }
 
-  SDL_RenderPresent(context.renderer);
+  SDL_RenderPresent(context->renderer);
 
   #if STEP_MODE
     SDL_Delay(1000);
@@ -171,11 +174,4 @@ void game_exit()
 {
   LOG_INFO("game: exit\n");
   deinit();
-}
-
-// ------------------------------------------------------------- //
-
-game_context_t *game_context_get()
-{
-  return &context;
 }

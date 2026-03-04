@@ -4,7 +4,7 @@
 #include "attr_impl.h"
 #include "unit.h"
 #include "attr.h"
-#include "game.h"
+#include "game_context.h"
 
 // ------------------------------------------------------------- //
 
@@ -52,7 +52,6 @@ attr_t *attr_visu_new(SDL_Texture *tex, Uint8 visible)
 }
 
 // ------------------------------------------------------------- //
-
 
 void attr_drift_run(void *ref)
 {

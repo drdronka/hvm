@@ -3,9 +3,12 @@
 
 #include "gcfg.h"
 #include "game.h"
+#include "log.h"
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv)
 {
+  LOG_INFO("%s\n", APPNAME);
+
   return game_init();
 }
 
