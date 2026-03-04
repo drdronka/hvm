@@ -12,7 +12,7 @@
 
 list_t *list_new()
 {
-  list_t *list = (list_t*)malloc(sizeof(list_t));
+  list_t *list = malloc(sizeof(list_t));
   memset(list, 0, sizeof(list));
   return list;
 }
@@ -21,7 +21,7 @@ list_t *list_new()
 
 void list_add(list_t *list, void *ptr)
 {
-  list_node_t *new_node = (list_node_t*)malloc(sizeof(list_node_t));
+  list_node_t *new_node = malloc(sizeof(list_node_t));
   new_node->ptr = ptr;
   new_node->next = list->head;
   list->head = new_node;

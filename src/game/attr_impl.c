@@ -14,7 +14,7 @@
 
 attr_t *attr_psyh_new(float pos_x, float pos_y, float vel_x, float vel_y, float size_x, float size_y)
 {
-  attr_psyh_data_t *psyh_data = (attr_psyh_data_t*)malloc(sizeof(attr_psyh_data_t));
+  attr_psyh_data_t *psyh_data = malloc(sizeof(attr_psyh_data_t));
   memset(psyh_data, 0, sizeof(attr_psyh_data_t));
   psyh_data->pos_x = pos_x;
   psyh_data->pos_y = pos_y;
@@ -49,7 +49,7 @@ void attr_visu_run(void *ref)
 
 attr_t *attr_visu_new(SDL_Texture *tex, Uint8 visible)
 {
-  attr_visu_data_t *visu_data = (attr_visu_data_t*)malloc(sizeof(attr_visu_data_t));
+  attr_visu_data_t *visu_data = malloc(sizeof(attr_visu_data_t));
   visu_data->tex = tex;
   visu_data->visible = visible;
   return attr_new(ATTR_VISU, visu_data, attr_visu_run);

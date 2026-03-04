@@ -15,7 +15,7 @@
 
 unit_t *unit_new(Uint8 active)
 {
-  unit_t *unit = (unit_t*)malloc(sizeof(unit_t));
+  unit_t *unit = malloc(sizeof(unit_t));
   memset(unit, 0, sizeof(unit_t));
   unit->attr_list = list_new();
   unit->active = active;

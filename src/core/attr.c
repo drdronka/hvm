@@ -11,7 +11,7 @@
 
 attr_t *attr_new(Uint32 type, void *data, attr_f *run)
 {
-  attr_t *attr = (attr_t*)malloc(sizeof(attr_t));
+  attr_t *attr = malloc(sizeof(attr_t));
   attr->type = type;
   attr->data = data;
   attr->run = run;
