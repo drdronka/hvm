@@ -12,7 +12,7 @@ typedef struct asset_texture
   SDL_Texture* texture;
 } asset_texture_t;
 
-ret_e asset_texture_load_all(asset_texture_t *textures, Uint32 textures_size, SDL_Renderer *renderer);
+ret_t asset_texture_load_all(asset_texture_t *textures, Uint32 textures_size, SDL_Renderer *renderer);
 void asset_texture_free_all(asset_texture_t *textures, Uint32 textures_size);
 SDL_Texture *asset_texture_get(char* name);
 

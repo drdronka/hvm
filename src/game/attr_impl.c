@@ -6,7 +6,11 @@
 #include "attr.h"
 #include "game_context.h"
 
-// ------------------------------------------------------------- //
+// ======================== LOCAL DATA ========================= //
+
+// ======================== LOCAL FUNC ========================= //
+
+// ======================== GLOBAL FUNC ======================== //
 
 attr_t *attr_psyh_new(float pos_x, float pos_y, float vel_x, float vel_y, float size_x, float size_y)
 {
