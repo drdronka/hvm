@@ -8,6 +8,12 @@
 extern asset_texture_t textures[];
 extern Uint32 textures_size;
 
+// ======================== LOCAL DATA ========================= //
+
+// ======================== LOCAL FUNC ========================= //
+
+// ======================== GLOBAL FUNC ======================== //
+
 ret_e asset_texture_load_all()
 {
   for(Uint32 n = 0; n < textures_size; n++)
@@ -29,6 +35,8 @@ ret_e asset_texture_load_all()
   return RET_OK;
 }
 
+// ------------------------------------------------------------- //
+
 void asset_texture_free_all()
 {
   for(Uint32 n = 0; n < textures_size; n++)
@@ -36,6 +44,8 @@ void asset_texture_free_all()
     SDL_DestroyTexture(textures[n].texture);
   }
 }
+
+// ------------------------------------------------------------- //
 
 SDL_Texture *asset_texture_get(char* name)
 {

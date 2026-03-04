@@ -7,39 +7,21 @@
 
 #include "gcfg.h"
 #include "game.h"
-#include "unit.h"
 #include "list.h"
-#include "attr.h"
-#include "psyh.h"
-#include "visu.h"
-#include "drift.h"
+#include "unit_impl.h"
+#include "attr_impl.h"
 #include "asset.h"
 
 #include <stdio.h>
 
-Uint64 last_spawn = 0;
+// ======================== LOCAL DATA ========================= //
 
-game_context_t context;
+static Uint64 last_spawn = 0;
+static game_context_t context;
 
-void spawn_sample()
-{
-  SDL_Log("spawning sample");
+// ======================== LOCAL FUNC ========================= //
 
-  unit_t *unit = unit_new(1);
-  unit_attr_add(unit, psyh_new(context.win_x / 2, context.win_y / 2, 1, 1, 128, 128));
-  unit_attr_add(unit, visu_new(asset_texture_get("cage"), 1));
-  unit_attr_add(unit, drift_new());
-  list_add(context.unit_list, (void*)unit);
-
-  attr_t *attr;
-  list_node_t *iter = list_iter_init(unit->attr_list);
-  while(attr = list_iter_next(&iter))
-  {
-    fprintf(stderr, "attr type [%d]\n", attr->type);
-  }
-}
-
-void deinit()
+static void deinit()
 {
   SDL_Log("game: deinitializing");
 
@@ -50,7 +32,7 @@ void deinit()
   SDL_Log("game: deinitialization finished");
 }
 
-// ===================== GLOBAL FUNC ===================== //
+// ======================== GLOBAL FUNC ======================== //
 
 SDL_AppResult game_init()
 {
@@ -103,6 +85,8 @@ SDL_AppResult game_init()
   return SDL_APP_CONTINUE;
 }
 
+// ------------------------------------------------------------- //
+
 SDL_AppResult game_update()
 {
   Uint64 ticks_ms = SDL_GetTicksNS() / 1000;
@@ -116,7 +100,7 @@ SDL_AppResult game_update()
 
   if(last_spawn + 1000000 < ticks_ms)
   {
-    spawn_sample();
+    list_add(context.unit_list, (void*)unit_drifter_new());
     last_spawn = context.ticks_total_ms;
   }
 
@@ -142,6 +126,8 @@ SDL_AppResult game_update()
 
   return SDL_APP_CONTINUE;
 }
+
+// ------------------------------------------------------------- //
 
 SDL_AppResult game_event(SDL_Event *event)
 {
@@ -175,10 +161,14 @@ SDL_AppResult game_event(SDL_Event *event)
   return SDL_APP_CONTINUE;
 }
 
+// ------------------------------------------------------------- //
+
 void game_exit()
 {
   deinit();
 }
+
+// ------------------------------------------------------------- //
 
 game_context_t *game_context_get()
 {

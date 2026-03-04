@@ -4,8 +4,14 @@
 #include "gcfg.h"
 #include "unit.h"
 #include "attr.h"
+#include "game.h"
+#include "asset.h"
 
-/// GLOBAL FUNC ///
+// ======================== LOCAL DATA ========================= //
+
+// ======================== LOCAL FUNC ========================= //
+
+// ======================== GLOBAL FUNC ======================== //
 
 unit_t *unit_new(Uint8 active)
 {
@@ -16,10 +22,14 @@ unit_t *unit_new(Uint8 active)
   return unit;
 }
 
+// ------------------------------------------------------------- //
+
 void unit_attr_add(unit_t *unit, attr_t *attr)
 {
   list_add(unit->attr_list, (void*)attr);
 }
+
+// ------------------------------------------------------------- //
 
 void *unit_attr_data_get(unit_t *unit, attr_type_e type)
 {

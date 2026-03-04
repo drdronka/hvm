@@ -3,12 +3,20 @@
 
 #include "list.h"
 
+// ======================== LOCAL DATA ========================= //
+
+// ======================== LOCAL FUNC ========================= //
+
+// ======================== GLOBAL FUNC ======================== //
+
 list_t *list_new()
 {
   list_t *list = (list_t*)malloc(sizeof(list_t));
   memset(list, 0, sizeof(list));
   return list;
 }
+
+// ------------------------------------------------------------- //
 
 void list_add(list_t *list, void *ptr)
 {
@@ -17,6 +25,8 @@ void list_add(list_t *list, void *ptr)
   new_node->next = list->head;
   list->head = new_node;
 }
+
+// ------------------------------------------------------------- //
 
 void list_del(list_t *list, void *ptr)
 {
@@ -47,10 +57,14 @@ void list_del(list_t *list, void *ptr)
   SDL_Log("list: invalid node remove attempt [%x]", ptr);
 }
 
+// ------------------------------------------------------------- //
+
 list_node_t *list_iter_init(list_t *list)
 {
   return list->head;
 }
+
+// ------------------------------------------------------------- //
 
 void *list_iter_next(list_node_t **iter)
 { 
