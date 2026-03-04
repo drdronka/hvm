@@ -1,7 +1,8 @@
 #include <malloc.h>
-#include <SDL3/SDL_log.h>
+#include <string.h>
 
 #include "list.h"
+#include "log.h"
 
 // ======================== LOCAL DATA ========================= //
 
@@ -54,7 +55,7 @@ void list_del(list_t *list, void *ptr)
       }
     }
   }
-  SDL_Log("list: invalid node remove attempt [%x]", ptr);
+  LOG_ERROR("list: invalid node remove attempt [%x]", ptr);
 }
 
 // ------------------------------------------------------------- //

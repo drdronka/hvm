@@ -1,5 +1,4 @@
 #include <malloc.h>
-#include <SDL3/SDL_log.h>
 
 #include "gcfg.h"
 #include "unit.h"

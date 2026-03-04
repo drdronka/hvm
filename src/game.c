@@ -1,6 +1,5 @@
 #include <SDL3/SDL_init.h>
 #include <SDL3/SDL_render.h>
-#include <SDL3/SDL_log.h>
 #include <SDL3/SDL_timer.h>
 #include <SDL3/SDL_render.h>
 #include <SDL3/SDL_hints.h>
@@ -11,6 +10,7 @@
 #include "unit_impl.h"
 #include "attr_impl.h"
 #include "asset.h"
+#include "log.h"
 
 #include <stdio.h>
 
@@ -23,20 +23,20 @@ static game_context_t context;
 
 static void deinit()
 {
-  SDL_Log("game: deinitializing");
+  LOG_INFO("game: deinitializing\n");
 
   asset_texture_free_all();
   if(context.renderer) SDL_DestroyRenderer(context.renderer);
   if(context.window) SDL_DestroyWindow(context.window);
 
-  SDL_Log("game: deinitialization finished");
+  LOG_INFO("game: deinitialization finished\n");
 }
 
 // ======================== GLOBAL FUNC ======================== //
 
 SDL_AppResult game_init()
 {
-  SDL_Log("%s", APPNAME);
+  LOG_INFO("%s\n", APPNAME);
   
   memset(&context, 0, sizeof(context));
   context.win_x = WINX;
@@ -51,17 +51,17 @@ SDL_AppResult game_init()
     fps_limit = FPS_LIMIT;
   #endif
 
-  SDL_Log("game: fps limit: %s", fps_limit);
+  LOG_INFO("game: fps limit: %s\n", fps_limit);
   SDL_SetHint(SDL_HINT_MAIN_CALLBACK_RATE, fps_limit);
 
-  SDL_Log("game: initializing SDL");
+  LOG_INFO("game: initializing SDL\n");
   if(!SDL_Init(SDL_INIT_VIDEO))
   {
-    SDL_Log("error: %s", SDL_GetError());
+    LOG_ERROR("error: %s\n", SDL_GetError());
     return SDL_APP_FAILURE;
   }
 
-  SDL_Log("game: creating window x[%d] y[%d]", context.win_x, context.win_y);
+  LOG_INFO("game: creating window x[%d] y[%d]\n", context.win_x, context.win_y);
   if(!SDL_CreateWindowAndRenderer(
     APPNAME, 
     context.win_x, 
@@ -69,18 +69,18 @@ SDL_AppResult game_init()
     &context.window, 
     &context.renderer))
   { 
-    SDL_Log("game: error: %s", SDL_GetError());
+    LOG_ERROR("game: error: %s\n", SDL_GetError());
     return SDL_APP_FAILURE;
   }
 
-  SDL_Log("game: loading assets");
+  LOG_INFO("game: loading assets\n");
   if(!asset_texture_load_all())
   {
-    SDL_Log("game: error: failed to load assets");
+    LOG_ERROR("game: error: failed to load assets\n");
     return SDL_APP_FAILURE;
   }
 
-  SDL_Log("game: initialization finished");
+  LOG_INFO("game: initialization finished\n");
 
   return SDL_APP_CONTINUE;
 }
@@ -89,6 +89,8 @@ SDL_AppResult game_init()
 
 SDL_AppResult game_update()
 {
+  LOG_TRACE("game: update\n");
+
   Uint64 ticks_ms = SDL_GetTicksNS() / 1000;
   if(context.ticks_total_ms == 0)
   {
@@ -131,6 +133,8 @@ SDL_AppResult game_update()
 
 SDL_AppResult game_event(SDL_Event *event)
 {
+  LOG_DEBUG("game: event\n");
+
   Uint8 exit = 0;
 
   switch(event->type)
@@ -165,6 +169,7 @@ SDL_AppResult game_event(SDL_Event *event)
 
 void game_exit()
 {
+  LOG_INFO("game: exit\n");
   deinit();
 }
 
