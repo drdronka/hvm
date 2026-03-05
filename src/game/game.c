@@ -13,9 +13,6 @@
 #include "asset.h"
 #include "log.h"
 
-#define ABS(a, b)           ((a) < (b) ? (b) - (a) : (a) - (b))
-#define IS_BETWEEN(x, a, b) ((a) < (b) ? ((x) > (a) && (x) < (b)) : ((x) > (b) && (x) < (a)))
-
 extern asset_texture_t textures[];
 extern const Uint32 textures_size;
 
@@ -196,6 +193,7 @@ SDL_AppResult game_event(SDL_Event *event)
             if(data)
             {
               data->dir = SDL_atan((event->button.y - data->pos_y) / (event->button.x - data->pos_x));
+              data->moving = 1;
               if(event->button.x < data->pos_x) data->dir += M_PI;
             }
           } 

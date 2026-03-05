@@ -21,11 +21,12 @@ typedef struct attr_psyh_data
   float pos_y;
   float size_x;
   float size_y;
-  float vel;
+  float speed;
   float dir;
+  Uint8 moving;
 } attr_psyh_data_t;
 
-attr_t *attr_psyh_new(float pos_x, float pos_y, float size_x, float size_y, float vel, float dir);
+attr_t *attr_psyh_new(float pos_x, float pos_y, float size_x, float size_y, float speed);
 
 // ------------------------------------------------------------- //
 
