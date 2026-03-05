@@ -9,6 +9,7 @@
 typedef struct unit
 {
   Uint8 active;
+  Uint8 selected;
   list_t *attr_list;
 } unit_t;
 

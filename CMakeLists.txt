@@ -18,7 +18,7 @@ add_executable(hvm WIN32
     src/game/attr_impl.c
     src/game/unit_impl.c
     src/game/asset_def.c
-    src/game/game_context.c
+    src/game/game_ctx.c
     src/core/list.c
     src/core/attr.c
     src/core/unit.c

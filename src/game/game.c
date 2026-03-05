@@ -1,3 +1,4 @@
+#include <math.h>
 #include <SDL3/SDL_init.h>
 #include <SDL3/SDL_render.h>
 #include <SDL3/SDL_timer.h>
@@ -8,16 +9,19 @@
 #include "list.h"
 #include "unit_impl.h"
 #include "attr_impl.h"
-#include "game_context.h"
+#include "game_ctx.h"
 #include "asset.h"
 #include "log.h"
+
+#define ABS(a, b)           ((a) < (b) ? (b) - (a) : (a) - (b))
+#define IS_BETWEEN(x, a, b) ((a) < (b) ? ((x) > (a) && (x) < (b)) : ((x) > (b) && (x) < (a)))
 
 extern asset_texture_t textures[];
 extern const Uint32 textures_size;
 
 // ======================== LOCAL DATA ========================= //
 
-static game_context_t *context = NULL;
+static game_ctx_t *ctx = NULL;
 static Uint64 last_spawn = 0;
 
 // ======================== LOCAL FUNC ========================= //
@@ -27,8 +31,8 @@ static void deinit()
   LOG_INFO("game: deinitializing\n");
 
   asset_texture_free_all(textures, textures_size);
-  if(context->renderer) SDL_DestroyRenderer(context->renderer);
-  if(context->window) SDL_DestroyWindow(context->window);
+  if(ctx->renderer) SDL_DestroyRenderer(ctx->renderer);
+  if(ctx->window) SDL_DestroyWindow(ctx->window);
 
   LOG_INFO("game: deinitialization finished\n");
 }
@@ -39,12 +43,12 @@ SDL_AppResult game_init()
 {
   LOG_INFO("game: init");
 
-  game_context_init();
-  context = game_context_get();
-  context->win_x = WINX;
-  context->win_y = WINY;
-  context->app_name = APPNAME;
-  context->unit_list = list_new();
+  game_ctx_init();
+  ctx = game_ctx_get();
+  ctx->win_x = WINX;
+  ctx->win_y = WINY;
+  ctx->app_name = APPNAME;
+  ctx->unit_list = list_new();
   
   char *fps_limit;
   #if STEP_MODE  
@@ -63,20 +67,15 @@ SDL_AppResult game_init()
     return SDL_APP_FAILURE;
   }
 
-  LOG_INFO("game: creating window x[%d] y[%d]\n", context->win_x, context->win_y);
-  if(!SDL_CreateWindowAndRenderer(
-    APPNAME, 
-    context->win_x, 
-    context->win_y, 0, 
-    &context->window, 
-    &context->renderer))
+  LOG_INFO("game: creating window x[%d] y[%d]\n", ctx->win_x, ctx->win_y);
+  if(!SDL_CreateWindowAndRenderer(APPNAME, ctx->win_x, ctx->win_y, 0, &ctx->window, &ctx->renderer))
   { 
     LOG_ERROR("game: error: %s\n", SDL_GetError());
     return SDL_APP_FAILURE;
   }
 
   LOG_INFO("game: loading assets\n");
-  if(!asset_texture_load_all(textures, textures_size, context->renderer))
+  if(!asset_texture_load_all(textures, textures_size, ctx->renderer))
   {
     LOG_ERROR("game: error: failed to load assets\n");
     return SDL_APP_FAILURE;
@@ -94,25 +93,28 @@ SDL_AppResult game_update()
   LOG_TRACE("game: update\n");
 
   Uint64 ticks_ms = SDL_GetTicksNS() / 1000;
-  if(context->ticks_total_ms == 0)
+  if(ctx->ticks_total_ms == 0)
   {
-    context->ticks_total_ms = ticks_ms;
+    ctx->ticks_total_ms = ticks_ms;
     return SDL_APP_CONTINUE;
   }
-  context->ticks_delta_ms = ticks_ms - context->ticks_total_ms;
-  context->ticks_total_ms = ticks_ms;
+  ctx->ticks_delta_ms = ticks_ms - ctx->ticks_total_ms;
+  ctx->ticks_total_ms = ticks_ms;
+  ctx->move_mult = (float)ctx->ticks_delta_ms / 10000;
 
+  #if 0    
   if(last_spawn + 1000000 < ticks_ms)
   {
-    list_add(context->unit_list, (void*)unit_drifter_new());
-    last_spawn = context->ticks_total_ms;
+    list_add(ctx->unit_list, (void*)unit_drifter_new());
+    last_spawn = ctx->ticks_total_ms;
   }
+  #endif
 
-  SDL_SetRenderDrawColor(context->renderer, 0, 200, 200, 0);
-  SDL_RenderFillRect(context->renderer, NULL);  
+  game_ctx_color_set_background();
+  SDL_RenderFillRect(ctx->renderer, NULL);  
 
   unit_t *unit;
-  list_node_t *unit_iter = list_iter_init(context->unit_list);
+  list_node_t *unit_iter = list_iter_init(ctx->unit_list);
   while(unit = list_iter_next(&unit_iter))
   {
     attr_t *attr;
@@ -122,7 +124,18 @@ SDL_AppResult game_update()
         attr->run((void*)unit);
   }
 
-  SDL_RenderPresent(context->renderer);
+  if(ctx->sel_en)
+  {
+    float mouse_x, mouse_y;
+    SDL_GetMouseState(&mouse_x, &mouse_y);
+    game_ctx_color_set_select();
+    SDL_RenderLine(ctx->renderer, mouse_x, mouse_y, ctx->sel_x, mouse_y);
+    SDL_RenderLine(ctx->renderer, mouse_x, mouse_y, mouse_x, ctx->sel_y);
+    SDL_RenderLine(ctx->renderer, ctx->sel_x, mouse_y, ctx->sel_x, ctx->sel_y);
+    SDL_RenderLine(ctx->renderer, mouse_x, ctx->sel_y, ctx->sel_x, ctx->sel_y);
+  }
+
+  SDL_RenderPresent(ctx->renderer);
 
   #if STEP_MODE
     SDL_Delay(1000);
@@ -151,6 +164,72 @@ SDL_AppResult game_event(SDL_Event *event)
       //if(keys[SDL_SCANCODE_DOWN])  if(ypos < WINY - CHAR_SIZE) ypos += CHAR_SIZE;
       //if(keys[SDL_SCANCODE_LEFT])  if(xpos >= CHAR_SIZE) xpos -= CHAR_SIZE;
       //if(keys[SDL_SCANCODE_RIGHT]) if(xpos < WINX - CHAR_SIZE) xpos += CHAR_SIZE;
+      break;
+
+    case SDL_EVENT_MOUSE_BUTTON_DOWN:
+      if(event->button.button == SDL_BUTTON_MIDDLE)
+      {
+        unit_t *unit = unit_drifter_new();
+        attr_psyh_data_t *data = unit_attr_data_get(unit, ATTR_PSYH);
+        data->pos_x = event->button.x;
+        data->pos_y = event->button.y;
+        list_add(ctx->unit_list, unit);
+      }
+      else if(event->button.button == SDL_BUTTON_LEFT)
+      {
+        if(!ctx->sel_en)
+        {
+          ctx->sel_x = event->button.x;
+          ctx->sel_y = event->button.y;
+          ctx->sel_en = 1;
+        }
+      }
+      else if(event->button.button == SDL_BUTTON_RIGHT)
+      {
+        unit_t *unit;
+        list_node_t *iter = list_iter_init(ctx->unit_list);
+        while(unit = list_iter_next(&iter))
+        {
+          if(unit->selected)
+          {
+            attr_psyh_data_t *data = unit_attr_data_get(unit, ATTR_PSYH);
+            if(data)
+            {
+              data->dir = SDL_atan((event->button.y - data->pos_y) / (event->button.x - data->pos_x));
+              if(event->button.x < data->pos_x) data->dir += M_PI;
+            }
+          } 
+        }
+      }
+      break;
+
+    case SDL_EVENT_MOUSE_BUTTON_UP:
+      if(event->button.button == SDL_BUTTON_LEFT)
+      {
+        if(ctx->sel_en)
+        {
+          LOG_DEBUG(
+            "sel rect x[%f] y[%f] / x[%f] y[%f]\n",  
+            ctx->sel_x, 
+            ctx->sel_y, 
+            event->button.x,
+            event->button.y);
+
+          unit_t *unit;
+          list_node_t *iter = list_iter_init(ctx->unit_list);
+          while(unit = list_iter_next(&iter))
+          {
+            attr_psyh_data_t *data = unit_attr_data_get(unit, ATTR_PSYH);
+            if(data)
+            {
+              unit->selected = 
+                IS_BETWEEN(data->pos_x, ctx->sel_x, event->button.x) &&
+                IS_BETWEEN(data->pos_y, ctx->sel_y, event->button.y);
+            }
+          }
+          ctx->sel_en = 0;
+        }
+      }
       break;
 
     case SDL_EVENT_QUIT:

@@ -19,13 +19,13 @@ typedef struct attr_psyh_data
 {
   float pos_x;
   float pos_y;
-  float vel_x;
-  float vel_y;
   float size_x;
   float size_y;
+  float vel;
+  float dir;
 } attr_psyh_data_t;
 
-attr_t *attr_psyh_new(float pos_x, float pos_y, float vel_x, float vel_y, float size_x, float size_y);
+attr_t *attr_psyh_new(float pos_x, float pos_y, float size_x, float size_y, float vel, float dir);
 
 // ------------------------------------------------------------- //
 
