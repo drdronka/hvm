@@ -22,16 +22,18 @@ ret_t asset_texture_load_all(asset_texture_t *textures, Uint32 textures_size, SD
     SDL_Surface *surface = SDL_LoadPNG(textures[n].path);
     if(!surface)
     {
-      LOG_ERROR("asset: error: %s", SDL_GetError());
+      LOG_ERROR("asset: error: %s\n", SDL_GetError());
       return RET_ERR;
     }
     textures[n].texture = SDL_CreateTextureFromSurface(renderer, surface);
     if(!textures[n].texture)
     {
-      LOG_ERROR("asset: error: %s", SDL_GetError());
+      LOG_ERROR("asset: error: %s\n", SDL_GetError());
       return RET_ERR;
     }
     SDL_DestroySurface(surface);
+    SDL_SetTextureScaleMode(textures[n].texture, SDL_SCALEMODE_NEAREST);
+    //SDL_SetTextureBlendMode(textures[n].texture, SDL_BLENDMODE_NONE);
   }
   return RET_OK;
 }

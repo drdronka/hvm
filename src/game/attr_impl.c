@@ -8,6 +8,7 @@
 #include "attr.h"
 #include "game_ctx.h"
 #include "log.h"
+#include "util.h"
 
 // ======================== LOCAL DATA ========================= //
 
@@ -24,6 +25,8 @@ attr_t *attr_psyh_new(float pos_x, float pos_y, float size_x, float size_y, floa
   psyh_data->size_x = size_x;
   psyh_data->size_y = size_y;
   psyh_data->speed = speed;
+  psyh_data->dst_x;
+  psyh_data->dst_y;
   return attr_new(ATTR_PSYH, psyh_data, NULL);
 }
 
@@ -44,7 +47,13 @@ void attr_visu_run(void *ref)
     rect.y = psyh_data->pos_y - (psyh_data->size_y / 2);
     rect.w = psyh_data->size_x;
     rect.h = psyh_data->size_y;
-    SDL_RenderTexture(ctx->renderer, visu_data->tex, NULL, &rect);
+    SDL_RenderTextureRotated(
+      ctx->renderer, 
+      visu_data->tex,
+      NULL, &rect,
+      (psyh_data->dir + (M_PI / 2)) * 180.0 / M_PI,
+      NULL,
+      SDL_FLIP_NONE);
 
     if(unit->selected)
     {
@@ -80,8 +89,22 @@ void attr_drift_run(void *ref)
 
   if(data && data->moving)
   {
-    data->pos_x += data->speed * cos(data->dir) * ctx->move_mult;
-    data->pos_y += data->speed * sin(data->dir) * ctx->move_mult;
+    float dst_x = data->pos_x + data->speed * cos(data->dir) * ctx->move_mult;
+    float dst_y = data->pos_y + data->speed * sin(data->dir) * ctx->move_mult;
+    float dist = data->speed * ctx->move_mult;
+
+    if(sqrt(((data->dst_x - dst_x) * (data->dst_x - dst_x)) + ((data->dst_y - dst_y) * (data->dst_y - dst_y))) < dist)
+    {
+      data->pos_x = data->dst_x;
+      data->pos_y = data->pos_y;
+      data->moving = 0;
+    }
+    else
+    {
+      data->pos_x = dst_x;
+      data->pos_y  = dst_y;
+    }
+    
     if(data->pos_x < 0) data->pos_x = 0 - data->pos_x;
     if(data->pos_x > FWINX) data->pos_x = FWINX - (data->pos_x - FWINX);
     if(data->pos_y < 0) data->pos_y = 0 - data->pos_y;

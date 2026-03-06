@@ -23,6 +23,8 @@ typedef struct attr_psyh_data
   float size_y;
   float speed;
   float dir;
+  float dst_x;
+  float dst_y;
   Uint8 moving;
 } attr_psyh_data_t;
 

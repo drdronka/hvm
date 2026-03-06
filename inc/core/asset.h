@@ -4,6 +4,7 @@
 #include <SDL3/SDL_render.h>
 
 #include "gcfg.h"
+#include "util.h"
 
 typedef struct asset_texture 
 {

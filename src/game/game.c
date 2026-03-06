@@ -12,6 +12,7 @@
 #include "game_ctx.h"
 #include "asset.h"
 #include "log.h"
+#include "util.h"
 
 extern asset_texture_t textures[];
 extern const Uint32 textures_size;
@@ -71,6 +72,8 @@ SDL_AppResult game_init()
     return SDL_APP_FAILURE;
   }
 
+  SDL_SetRenderDrawBlendMode(ctx->renderer, SDL_BLENDMODE_NONE);
+
   LOG_INFO("game: loading assets\n");
   if(!asset_texture_load_all(textures, textures_size, ctx->renderer))
   {
@@ -98,14 +101,6 @@ SDL_AppResult game_update()
   ctx->ticks_delta_ms = ticks_ms - ctx->ticks_total_ms;
   ctx->ticks_total_ms = ticks_ms;
   ctx->move_mult = (float)ctx->ticks_delta_ms / 10000;
-
-  #if 0    
-  if(last_spawn + 1000000 < ticks_ms)
-  {
-    list_add(ctx->unit_list, (void*)unit_drifter_new());
-    last_spawn = ctx->ticks_total_ms;
-  }
-  #endif
 
   game_ctx_color_set_background();
   SDL_RenderFillRect(ctx->renderer, NULL);  
@@ -166,10 +161,7 @@ SDL_AppResult game_event(SDL_Event *event)
     case SDL_EVENT_MOUSE_BUTTON_DOWN:
       if(event->button.button == SDL_BUTTON_MIDDLE)
       {
-        unit_t *unit = unit_drifter_new();
-        attr_psyh_data_t *data = unit_attr_data_get(unit, ATTR_PSYH);
-        data->pos_x = event->button.x;
-        data->pos_y = event->button.y;
+        unit_t *unit = unit_tank_new(event->button.x, event->button.y);
         list_add(ctx->unit_list, unit);
       }
       else if(event->button.button == SDL_BUTTON_LEFT)
@@ -193,6 +185,8 @@ SDL_AppResult game_event(SDL_Event *event)
             if(data)
             {
               data->dir = SDL_atan((event->button.y - data->pos_y) / (event->button.x - data->pos_x));
+              data->dst_x = event->button.x;
+              data->dst_y = event->button.y;
               data->moving = 1;
               if(event->button.x < data->pos_x) data->dir += M_PI;
             }
@@ -206,23 +200,47 @@ SDL_AppResult game_event(SDL_Event *event)
       {
         if(ctx->sel_en)
         {
-          LOG_DEBUG(
-            "sel rect x[%f] y[%f] / x[%f] y[%f]\n",  
-            ctx->sel_x, 
-            ctx->sel_y, 
-            event->button.x,
-            event->button.y);
-
-          unit_t *unit;
-          list_node_t *iter = list_iter_init(ctx->unit_list);
-          while(unit = list_iter_next(&iter))
+          // single selection
+          if(ABS(ctx->sel_x, event->button.x) < SINGLE_SEL_MARGIN && 
+            ABS(ctx->sel_y, event->button.y) < SINGLE_SEL_MARGIN)
           {
-            attr_psyh_data_t *data = unit_attr_data_get(unit, ATTR_PSYH);
-            if(data)
+            Uint8 found;
+            unit_t *unit;
+            list_node_t *iter = list_iter_init(ctx->unit_list);
+            while(unit = list_iter_next(&iter))
             {
-              unit->selected = 
-                IS_BETWEEN(data->pos_x, ctx->sel_x, event->button.x) &&
-                IS_BETWEEN(data->pos_y, ctx->sel_y, event->button.y);
+              attr_psyh_data_t *data = unit_attr_data_get(unit, ATTR_PSYH);
+              if(data)
+              {
+                unit->selected = 
+                  IS_BETWEEN(
+                    event->button.x, 
+                    data->pos_x - (data->size_x / 2), 
+                    data->pos_x + (data->size_x / 2)) 
+                  && IS_BETWEEN(
+                    event->button.y,
+                    data->pos_y - (data->size_y / 2),
+                    data->pos_y + (data->size_y / 2))
+                  && !found;
+                  
+                if(unit->selected) 
+                  found = 1;
+              }
+            }
+          }
+          else
+          {
+            unit_t *unit;
+            list_node_t *iter = list_iter_init(ctx->unit_list);
+            while(unit = list_iter_next(&iter))
+            {
+              attr_psyh_data_t *data = unit_attr_data_get(unit, ATTR_PSYH);
+              if(data)
+              {
+                unit->selected = 
+                  IS_BETWEEN(data->pos_x, ctx->sel_x, event->button.x) &&
+                  IS_BETWEEN(data->pos_y, ctx->sel_y, event->button.y);
+              }
             }
           }
           ctx->sel_en = 0;
