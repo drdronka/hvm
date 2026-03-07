@@ -9,10 +9,13 @@
 
 // ======================== GLOBAL FUNC ======================== //
 
-attr_t *attr_new(Uint32 type, void *data, attr_f *run)
+attr_t *attr_new(Uint32 id, Uint8 type, Uint8 lcs, void *data, attr_f *run, attr_f *clean)
 {
   attr_t *attr = malloc(sizeof(attr_t));
+  memset(attr, 0, sizeof(attr));
+  attr->id = id;
   attr->type = type;
+  attr->lcs = lcs;
   attr->data = data;
   attr->run = run;
   return attr;

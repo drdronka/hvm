@@ -31,12 +31,12 @@ void unit_attr_add(unit_t *unit, attr_t *attr)
 
 // ------------------------------------------------------------- //
 
-void *unit_attr_data_get(unit_t *unit, Uint32 type)
+void *unit_attr_data_get(unit_t *unit, Uint32 id)
 {
   attr_t *attr;
   list_node_t *iter = list_iter_init(unit->attr_list);
   while(attr = list_iter_next(&iter))
-    if(attr->type == type)
+    if(attr->id == id)
       return attr->data;
   return NULL;
 }

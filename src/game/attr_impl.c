@@ -27,18 +27,18 @@ attr_t *attr_psyh_new(float pos_x, float pos_y, float size_x, float size_y, floa
   psyh_data->speed = speed;
   psyh_data->dst_x;
   psyh_data->dst_y;
-  return attr_new(ATTR_PSYH, psyh_data, NULL);
+  return attr_new(ATTR_ID_PSYH, ATTR_TYPE_PERK, ATTR_LCS_RUN, psyh_data, NULL, NULL);
 }
 
-// ------------------------------------------------------------- //
+// ============================================================= //
 
 void attr_visu_run(void *ref)
 {
   unit_t *unit = (unit_t*)ref;
   game_ctx_t *ctx = game_ctx_get();
 
-  attr_psyh_data_t *psyh_data = unit_attr_data_get(unit, ATTR_PSYH);
-  attr_visu_data_t *visu_data = unit_attr_data_get(unit, ATTR_VISU);
+  attr_psyh_data_t *psyh_data = unit_attr_data_get(unit, ATTR_ID_PSYH);
+  attr_visu_data_t *visu_data = unit_attr_data_get(unit, ATTR_ID_VISU);
 
   if(psyh_data && visu_data && visu_data->visible)
   {
@@ -79,16 +79,26 @@ attr_t *attr_visu_new(SDL_Texture *tex, Uint8 visible)
   attr_visu_data_t *visu_data = malloc(sizeof(attr_visu_data_t));
   visu_data->tex = tex;
   visu_data->visible = visible;
-  return attr_new(ATTR_VISU, visu_data, attr_visu_run);
+  return attr_new(ATTR_ID_VISU, ATTR_TYPE_PERK, ATTR_LCS_RUN, visu_data, attr_visu_run, NULL);
 }
 
 // ------------------------------------------------------------- //
+
+void  attr_visu_clean(void *unit, void *attr_data)
+{
+  if(attr_data) free(attr_data);
+}
+
+// ============================================================= //
 
 void attr_drift_run(void *ref)
 {
   unit_t *unit = (unit_t*)ref;
   game_ctx_t *ctx = game_ctx_get();
-  attr_psyh_data_t *data = unit_attr_data_get(unit, ATTR_PSYH);
+  attr_psyh_data_t *data = unit_attr_data_get(unit, ATTR_ID_PSYH);
+
+  if(!data) 
+    LOG_DEBUG("attr_drift: NULL attr data\n");
 
   if(data && data->moving)
   {
@@ -119,6 +129,6 @@ void attr_drift_run(void *ref)
 
 attr_t *attr_drift_new()
 {
-  return attr_new(ATTR_DRIFT, NULL, attr_drift_run);
+  return attr_new(ATTR_ID_DRIFT, ATTR_TYPE_PERK, ATTR_LCS_RUN, NULL, attr_drift_run, NULL);
 }
 

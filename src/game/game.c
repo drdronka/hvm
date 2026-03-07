@@ -140,7 +140,7 @@ SDL_AppResult game_update()
 
 SDL_AppResult game_event(SDL_Event *event)
 {
-  LOG_DEBUG("game: event\n");
+  LOG_DEBUG("game: event[%d]\n", event->type);
 
   Uint8 exit = 0;
 
@@ -161,6 +161,7 @@ SDL_AppResult game_event(SDL_Event *event)
     case SDL_EVENT_MOUSE_BUTTON_DOWN:
       if(event->button.button == SDL_BUTTON_MIDDLE)
       {
+        LOG_DEBUG("game: adding unit\n");
         unit_t *unit = unit_worm_new(event->button.x, event->button.y);
         list_add(ctx->unit_list, unit);
       }
@@ -181,7 +182,7 @@ SDL_AppResult game_event(SDL_Event *event)
         {
           if(unit->selected)
           {
-            attr_psyh_data_t *data = unit_attr_data_get(unit, ATTR_PSYH);
+            attr_psyh_data_t *data = unit_attr_data_get(unit, ATTR_ID_PSYH);
             if(data)
             {
               data->dir = SDL_atan((event->button.y - data->pos_y) / (event->button.x - data->pos_x));
@@ -209,7 +210,7 @@ SDL_AppResult game_event(SDL_Event *event)
             list_node_t *iter = list_iter_init(ctx->unit_list);
             while(unit = list_iter_next(&iter))
             {
-              attr_psyh_data_t *data = unit_attr_data_get(unit, ATTR_PSYH);
+              attr_psyh_data_t *data = unit_attr_data_get(unit, ATTR_ID_PSYH);
               if(data)
               {
                 unit->selected = 
@@ -234,7 +235,7 @@ SDL_AppResult game_event(SDL_Event *event)
             list_node_t *iter = list_iter_init(ctx->unit_list);
             while(unit = list_iter_next(&iter))
             {
-              attr_psyh_data_t *data = unit_attr_data_get(unit, ATTR_PSYH);
+              attr_psyh_data_t *data = unit_attr_data_get(unit, ATTR_ID_PSYH);
               if(data)
               {
                 unit->selected = 
