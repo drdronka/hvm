@@ -161,7 +161,7 @@ SDL_AppResult game_event(SDL_Event *event)
     case SDL_EVENT_MOUSE_BUTTON_DOWN:
       if(event->button.button == SDL_BUTTON_MIDDLE)
       {
-        unit_t *unit = unit_tank_new(event->button.x, event->button.y);
+        unit_t *unit = unit_worm_new(event->button.x, event->button.y);
         list_add(ctx->unit_list, unit);
       }
       else if(event->button.button == SDL_BUTTON_LEFT)

@@ -47,13 +47,16 @@ void attr_visu_run(void *ref)
     rect.y = psyh_data->pos_y - (psyh_data->size_y / 2);
     rect.w = psyh_data->size_x;
     rect.h = psyh_data->size_y;
-    SDL_RenderTextureRotated(
+    if(!SDL_RenderTextureRotated(
       ctx->renderer, 
       visu_data->tex,
       NULL, &rect,
       (psyh_data->dir + (M_PI / 2)) * 180.0 / M_PI,
       NULL,
-      SDL_FLIP_NONE);
+      SDL_FLIP_NONE))
+    {
+      LOG_ERROR("attr_visu: failed to render texture[0x%x]\n", visu_data->tex);
+    }
 
     if(unit->selected)
     {
