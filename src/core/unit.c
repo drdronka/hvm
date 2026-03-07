@@ -4,6 +4,7 @@
 #include "gcfg.h"
 #include "unit.h"
 #include "attr.h"
+#include "attr_def.h"
 #include "game.h"
 #include "asset.h"
 
@@ -31,6 +32,20 @@ void unit_attr_add(unit_t *unit, attr_t *attr)
 
 // ------------------------------------------------------------- //
 
+void unit_attr_add_head(unit_t *unit, attr_t *attr)
+{
+  list_add_head(unit->attr_list, attr);
+}
+
+// ------------------------------------------------------------- //
+
+void unit_attr_del(unit_t *unit, attr_t *attr)
+{
+  list_del(unit->attr_list, attr);
+}
+
+// ------------------------------------------------------------- //
+
 void *unit_attr_data_get(unit_t *unit, Uint32 id)
 {
   attr_t *attr;
@@ -38,5 +53,17 @@ void *unit_attr_data_get(unit_t *unit, Uint32 id)
   while(attr = list_iter_next(&iter))
     if(attr->id == id)
       return attr->data;
+  return NULL;
+}
+
+// ------------------------------------------------------------- //
+
+void *unit_cmd_clear_all(unit_t *unit)
+{
+  attr_t *attr;
+  list_node_t *iter = list_iter_init(unit->attr_list);
+  while(attr = list_iter_next(&iter))
+    if(attr->type == ATTR_TYPE_CMD)
+      attr->lcs = ATTR_LCS_CLEAN;
   return NULL;
 }

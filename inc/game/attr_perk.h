@@ -4,27 +4,7 @@
 #include <SDL3/SDL_render.h>
 
 #include "attr.h"
-
-typedef enum 
-{
-  ATTR_ID_NONE = 0,
-  ATTR_ID_PSYH,
-  ATTR_ID_VISU, 
-  ATTR_ID_DRIFT,
-} attr_id_e;
-
-typedef enum
-{
-  ATTR_TYPE_PERK,
-  ATTR_TYPE_CMD,
-} attr_type_e;
-
-typedef enum
-{
-  ATTR_LCS_RUN,
-  ATTR_LCS_CLEAN,
-  ATTR_LCS_DONE,
-} attr_lcs_e;
+#include "attr_def.h"
 
 // ------------------------------------------------------------- //
 

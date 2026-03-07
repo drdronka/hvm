@@ -8,7 +8,8 @@
 #include "game.h"
 #include "list.h"
 #include "unit_impl.h"
-#include "attr_impl.h"
+#include "attr_perk.h"
+#include "attr_cmd.h"
 #include "game_ctx.h"
 #include "asset.h"
 #include "log.h"
@@ -105,6 +106,7 @@ SDL_AppResult game_update()
   game_ctx_color_set_background();
   SDL_RenderFillRect(ctx->renderer, NULL);  
 
+  // execute commands
   unit_t *unit;
   list_node_t *unit_iter = list_iter_init(ctx->unit_list);
   while(unit = list_iter_next(&unit_iter))
@@ -112,10 +114,39 @@ SDL_AppResult game_update()
     attr_t *attr;
     list_node_t *attr_iter = list_iter_init(unit->attr_list);
     while(attr = list_iter_next(&attr_iter))
-      if(attr->run) 
-        attr->run((void*)unit);
+      if(attr->type == ATTR_TYPE_CMD) 
+      {
+        attr->run(unit, attr);
+        break; // only one command is active
+      }
   }
 
+  // render units
+  unit_iter = list_iter_init(ctx->unit_list);
+  while(unit = list_iter_next(&unit_iter))
+  {
+    attr_t *attr;
+    list_node_t *attr_iter = list_iter_init(unit->attr_list);
+    while(attr = list_iter_next(&attr_iter))
+      if(attr->id == ATTR_ID_VISU) 
+        attr->run(unit, attr);
+  }
+
+  // clean attrs
+  unit_iter = list_iter_init(ctx->unit_list);
+  while(unit = list_iter_next(&unit_iter))
+  {
+    attr_t *attr;
+    list_node_t *attr_iter = list_iter_init(unit->attr_list);
+    while(attr = list_iter_next(&attr_iter))
+      if(attr->lcs == ATTR_LCS_CLEAN)
+      {
+        attr->clean(unit, attr);
+        unit_attr_del(unit, attr);
+      }
+  }
+  // render selection rectangle
+  // TBD move to gui module
   if(ctx->sel_en)
   {
     float mouse_x, mouse_y;
@@ -144,11 +175,11 @@ SDL_AppResult game_event(SDL_Event *event)
 
   Uint8 exit = 0;
 
+  const bool *keys = SDL_GetKeyboardState(NULL);
+
   switch(event->type)
   {
     case SDL_EVENT_KEY_DOWN:
-      const bool *keys = SDL_GetKeyboardState(NULL);
-
       if(keys[SDL_SCANCODE_ESCAPE])
         exit = 1;
 
@@ -185,11 +216,9 @@ SDL_AppResult game_event(SDL_Event *event)
             attr_psyh_data_t *data = unit_attr_data_get(unit, ATTR_ID_PSYH);
             if(data)
             {
-              data->dir = SDL_atan((event->button.y - data->pos_y) / (event->button.x - data->pos_x));
-              data->dst_x = event->button.x;
-              data->dst_y = event->button.y;
-              data->moving = 1;
-              if(event->button.x < data->pos_x) data->dir += M_PI;
+              if(!keys[SDL_SCANCODE_LSHIFT])
+                unit_cmd_clear_all(unit);
+              unit_attr_add(unit, attr_move_new(event->button.x, event->button.y));
             }
           } 
         }

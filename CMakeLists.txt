@@ -15,7 +15,8 @@ add_subdirectory(vendored/SDL EXCLUDE_FROM_ALL)
 add_executable(hvm WIN32 
     src/main.c
     src/game/game.c
-    src/game/attr_impl.c
+    src/game/attr_perk.c
+    src/game/attr_cmd.c
     src/game/unit_impl.c
     src/game/asset_def.c
     src/game/game_ctx.c

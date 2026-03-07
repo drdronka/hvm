@@ -18,5 +18,6 @@ attr_t *attr_new(Uint32 id, Uint8 type, Uint8 lcs, void *data, attr_f *run, attr
   attr->lcs = lcs;
   attr->data = data;
   attr->run = run;
+  attr->clean = clean;
   return attr;
 }

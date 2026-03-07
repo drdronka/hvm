@@ -1,6 +1,8 @@
 #ifndef __GUTIL_H__
 #define __GUTIL_H__
 
+#include <math.h>
+
 #define RET_ERR 0
 #define RET_OK 1
 typedef unsigned short ret_t;
