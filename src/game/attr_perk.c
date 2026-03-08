@@ -9,6 +9,7 @@
 #include "game_ctx.h"
 #include "log.h"
 #include "util.h"
+#include "anim.h"
 
 // ======================== LOCAL DATA ========================= //
 
@@ -56,15 +57,22 @@ void attr_visu_run(void *unit_ref, void *attr_ref)
     rect.y = psyh_data->pos_y - (psyh_data->size_y / 2);
     rect.w = psyh_data->size_x;
     rect.h = psyh_data->size_y;
+
+    visu_data->anim_ticks_ms += ctx->ticks_delta_ms;
+    SDL_Texture *texture = anim_texture_get(
+      visu_data->anim, 
+      visu_data->anim_stage_id, 
+      &visu_data->anim_ticks_ms);
+
     if(!SDL_RenderTextureRotated(
       ctx->renderer, 
-      visu_data->tex,
+      texture,
       NULL, &rect,
       (psyh_data->dir + (M_PI / 2)) * 180.0 / M_PI,
       NULL,
       SDL_FLIP_NONE))
     {
-      LOG_ERROR("attr_visu: failed to render texture[0x%x]\n", visu_data->tex);
+      LOG_ERROR("attr_visu: failed to render texture[0x%x]\n", texture);
     }
 
     if(unit->selected)
@@ -91,10 +99,12 @@ void attr_visu_clean(void *unit_ref, void *attr_ref)
 
 // ------------------------------------------------------------- //
 
-attr_t *attr_visu_new(SDL_Texture *tex, Uint8 visible)
+attr_t *attr_visu_new(anim_t *anim, Uint8 anim_stage_id, Uint8 visible)
 {
   attr_visu_data_t *visu_data = malloc(sizeof(attr_visu_data_t));
-  visu_data->tex = tex;
+  visu_data->anim = anim;
+  visu_data->anim_stage_id = anim_stage_id;
+  visu_data->anim_ticks_ms = 0;
   visu_data->visible = visible;
   return attr_new(ATTR_ID_VISU, ATTR_TYPE_PERK, ATTR_LCS_RUN, visu_data, attr_visu_run, attr_visu_clean);
 }

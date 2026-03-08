@@ -5,6 +5,8 @@
 
 #include "attr.h"
 #include "attr_def.h"
+#include "asset.h"
+#include "anim.h"
 
 // ------------------------------------------------------------- //
 
@@ -18,7 +20,6 @@ typedef struct attr_psyh_data
   float dir;
   float dst_x;
   float dst_y;
-  Uint8 moving;
 } attr_psyh_data_t;
 
 attr_t *attr_psyh_new(float pos_x, float pos_y, float size_x, float size_y, float speed);
@@ -26,16 +27,14 @@ attr_t *attr_psyh_new(float pos_x, float pos_y, float size_x, float size_y, floa
 // ------------------------------------------------------------- //
 
 typedef struct attr_visu_data
-{  
-  SDL_Texture *tex;
+{
+  anim_t *anim;
+  Uint8 anim_stage_id;
+  Uint32 anim_ticks_ms;
   Uint8 visible;
 } attr_visu_data_t;
 
-attr_t *attr_visu_new(SDL_Texture *tex, Uint8 visible);
-
-// ------------------------------------------------------------- //
-
-attr_t *attr_drift_new();
+attr_t *attr_visu_new(anim_t *anim, Uint8 anim_stage_id, Uint8 visible);
 
 // ------------------------------------------------------------- //
 

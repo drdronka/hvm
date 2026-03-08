@@ -93,7 +93,7 @@ SDL_AppResult game_update()
 {
   LOG_TRACE("game: update\n");
 
-  Uint64 ticks_ms = SDL_GetTicksNS() / 1000;
+  Uint64 ticks_ms = SDL_GetTicksNS() / 1000000;
   if(ctx->ticks_total_ms == 0)
   {
     ctx->ticks_total_ms = ticks_ms;
@@ -101,7 +101,7 @@ SDL_AppResult game_update()
   }
   ctx->ticks_delta_ms = ticks_ms - ctx->ticks_total_ms;
   ctx->ticks_total_ms = ticks_ms;
-  ctx->move_mult = (float)ctx->ticks_delta_ms / 10000;
+  ctx->move_mult = (float)ctx->ticks_delta_ms / 10;
 
   game_ctx_color_set_background();
   SDL_RenderFillRect(ctx->renderer, NULL);  

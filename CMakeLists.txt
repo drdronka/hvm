@@ -24,6 +24,7 @@ add_executable(hvm WIN32
     src/core/attr.c
     src/core/unit.c
     src/core/asset.c
+    src/core/anim.c
 )
 
 target_include_directories(hvm

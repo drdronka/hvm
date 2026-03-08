@@ -5,6 +5,7 @@
 
 #include "gcfg.h"
 #include "util.h"
+#include "list.h"
 
 typedef struct asset_texture 
 {

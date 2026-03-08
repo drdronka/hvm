@@ -33,7 +33,6 @@ ret_t asset_texture_load_all(asset_texture_t *textures, Uint32 textures_size, SD
     }
     SDL_DestroySurface(surface);
     SDL_SetTextureScaleMode(textures[n].texture, SDL_SCALEMODE_NEAREST);
-    //SDL_SetTextureBlendMode(textures[n].texture, SDL_BLENDMODE_NONE);
   }
   return RET_OK;
 }
@@ -59,3 +58,5 @@ SDL_Texture *asset_texture_get(char* name)
   }
   return NULL;
 }
+
+// ------------------------------------------------------------- //

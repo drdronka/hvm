@@ -3,7 +3,6 @@
 
 #include "unit.h"
 
-unit_t *unit_drifter_new();
 unit_t *unit_tank_new(float pos_x, float pos_y);
 unit_t *unit_worm_new(float pos_x, float pos_y);
 
