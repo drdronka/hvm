@@ -17,7 +17,8 @@ unit_t *unit_new(Uint8 active);
 void unit_attr_add(unit_t *unit, attr_t *attr);
 void unit_attr_add_head(unit_t *unit, attr_t *attr);
 void unit_attr_del(unit_t *unit, attr_t *attr);
-void *unit_attr_data_get(unit_t *unit, Uint32 type);
+void *unit_attr_data_get(unit_t *unit, Uint32 id);
 void *unit_cmd_clear_all(unit_t *unit);
+Uint8 unit_cmd_is_empty(unit_t *unit);
 
 #endif // __UNIT_H__

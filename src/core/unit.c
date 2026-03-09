@@ -41,6 +41,8 @@ void unit_attr_add_head(unit_t *unit, attr_t *attr)
 
 void unit_attr_del(unit_t *unit, attr_t *attr)
 {
+  if(attr->clean) attr->clean(unit, attr);
+  if(attr->data) free(attr->data);
   list_del(unit->attr_list, attr);
 }
 
@@ -66,4 +68,16 @@ void *unit_cmd_clear_all(unit_t *unit)
     if(attr->type == ATTR_TYPE_CMD)
       attr->lcs = ATTR_LCS_CLEAN;
   return NULL;
+}
+
+// ------------------------------------------------------------- //
+
+Uint8 unit_cmd_is_empty(unit_t *unit)
+{
+  attr_t *attr;
+  list_node_t *iter = list_iter_init(unit->attr_list);
+  while(attr = list_iter_next(&iter))
+    if(attr->type == ATTR_TYPE_CMD)
+      return 0;
+  return 1;
 }

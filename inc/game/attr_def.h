@@ -7,6 +7,7 @@ typedef enum
   ATTR_ID_PSYH,
   ATTR_ID_VISU, 
   ATTR_ID_MOVE,
+  ATTR_ID_WANDER,
 } attr_id_e;
 
 typedef enum

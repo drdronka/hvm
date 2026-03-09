@@ -22,7 +22,7 @@ unit_t *unit_tank_new(float pos_x, float pos_y)
   float dir = SDL_rand(10000);
   float speed = 3;
 
-  unit_attr_add(unit, attr_psyh_new(pos_x, pos_y, size, size, speed));
+  unit_attr_add(unit, attr_psyh_new(pos_x, pos_y, size, size, speed, dir));
   //unit_attr_add(unit, attr_visu_new(asset_texture_get("tank"), 1));
 
   return unit;
@@ -36,10 +36,10 @@ unit_t *unit_worm_new(float pos_x, float pos_y)
   game_ctx_t *ctx = game_ctx_get();
   
   Sint32 size = 96;
-  float dir = SDL_rand(100);
+  float dir = SDL_rand(2 * M_PI);
   float speed = 3;
 
-  unit_attr_add(unit, attr_psyh_new(pos_x, pos_y, size, size, speed));
+  unit_attr_add(unit, attr_psyh_new(pos_x, pos_y, size, size, speed, dir));
 
   anim_t *anim = anim_new();
   anim_stage_t *stage_idle = anim_stage_new(ANIM_STAGE_ID_IDLE);
@@ -51,6 +51,8 @@ unit_t *unit_worm_new(float pos_x, float pos_y)
   anim_add_stage(anim, stage_idle);
   anim_add_stage(anim, stage_move);
   unit_attr_add(unit, attr_visu_new(anim, ANIM_STAGE_ID_IDLE, 1));
+
+  unit_attr_add(unit, attr_wander_new(size / 2, 4000));
 
   return unit;
 }

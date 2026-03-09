@@ -2,7 +2,7 @@
 #define __GCFG_H__
 
 #define STEP_MODE 0 // force 1 FPS
-#define LOG_LEVEL 2 // 0 none, 1 error, 2 info, 3 debug, 4 trace
+#define LOG_LEVEL 3 // 0 none, 1 error, 2 info, 3 debug, 4 trace
 #define LOG_FORCE_STDERR 0
 
 #define APPNAME "HUMANS VS MACHINES"

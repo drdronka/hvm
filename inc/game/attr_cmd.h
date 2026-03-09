@@ -12,10 +12,11 @@ typedef struct attr_move_data
 {
   float dst_x;
   float dst_y;
+  Uint8 move_type;
   Uint8 initialized;
 } attr_move_data_t;
 
-attr_t *attr_move_new(float dst_x, float dst_y);
+attr_t *attr_move_new(float dst_x, float dst_y, Uint8 move_type);
 
 // ------------------------------------------------------------- //
 

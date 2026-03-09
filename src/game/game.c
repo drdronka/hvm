@@ -121,6 +121,17 @@ SDL_AppResult game_update()
       }
   }
 
+  // run wander
+  unit_iter = list_iter_init(ctx->unit_list);
+  while(unit = list_iter_next(&unit_iter))
+  {
+    attr_t *attr;
+    list_node_t *attr_iter = list_iter_init(unit->attr_list);
+    while(attr = list_iter_next(&attr_iter))
+      if(attr->id == ATTR_ID_WANDER)
+        attr->run(unit, attr);
+  }
+
   // render units
   unit_iter = list_iter_init(ctx->unit_list);
   while(unit = list_iter_next(&unit_iter))
@@ -140,11 +151,9 @@ SDL_AppResult game_update()
     list_node_t *attr_iter = list_iter_init(unit->attr_list);
     while(attr = list_iter_next(&attr_iter))
       if(attr->lcs == ATTR_LCS_CLEAN)
-      {
-        attr->clean(unit, attr);
         unit_attr_del(unit, attr);
-      }
   }
+
   // render selection rectangle
   // TBD move to gui module
   if(ctx->sel_en)
@@ -171,7 +180,7 @@ SDL_AppResult game_update()
 
 SDL_AppResult game_event(SDL_Event *event)
 {
-  LOG_DEBUG("game: event[%d]\n", event->type);
+  LOG_TRACE("game: event[%d]\n", event->type);
 
   Uint8 exit = 0;
 
@@ -218,7 +227,8 @@ SDL_AppResult game_event(SDL_Event *event)
             {
               if(!keys[SDL_SCANCODE_LSHIFT])
                 unit_cmd_clear_all(unit);
-              unit_attr_add(unit, attr_move_new(event->button.x, event->button.y));
+              unit_attr_add(
+                unit, attr_move_new(event->button.x, event->button.y, ATTR_PSYH_MOVE_TYPE_ABS));
             }
           } 
         }
