@@ -56,6 +56,9 @@ void attr_move_run(void *unit_ref, void *attr_ref)
 void attr_move_clean(void *unit_ref, void *attr_ref)
 {
   unit_t *unit = unit_ref;
+  attr_t *attr = attr_ref;
+
+  attr_move_data_t *data = attr->data;
 
   // change animation
   attr_visu_data_t *visu_data = unit_attr_data_get(unit, ATTR_ID_VISU);
@@ -64,7 +67,7 @@ void attr_move_clean(void *unit_ref, void *attr_ref)
 
   // update wander attr
   attr_wander_data_t *wander_data = unit_attr_data_get(unit, ATTR_ID_WANDER);
-  if(wander_data)
+  if(!data->temporary && wander_data)
   {
     attr_psyh_data_t *psyh_data = unit_attr_data_get(unit, ATTR_ID_PSYH);
     if(psyh_data)
@@ -79,13 +82,14 @@ void attr_move_clean(void *unit_ref, void *attr_ref)
 
 // ------------------------------------------------------------- //
 
-attr_t *attr_move_new(float dst_x, float dst_y, Uint8 move_type)
+attr_t *attr_move_new(float dst_x, float dst_y, Uint8 move_type, Uint8 temporary)
 {
   attr_move_data_t *data = malloc(sizeof(attr_move_data_t));
   data->dst_x = dst_x;
   data->dst_y = dst_y;
   data->move_type = move_type;
   data->initialized = 0;
+  data->temporary = temporary;
   return attr_new(ATTR_ID_MOVE, ATTR_TYPE_CMD, ATTR_LCS_RUN, data, attr_move_run, attr_move_clean);
 }
 

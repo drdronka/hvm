@@ -22,6 +22,11 @@ Uint8 attr_psyh_move(attr_psyh_data_t *data, float dst_x, float dst_y, Uint8 mov
 {
   game_ctx_t *ctx = game_ctx_get();
 
+  if(data->pos_x == dst_x && data->pos_y == dst_y)
+  {
+    return ATTR_PSYH_MOVE_RET_FINISHED;
+  }
+
   if(move_type == ATTR_PSYH_MOVE_TYPE_REL)
   {
     dst_x += data->pos_x;
@@ -30,21 +35,22 @@ Uint8 attr_psyh_move(attr_psyh_data_t *data, float dst_x, float dst_y, Uint8 mov
 
   // set direction
   data->dir = SDL_atan((dst_y - data->pos_y) / (dst_x - data->pos_x));
-  if(dst_x < data->pos_x) 
-    data->dir += M_PI;  
+  if(dst_x < data->pos_x)
+    data->dir += M_PI;
 
   // calculate destination
   float rel_x = data->speed * cos(data->dir);
   float rel_y = data->speed * sin(data->dir);
   float step_dst_x = data->pos_x + (rel_x * ctx->move_mult);
   float step_dst_y = data->pos_y + (rel_y * ctx->move_mult);
-  float dist = data->speed * ctx->move_mult;    
+  float dist = data->speed * ctx->move_mult;
 
   if(ABS_DIST(dst_x, dst_y, step_dst_x, step_dst_y) < dist)
   {
     // destination reached
     data->pos_x = dst_x;
     data->pos_y = dst_y;
+
     return ATTR_PSYH_MOVE_RET_FINISHED;
   }
 
@@ -188,13 +194,8 @@ void attr_wander_run(void *unit_ref, void *attr_ref)
       float dir = SDL_rand(2 * M_PI);
       float dst_x = cos(dir) * dist;
       float dst_y = sin(dir) * dist;
-
-      if(dst_x > dist) dst_x = dist; // flaot error failsafe
-      if(dst_y > dist) dst_y = dist; // flaot error failsafe
-
-      LOG_TRACE("attr_wander_run: wander relative x[%f] y[%f]\n", dst_x, dst_y);
-
-      unit_attr_add(unit, attr_move_new(data->org_x + dst_x, data->org_y + dst_y, ATTR_PSYH_MOVE_TYPE_ABS));
+      //LOG_DEBUG("attr_wander_run: wander relative x[%f] y[%f]\n", dst_x, dst_y);
+      unit_attr_add(unit, attr_move_new(data->org_x + dst_x, data->org_y + dst_y, ATTR_PSYH_MOVE_TYPE_ABS, 1));
     }
     data->ticks_next_ms = SDL_rand(data->ticks_max_ms);
     data->ticks_ms = 0;
