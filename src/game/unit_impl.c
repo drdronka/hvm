@@ -2,7 +2,7 @@
 #include <math.h>
 
 #include "unit_impl.h"
-#include "attr_perk.h"
+#include "attr_basic.h"
 #include "game_ctx.h"
 #include "asset.h"
 #include "anim.h"
@@ -35,7 +35,7 @@ unit_t *unit_worm_new(float pos_x, float pos_y)
   unit_t *unit = unit_new(1);
   game_ctx_t *ctx = game_ctx_get();
   
-  Sint32 size = 64;
+  Sint32 size = 96;
   float dir = SDL_rand(100);
   float speed = 3;
 

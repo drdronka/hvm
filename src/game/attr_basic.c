@@ -3,7 +3,7 @@
 #include <math.h>
 
 #include "gcfg.h"
-#include "attr_perk.h"
+#include "attr_basic.h"
 #include "unit.h"
 #include "attr.h"
 #include "game_ctx.h"
@@ -16,6 +16,35 @@
 // ======================== LOCAL FUNC ========================= //
 
 // ======================== GLOBAL FUNC ======================== //
+
+Uint8 attr_psyh_move(attr_psyh_data_t *data, float dst_x, float dst_y)
+{
+  game_ctx_t *ctx = game_ctx_get();
+
+  // set direction
+  data->dir = SDL_atan((dst_y - data->pos_y) / (dst_x - data->pos_x));
+  if(dst_x < data->pos_x) 
+    data->dir += M_PI;  
+
+  // calculate destination
+  float step_dst_x = data->pos_x + data->speed * cos(data->dir) * ctx->move_mult;
+  float step_dst_y = data->pos_y + data->speed * sin(data->dir) * ctx->move_mult;
+  float dist = data->speed * ctx->move_mult;    
+
+  if(ABS_DIST(dst_x, dst_y, step_dst_x, step_dst_y) < dist)
+  {
+    // destination reached
+    data->pos_x = dst_x;
+    data->pos_y = dst_y;
+    return PSYH_MOVE_FINISHED;
+  }
+
+  // destination not reached
+  data->pos_x = step_dst_x;
+  data->pos_y = step_dst_y;
+  
+  return PSYH_MOVE_ONGOING;
+}
 
 void attr_psyh_clean(void *unit_ref, void *attr_ref)
 {
@@ -34,9 +63,7 @@ attr_t *attr_psyh_new(float pos_x, float pos_y, float size_x, float size_y, floa
   psyh_data->size_x = size_x;
   psyh_data->size_y = size_y;
   psyh_data->speed = speed;
-  psyh_data->dst_x;
-  psyh_data->dst_y;
-  return attr_new(ATTR_ID_PSYH, ATTR_TYPE_PERK, ATTR_LCS_RUN, psyh_data, NULL, attr_psyh_clean);
+  return attr_new(ATTR_ID_PSYH, ATTR_TYPE_BASIC, ATTR_LCS_RUN, psyh_data, NULL, attr_psyh_clean);
 }
 
 // ============================================================= //
@@ -91,6 +118,13 @@ void attr_visu_run(void *unit_ref, void *attr_ref)
 
 // ------------------------------------------------------------- //
 
+void attr_visu_anim_stage_set(attr_visu_data_t *data)
+{
+  if(data) data->anim_stage_id = ANIM_STAGE_ID_MOVE;
+}
+
+// ------------------------------------------------------------- //
+
 void attr_visu_clean(void *unit_ref, void *attr_ref)
 {
     attr_visu_data_t *data = attr_ref;
@@ -106,5 +140,5 @@ attr_t *attr_visu_new(anim_t *anim, Uint8 anim_stage_id, Uint8 visible)
   visu_data->anim_stage_id = anim_stage_id;
   visu_data->anim_ticks_ms = 0;
   visu_data->visible = visible;
-  return attr_new(ATTR_ID_VISU, ATTR_TYPE_PERK, ATTR_LCS_RUN, visu_data, attr_visu_run, attr_visu_clean);
+  return attr_new(ATTR_ID_VISU, ATTR_TYPE_BASIC, ATTR_LCS_RUN, visu_data, attr_visu_run, attr_visu_clean);
 }

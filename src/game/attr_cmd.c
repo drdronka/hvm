@@ -4,7 +4,7 @@
 #include "attr.h"
 #include "attr_def.h"
 #include "attr_cmd.h"
-#include "attr_perk.h"
+#include "attr_basic.h"
 #include "unit.h"
 #include "game_ctx.h"
 #include "log.h"
@@ -30,43 +30,15 @@ void attr_move_run(void *unit_ref, void *attr_ref)
   
   if(!move_data->initialized)
   {
-    // set direction
-    psyh_data->dir = SDL_atan((move_data->dst_y - psyh_data->pos_y) / (move_data->dst_x - psyh_data->pos_x));
-    if(move_data->dst_x < psyh_data->pos_x) 
-      psyh_data->dir += M_PI;
-
     // change animation
-    attr_visu_data_t *visu_data = unit_attr_data_get(unit, ATTR_ID_VISU);
-    if(visu_data)
-      visu_data->anim_stage_id = ANIM_STAGE_ID_MOVE;
-
+    attr_visu_anim_stage_set(unit_attr_data_get(unit, ATTR_ID_VISU));
     move_data->initialized = 1;
   }
 
-  // calculate destination
-  float dst_x = psyh_data->pos_x + psyh_data->speed * cos(psyh_data->dir) * ctx->move_mult;
-  float dst_y = psyh_data->pos_y + psyh_data->speed * sin(psyh_data->dir) * ctx->move_mult;
-  float dist = psyh_data->speed * ctx->move_mult;    
-
-  if(ABS_DIST(move_data->dst_x, move_data->dst_y, dst_x, dst_y) < dist)
+  if(attr_psyh_move(psyh_data, move_data->dst_x, move_data->dst_y) == PSYH_MOVE_FINISHED)
   {
-    // destination reached
-    psyh_data->pos_x = move_data->dst_x;
-    psyh_data->pos_y = move_data->dst_y;
     attr->lcs = ATTR_LCS_CLEAN;
   }
-  else
-  {
-    // destination not reached
-    psyh_data->pos_x = dst_x;
-    psyh_data->pos_y = dst_y;
-  }
-    
-  // out of screen check
-  //if(data->pos_x < 0) data->pos_x = 0 - data->pos_x;
-  //if(data->pos_x > FWINX) data->pos_x = FWINX - (data->pos_x - FWINX);
-  //if(data->pos_y < 0) data->pos_y = 0 - data->pos_y;
-  //if(data->pos_y > FWINY) data->pos_y = FWINY - (data->pos_y - FWINY);
 }
 
 // ------------------------------------------------------------- //

@@ -8,7 +8,7 @@
 #include "game.h"
 #include "list.h"
 #include "unit_impl.h"
-#include "attr_perk.h"
+#include "attr_basic.h"
 #include "attr_cmd.h"
 #include "game_ctx.h"
 #include "asset.h"

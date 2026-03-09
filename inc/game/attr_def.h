@@ -11,7 +11,7 @@ typedef enum
 
 typedef enum
 {
-  ATTR_TYPE_PERK,
+  ATTR_TYPE_BASIC,
   ATTR_TYPE_CMD,
 } attr_type_e;
 
