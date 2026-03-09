@@ -13,7 +13,7 @@ extern Uint32 textures_size;
 
 // ======================== GLOBAL FUNC ======================== //
 
-ret_t asset_texture_load_all(asset_texture_t *textures, Uint32 textures_size, SDL_Renderer *renderer)
+ret_e asset_texture_load_all(asset_texture_t *textures, Uint32 textures_size, SDL_Renderer *renderer)
 {
   for(Uint32 n = 0; n < textures_size; n++)
   {

@@ -228,7 +228,7 @@ SDL_AppResult game_event(SDL_Event *event)
               if(!keys[SDL_SCANCODE_LSHIFT])
                 unit_cmd_clear_all(unit);
               unit_attr_add(
-                unit, attr_move_new(event->button.x, event->button.y, ATTR_PSYH_MOVE_TYPE_ABS, 0));
+                unit, attr_move_new(event->button.x, event->button.y, MOVE_TYPE_ABS, 0));
             }
           } 
         }

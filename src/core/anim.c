@@ -17,11 +17,11 @@ anim_step_t *anim_step_new(SDL_Texture *texture, Uint32 ticks_ms)
 
 // ------------------------------------------------------------- //
 
-anim_stage_t *anim_stage_new(Uint8 id)
+anim_stage_t *anim_stage_new(anim_stage_id_e stage_id)
 {
   anim_stage_t *stage = malloc(sizeof(anim_stage_t));
   memset(stage, 0, sizeof(anim_stage_t));
-  stage->id = id;
+  stage->id = stage_id;
   stage->step_list = list_new();
   return stage;
 }
@@ -53,7 +53,7 @@ void anim_add_stage(anim_t *anim, anim_stage_t *stage)
 
 // ------------------------------------------------------------- //
 
-SDL_Texture *anim_texture_get(anim_t *anim, Uint8 stage_id, Uint32 *ticks_ms)
+SDL_Texture *anim_texture_get(anim_t *anim, anim_stage_id_e stage_id, Uint32 *ticks_ms)
 {
   anim_stage_t *stage;
   list_node_t *iter = list_iter_init(anim->stage_list);

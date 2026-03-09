@@ -5,15 +5,16 @@
 
 #include "attr.h"
 #include "list.h"
+#include "unit_def.h"
 
 typedef struct unit
 {
-  Uint8 active;
   Uint8 selected;
+  unit_id_e id;
   list_t *attr_list;
 } unit_t;
 
-unit_t *unit_new(Uint8 active);
+unit_t *unit_new(unit_id_e unit_id);
 void unit_attr_add(unit_t *unit, attr_t *attr);
 void unit_attr_add_head(unit_t *unit, attr_t *attr);
 void unit_attr_del(unit_t *unit, attr_t *attr);

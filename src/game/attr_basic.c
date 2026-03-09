@@ -18,16 +18,23 @@
 
 // ======================== GLOBAL FUNC ======================== //
 
-Uint8 attr_psyh_move(attr_psyh_data_t *data, float dst_x, float dst_y, Uint8 move_type)
+ret_e attr_psyh_move(unit_t *unit, float dst_x, float dst_y, move_type_e type, Uint8 temporary)
 {
   game_ctx_t *ctx = game_ctx_get();
+  attr_psyh_data_t *data = unit_attr_data_get(unit, ATTR_ID_PSYH);
+
+  if(!data)
+  {
+    LOG_ERROR("attr_psyh_move: NULL psyh data\n");
+    return RET_ERR;
+  }
 
   if(data->pos_x == dst_x && data->pos_y == dst_y)
   {
-    return ATTR_PSYH_MOVE_RET_FINISHED;
+    return RET_OK;
   }
 
-  if(move_type == ATTR_PSYH_MOVE_TYPE_REL)
+  if(type == MOVE_TYPE_REL)
   {
     dst_x += data->pos_x;
     dst_y += data->pos_y;
@@ -51,14 +58,19 @@ Uint8 attr_psyh_move(attr_psyh_data_t *data, float dst_x, float dst_y, Uint8 mov
     data->pos_x = dst_x;
     data->pos_y = dst_y;
 
-    return ATTR_PSYH_MOVE_RET_FINISHED;
+    if(!temporary)
+    {
+      attr_wander_pos_set(unit_attr_data_get(unit, ATTR_ID_WANDER), data->pos_x, data->pos_y);
+    }
+
+    return RET_OK;
   }
 
   // destination not reached
   data->pos_x = step_dst_x;
   data->pos_y = step_dst_y;
   
-  return ATTR_PSYH_MOVE_RET_ONGOING;
+  return RET_PENDING;
 }
 
 // ------------------------------------------------------------- //
@@ -144,20 +156,20 @@ void attr_visu_run(void *unit_ref, void *attr_ref)
 
 // ------------------------------------------------------------- //
 
-void attr_visu_anim_stage_set(attr_visu_data_t *data)
+void attr_visu_anim_stage_set(attr_visu_data_t *data, anim_stage_id_e stage_id)
 {
-  if(data) data->anim_stage_id = ANIM_STAGE_ID_MOVE;
+  if(data) data->anim_stage_id = stage_id;
 }
 
 // ------------------------------------------------------------- //
 
-attr_t *attr_visu_new(anim_t *anim, Uint8 anim_stage_id, Uint8 visible)
+attr_t *attr_visu_new(anim_t *anim, anim_stage_id_e stage_id)
 {
   attr_visu_data_t *visu_data = malloc(sizeof(attr_visu_data_t));
   visu_data->anim = anim;
-  visu_data->anim_stage_id = anim_stage_id;
+  visu_data->anim_stage_id = stage_id;
   visu_data->anim_ticks_ms = 0;
-  visu_data->visible = visible;
+  visu_data->visible = 1;
   return attr_new(ATTR_ID_VISU, ATTR_TYPE_BASIC, ATTR_LCS_RUN, visu_data, attr_visu_run, NULL);
 }
 
@@ -195,7 +207,7 @@ void attr_wander_run(void *unit_ref, void *attr_ref)
       float dst_x = cos(dir) * dist;
       float dst_y = sin(dir) * dist;
       //LOG_DEBUG("attr_wander_run: wander relative x[%f] y[%f]\n", dst_x, dst_y);
-      unit_attr_add(unit, attr_move_new(data->org_x + dst_x, data->org_y + dst_y, ATTR_PSYH_MOVE_TYPE_ABS, 1));
+      unit_attr_add(unit, attr_move_new(data->org_x + dst_x, data->org_y + dst_y, MOVE_TYPE_ABS, 1));
     }
     data->ticks_next_ms = SDL_rand(data->ticks_max_ms);
     data->ticks_ms = 0;
