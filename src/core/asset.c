@@ -13,7 +13,7 @@
 
 // ======================== GLOBAL FUNC ======================== //
 
-asset_tex_t *asset_tex_new(const char *name, const char *path)
+asset_tex_t *asset_tex_new(const char *name, const char *path, SDL_Renderer *renderer)
 {
   LOG_DEBUG("asset_tex_new: name[%s] path[%s]\n", name, path);
 
@@ -26,7 +26,7 @@ asset_tex_t *asset_tex_new(const char *name, const char *path)
     free(tex);
     return NULL;
   }
-  tex->texture = SDL_CreateTextureFromSurface(game_ctx_get()->renderer, surf);
+  tex->texture = SDL_CreateTextureFromSurface(renderer, surf);
 
   if(!tex->texture)
   {

@@ -26,10 +26,10 @@ static ret_e game_assets_load()
 {
   LOG_DEBUG("game_assets_load: loading textures\n");
   ctx->tex_list = list_new();
-  list_add(ctx->tex_list, asset_tex_new("worm_idle_0", "assets/img/worm_idle_0.png"));
-  list_add(ctx->tex_list, asset_tex_new("worm_idle_1", "assets/img/worm_idle_1.png"));
-  list_add(ctx->tex_list, asset_tex_new("worm_move_0", "assets/img/worm_move_0.png"));
-  list_add(ctx->tex_list, asset_tex_new("worm_move_1", "assets/img/worm_move_1.png"));
+  list_add(ctx->tex_list, asset_tex_new("worm_idle_0", "assets/img/worm_idle_0.png", ctx->renderer));
+  list_add(ctx->tex_list, asset_tex_new("worm_idle_1", "assets/img/worm_idle_1.png", ctx->renderer));
+  list_add(ctx->tex_list, asset_tex_new("worm_move_0", "assets/img/worm_move_0.png", ctx->renderer));
+  list_add(ctx->tex_list, asset_tex_new("worm_move_1", "assets/img/worm_move_1.png", ctx->renderer));
 
   if(!asset_tex_list_verify(ctx->tex_list)) 
     return RET_ERR;
@@ -140,8 +140,6 @@ SDL_AppResult game_init()
     return SDL_APP_FAILURE;
   }
 
-  //SDL_SetRenderDrawBlendMode(ctx->renderer, SDL_BLENDMODE_NONE);
-
   if(!game_assets_load())
   {
     LOG_ERROR("game_init: failed to load assets\n");
@@ -223,7 +221,7 @@ SDL_AppResult game_event(SDL_Event *event)
             if(data)
             {
               if(!keys[SDL_SCANCODE_LSHIFT])
-                unit_cmd_clear(unit);
+                unit_cmd_clear_all(unit);
               unit_attr_add(
                 unit, attr_move_new(event->button.x, event->button.y, MOVE_TYPE_ABS, 0));
             }

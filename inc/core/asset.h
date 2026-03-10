@@ -13,7 +13,7 @@ typedef struct asset_tex
   SDL_Texture* texture;
 } asset_tex_t;
 
-asset_tex_t *asset_tex_new(const char *name, const char *path);
+asset_tex_t *asset_tex_new(const char *name, const char *path, SDL_Renderer *renderer);
 void asset_tex_del(asset_tex_t *tex);
 ret_e asset_tex_verify(asset_tex_t *tex);
 void asset_tex_list_destroy(list_t *list);

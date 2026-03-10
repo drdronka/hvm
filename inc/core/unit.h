@@ -31,7 +31,7 @@ void unit_list_attr_clean(list_t *list, attr_id_e id, attr_type_e type);
 void *unit_attr_data_get(unit_t *unit, Uint32 id);
 
 // command queue
-void *unit_cmd_clear(unit_t *unit);
+void *unit_cmd_clear_all(unit_t *unit);
 Uint8 unit_cmd_is_empty(unit_t *unit);
 
 #endif // __UNIT_H__

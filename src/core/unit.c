@@ -92,7 +92,7 @@ void *unit_attr_data_get(unit_t *unit, unit_id_e id)
 
 // ------------------------------------------------------------- //
 
-void *unit_cmd_clear(unit_t *unit)
+void *unit_cmd_clear_all(unit_t *unit)
 {
   attr_t *attr;
   list_node_t *iter = list_iter_init(unit->attr_list);
