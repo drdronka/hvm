@@ -3,14 +3,14 @@
 #include <math.h>
 
 #include "gcfg.h"
-#include "attr_basic.h"
-#include "unit.h"
-#include "attr.h"
 #include "game_ctx.h"
 #include "log.h"
 #include "util.h"
-#include "anim.h"
+#include "attr.h"
+#include "attr_basic.h"
 #include "attr_cmd.h"
+#include "unit.h"
+#include "anim.h"
 
 // ======================== LOCAL DATA ========================= //
 
@@ -59,9 +59,7 @@ ret_e attr_psyh_move(unit_t *unit, float dst_x, float dst_y, move_type_e type, U
     data->pos_y = dst_y;
 
     if(!temporary)
-    {
       attr_wander_pos_update(unit_attr_data_get(unit, ATTR_ID_WANDER), data->pos_x, data->pos_y);
-    }
 
     return RET_OK;
   }

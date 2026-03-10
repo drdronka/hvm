@@ -1,13 +1,10 @@
 #include <malloc.h>
 
 #include "log.h"
-#include "gcfg.h"
 #include "unit.h"
 #include "unit_def.h"
 #include "attr.h"
 #include "attr_def.h"
-#include "game.h"
-#include "asset.h"
 
 // ======================== LOCAL DATA ========================= //
 

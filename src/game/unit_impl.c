@@ -1,10 +1,10 @@
 #include <malloc.h>
 #include <math.h>
 
+#include "game_ctx.h"
 #include "unit_impl.h"
 #include "unit_def.h"
 #include "attr_basic.h"
-#include "game_ctx.h"
 #include "asset.h"
 #include "anim.h"
 

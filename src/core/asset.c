@@ -1,11 +1,9 @@
 #include <malloc.h>
 #include <SDL3/SDL_render.h>
 
-#include "gcfg.h"
 #include "log.h"
 #include "list.h"
 #include "asset.h"
-#include "game_ctx.h"
 
 // ======================== LOCAL DATA ========================= //
 

@@ -5,16 +5,15 @@
 #include <SDL3/SDL_hints.h>
 
 #include "gcfg.h"
+#include "log.h"
+#include "util.h"
+#include "game_ctx.h"
 #include "game.h"
 #include "list.h"
-#include "unit.h"
 #include "unit_impl.h"
 #include "attr_basic.h"
 #include "attr_cmd.h"
-#include "game_ctx.h"
 #include "asset.h"
-#include "log.h"
-#include "util.h"
 
 // ======================== LOCAL DATA ========================= //
 
