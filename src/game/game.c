@@ -87,6 +87,7 @@ static void game_sel_rect_draw()
   }
 }
 
+#if 0
 // ------------------------------------------------------------- //
 
 static void game_units_clean_attr()
@@ -155,6 +156,7 @@ static void game_units_wander()
 }
 
 // ------------------------------------------------------------- //
+#endif
 
 static void game_deinit()
 {
@@ -230,10 +232,10 @@ SDL_AppResult game_update()
 
   game_ticks_update();
   game_back_draw();
-  game_units_run_cmds();
-  game_units_wander();
-  game_units_render();
-  game_units_clean_attr();
+  unit_list_attr_run(ctx->unit_list, ATTR_ID_ANY, ATTR_TYPE_CMD);
+  unit_list_attr_run(ctx->unit_list, ATTR_ID_WANDER, ATTR_TYPE_ANY);
+  unit_list_attr_run(ctx->unit_list, ATTR_ID_VISU, ATTR_TYPE_ANY);
+  unit_list_attr_clean(ctx->unit_list, ATTR_ID_ANY, ATTR_TYPE_ANY);
   game_sel_rect_draw();
 
   SDL_RenderPresent(ctx->renderer);

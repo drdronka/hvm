@@ -3,7 +3,7 @@
 
 typedef enum 
 {
-  ATTR_ID_NONE = 0,
+  ATTR_ID_ANY = 0,
   ATTR_ID_PSYH,
   ATTR_ID_VISU, 
   ATTR_ID_MOVE,
@@ -12,12 +12,14 @@ typedef enum
 
 typedef enum
 {
+  ATTR_TYPE_ANY = 0,
   ATTR_TYPE_BASIC,
   ATTR_TYPE_CMD,
 } attr_type_e;
 
 typedef enum
 {
+  ATTR_LCS_ANY = 0,
   ATTR_LCS_RUN,
   ATTR_LCS_CLEAN,
 } attr_lcs_e;

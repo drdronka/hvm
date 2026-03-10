@@ -58,15 +58,6 @@ void unit_attr_add_head(unit_t *unit, attr_t *attr)
 
 // ------------------------------------------------------------- //
 
-void unit_attr_clean(unit_t *unit, attr_t *attr)
-{
-  if(attr->clean) attr->clean(unit, attr);
-  attr_del(attr);
-  list_del(unit->attr_list, attr);
-}
-
-// ------------------------------------------------------------- //
-
 void unit_list_destroy(list_t *list)
 {
   if(!list)
@@ -126,3 +117,52 @@ Uint8 unit_cmd_is_empty(unit_t *unit)
 }
 
 // ------------------------------------------------------------- //
+
+void unit_attr_run(unit_t *unit, attr_id_e id, attr_type_e type)
+{
+  attr_t *attr;
+  list_node_t *iter = list_iter_init(unit->attr_list);
+  while(attr = list_iter_next(&iter))
+    if(attr->lcs == ATTR_LCS_RUN)
+      if(id == ATTR_ID_ANY || attr->id == id)
+        if(type == ATTR_TYPE_ANY || attr->type == type)
+          attr->run(unit, attr);
+}
+
+// ------------------------------------------------------------- //
+
+void unit_attr_clean(unit_t *unit, attr_id_e id, attr_type_e type)
+{
+  attr_t *attr;
+  list_node_t *iter = list_iter_init(unit->attr_list);
+  while(attr = list_iter_next(&iter))
+    if(attr->lcs == ATTR_LCS_CLEAN)
+      if(id == ATTR_ID_ANY || attr->id == id)
+        if(type == ATTR_TYPE_ANY || attr->type == type)
+        {
+          if(attr->clean) 
+            attr->clean(unit, attr);
+          attr_del(attr);
+          list_del(unit->attr_list, attr);
+        }
+}
+
+// ------------------------------------------------------------- //
+
+void unit_list_attr_run(list_t *list, attr_id_e id, attr_type_e type)
+{
+  unit_t *unit;
+  list_node_t *iter = list_iter_init(list);
+  while(unit = list_iter_next(&iter))
+    unit_attr_run(unit, id, type);
+}
+
+// ------------------------------------------------------------- //
+
+void unit_list_attr_clean(list_t *list, attr_id_e id, attr_type_e type)
+{
+  unit_t *unit;
+  list_node_t *iter = list_iter_init(list);
+  while(unit = list_iter_next(&iter))
+    unit_attr_clean(unit, id, type);
+}
