@@ -9,7 +9,7 @@
 
 anim_step_t *anim_step_new(SDL_Texture *tex, Uint32 ticks_ms)
 {
-  LOG_DEBUG("anim_step_new: tex[%x] ticks_ms[%u]\n", tex, ticks_ms);
+  LOG_DEBUG("anim_step_new: tex[0x%x] ticks_ms[%u]\n", tex, ticks_ms);
 
   anim_step_t *step = malloc(sizeof(anim_step_t));
   step->tex = tex;
