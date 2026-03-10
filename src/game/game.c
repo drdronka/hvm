@@ -39,16 +39,20 @@ static ret_e game_assets_load()
   LOG_DEBUG("game_assets_load: composing animations\n");
   ctx->anim_list = list_new();
 
-  anim_t *anim_worm = anim_new("worm");
-  anim_stage_t *stage_idle = anim_stage_new(ANIM_STAGE_ID_IDLE);
-  anim_stage_add_step(stage_idle, anim_step_new(asset_tex_get(ctx->tex_list, "worm_idle_0"), 600));
-  anim_stage_add_step(stage_idle, anim_step_new(asset_tex_get(ctx->tex_list, "worm_idle_1"), 600));
-  anim_add_stage(anim_worm, stage_idle);
-  anim_stage_t *stage_move = anim_stage_new(ANIM_STAGE_ID_MOVE);
-  anim_stage_add_step(stage_move, anim_step_new(asset_tex_get(ctx->tex_list, "worm_move_0"), 150));
-  anim_stage_add_step(stage_move, anim_step_new(asset_tex_get(ctx->tex_list, "worm_move_1"), 150));
-  anim_add_stage(anim_worm, stage_move);
-  list_add(ctx->anim_list, anim_worm);
+  anim_t *anim;
+  anim_stage_t *stage;
+  anim_step_t *step;
+
+  anim = anim_new("worm");
+  stage = anim_stage_new(ANIM_STAGE_ID_IDLE);
+  anim_stage_add_step(stage, anim_step_new(asset_tex_get(ctx->tex_list, "worm_idle_0"), 600));
+  anim_stage_add_step(stage, anim_step_new(asset_tex_get(ctx->tex_list, "worm_idle_1"), 600));
+  anim_add_stage(anim, stage);
+  stage = anim_stage_new(ANIM_STAGE_ID_MOVE);
+  anim_stage_add_step(stage, anim_step_new(asset_tex_get(ctx->tex_list, "worm_move_0"), 150));
+  anim_stage_add_step(stage, anim_step_new(asset_tex_get(ctx->tex_list, "worm_move_1"), 150));
+  anim_add_stage(anim, stage);
+  list_add(ctx->anim_list, anim);
 
   if(!anim_list_verify(ctx->anim_list))
     return RET_ERR;
