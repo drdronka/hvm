@@ -17,11 +17,29 @@
 
 unit_t *unit_new(unit_id_e unit_id)
 {
+  LOG_DEBUG("unit_new: id[%u]\n", unit_id);
+
   unit_t *unit = malloc(sizeof(unit_t));
   memset(unit, 0, sizeof(unit_t));
   unit->attr_list = list_new();
   unit->id = unit_id;
+
   return unit;
+}
+
+// ------------------------------------------------------------- //
+
+void unit_del(unit_t *unit)
+{
+  if(!unit)
+  {
+    LOG_ERROR("unit_del: NULL unit\n");
+    return;
+  }
+
+  LOG_DEBUG("unit_del: id[%u]\n", unit->id);
+  attr_list_destroy(unit->attr_list);
+  free(unit);
 }
 
 // ------------------------------------------------------------- //
@@ -40,11 +58,32 @@ void unit_attr_add_head(unit_t *unit, attr_t *attr)
 
 // ------------------------------------------------------------- //
 
-void unit_attr_del(unit_t *unit, attr_t *attr)
+void unit_attr_clean(unit_t *unit, attr_t *attr)
 {
   if(attr->clean) attr->clean(unit, attr);
-  if(attr->data) free(attr->data);
+  attr_del(attr);
   list_del(unit->attr_list, attr);
+}
+
+// ------------------------------------------------------------- //
+
+void unit_list_destroy(list_t *list)
+{
+  if(!list)
+  {
+    LOG_ERROR("unit_list_destroy: NULL list\n");
+    return;
+  }
+  LOG_DEBUG("unit_list_destroy: list[0x%x]\n", list);
+
+  unit_t *unit;
+  list_node_t *unit_iter = list_iter_init(list);
+  while(unit = list_iter_next(&unit_iter))
+  {
+    unit_del(unit);
+    list_del(list, unit);
+  }
+  list_destroy(list);
 }
 
 // ------------------------------------------------------------- //
@@ -56,6 +95,7 @@ void *unit_attr_data_get(unit_t *unit, unit_id_e id)
   while(attr = list_iter_next(&iter))
     if(attr->id == id)
       return attr->data;
+
   return NULL;
 }
 
@@ -68,6 +108,7 @@ void *unit_cmd_clear_all(unit_t *unit)
   while(attr = list_iter_next(&iter))
     if(attr->type == ATTR_TYPE_CMD)
       attr->lcs = ATTR_LCS_CLEAN;
+
   return NULL;
 }
 
@@ -80,5 +121,8 @@ Uint8 unit_cmd_is_empty(unit_t *unit)
   while(attr = list_iter_next(&iter))
     if(attr->type == ATTR_TYPE_CMD)
       return 0;
+  
   return 1;
 }
+
+// ------------------------------------------------------------- //

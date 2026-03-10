@@ -124,7 +124,7 @@ void attr_visu_run(void *unit_ref, void *attr_ref)
     rect.h = psyh_data->size_y;
 
     visu_data->anim_ticks_ms += ctx->ticks_delta_ms;
-    SDL_Texture *texture = anim_texture_get(
+    SDL_Texture *texture = anim_tex_get(
       visu_data->anim, 
       visu_data->anim_stage_id, 
       &visu_data->anim_ticks_ms);
@@ -152,6 +152,17 @@ void attr_visu_run(void *unit_ref, void *attr_ref)
       SDL_RenderRect(ctx->renderer, &rect);
     }
   }
+}
+
+// ------------------------------------------------------------- //
+
+void attr_visu_clean(void *unit_ref, void *attr_ref)
+{
+  unit_t *unit = unit_ref;
+  attr_t *attr = attr_ref;
+
+  attr_visu_data_t *data = attr->data;
+  if(data->anim) free(data->anim);
 }
 
 // ------------------------------------------------------------- //

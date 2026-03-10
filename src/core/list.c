@@ -79,7 +79,20 @@ void list_del(list_t *list, void *ptr)
       }
     }
   }
-  LOG_ERROR("list: invalid node remove attempt [%x]", ptr);
+  LOG_ERROR("list: invalid node remove [%x]", ptr);
+}
+
+// ------------------------------------------------------------- //
+
+void list_destroy(list_t *list)
+{
+  if(!list) 
+  {
+    LOG_ERROR("list_destroy: NULL list");
+    return;
+  }
+  LOG_DEBUG("list_destroy: list[%x]\n", list);
+  free(list);
 }
 
 // ------------------------------------------------------------- //
@@ -101,4 +114,3 @@ void *list_iter_next(list_node_t **iter)
   }
   return ptr;
 }
-

@@ -7,15 +7,17 @@
 #include "util.h"
 #include "list.h"
 
-typedef struct asset_texture 
+typedef struct asset_tex
 {
-  const char* name;
-  const char* path;
+  char* name;
   SDL_Texture* texture;
-} asset_texture_t;
+} asset_tex_t;
 
-ret_e asset_texture_load_all(asset_texture_t *textures, Uint32 textures_size, SDL_Renderer *renderer);
-void asset_texture_free_all(asset_texture_t *textures, Uint32 textures_size);
-SDL_Texture *asset_texture_get(char* name);
+asset_tex_t *asset_tex_new(const char *name, const char *path);
+void asset_tex_del(asset_tex_t *tex);
+ret_e asset_tex_verify(asset_tex_t *tex);
+void asset_tex_list_destroy(list_t *list);
+SDL_Texture *asset_tex_get(list_t *tex_list, char* name);
+ret_e asset_tex_list_verify(list_t *list);
 
 #endif // __ASSET_H__

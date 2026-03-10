@@ -7,6 +7,7 @@
 #include "gcfg.h"
 #include "game.h"
 #include "list.h"
+#include "unit.h"
 #include "unit_impl.h"
 #include "attr_basic.h"
 #include "attr_cmd.h"
@@ -15,32 +16,165 @@
 #include "log.h"
 #include "util.h"
 
-extern asset_texture_t textures[];
-extern const Uint32 textures_size;
-
 // ======================== LOCAL DATA ========================= //
 
 static game_ctx_t *ctx = NULL;
-static Uint64 last_spawn = 0;
 
 // ======================== LOCAL FUNC ========================= //
 
-static void deinit()
+static ret_e game_assets_load()
 {
-  LOG_INFO("game: deinitializing\n");
+  LOG_DEBUG("game_assets_load: loading textures\n");
+  ctx->tex_list = list_new();
+  list_add(ctx->tex_list, asset_tex_new("worm_idle_0", "assets/img/worm_idle_0.png"));
+  list_add(ctx->tex_list, asset_tex_new("worm_idle_1", "assets/img/worm_idle_1.png"));
+  list_add(ctx->tex_list, asset_tex_new("worm_move_0", "assets/img/worm_move_0.png"));
+  list_add(ctx->tex_list, asset_tex_new("worm_move_1", "assets/img/worm_move_1.png"));
 
-  asset_texture_free_all(textures, textures_size);
+  if(!asset_tex_list_verify(ctx->tex_list)) 
+    return RET_ERR;
+
+  LOG_DEBUG("game_assets_load: composing animations\n");
+  ctx->anim_list = list_new();
+  anim_t *anim_worm = anim_new("worm");
+  anim_stage_t *stage_idle = anim_stage_new(ANIM_STAGE_ID_IDLE);
+  anim_stage_add_step(stage_idle, anim_step_new(asset_tex_get(ctx->tex_list, "worm_idle_0"), 600));
+  anim_stage_add_step(stage_idle, anim_step_new(asset_tex_get(ctx->tex_list, "worm_idle_1"), 600));
+  anim_add_stage(anim_worm, stage_idle);
+  anim_stage_t *stage_move = anim_stage_new(ANIM_STAGE_ID_MOVE);
+  anim_stage_add_step(stage_move, anim_step_new(asset_tex_get(ctx->tex_list, "worm_move_0"), 150));
+  anim_stage_add_step(stage_move, anim_step_new(asset_tex_get(ctx->tex_list, "worm_move_1"), 150));
+  anim_add_stage(anim_worm, stage_move);
+  list_add(ctx->anim_list, anim_worm);
+
+  if(!anim_list_verify(ctx->anim_list))
+    return RET_ERR;
+
+  return RET_OK;
+}
+
+// ------------------------------------------------------------- //
+
+static void game_ticks_update()
+{
+  Uint64 ticks_ms = SDL_GetTicksNS() / 1000000;
+  ctx->ticks_delta_ms = ticks_ms - ctx->ticks_total_ms;
+  ctx->ticks_total_ms = ticks_ms;
+  ctx->move_mult = (float)ctx->ticks_delta_ms / 10;
+}
+
+// ------------------------------------------------------------- //
+
+static void game_back_draw()
+{
+  game_ctx_color_set_background();
+  SDL_RenderFillRect(ctx->renderer, NULL);  
+}
+
+// ------------------------------------------------------------- //
+
+static void game_sel_rect_draw()
+{
+  if(ctx->sel_en)
+  {
+    float mouse_x, mouse_y;
+    SDL_GetMouseState(&mouse_x, &mouse_y);
+    game_ctx_color_set_select();
+    SDL_RenderLine(ctx->renderer, mouse_x, mouse_y, ctx->sel_x, mouse_y);
+    SDL_RenderLine(ctx->renderer, mouse_x, mouse_y, mouse_x, ctx->sel_y);
+    SDL_RenderLine(ctx->renderer, ctx->sel_x, mouse_y, ctx->sel_x, ctx->sel_y);
+    SDL_RenderLine(ctx->renderer, mouse_x, ctx->sel_y, ctx->sel_x, ctx->sel_y);
+  }
+}
+
+// ------------------------------------------------------------- //
+
+static void game_units_clean_attr()
+{
+  unit_t *unit;
+  list_node_t *unit_iter = list_iter_init(ctx->unit_list);
+  while(unit = list_iter_next(&unit_iter))
+  {
+    attr_t *attr;
+    list_node_t *attr_iter = list_iter_init(unit->attr_list);
+    while(attr = list_iter_next(&attr_iter))
+      if(attr->lcs == ATTR_LCS_CLEAN)
+        unit_attr_clean(unit, attr);
+  }
+}
+
+// ------------------------------------------------------------- //
+
+static void game_units_render()
+{
+  unit_t *unit;
+  list_node_t *unit_iter = list_iter_init(ctx->unit_list);
+  while(unit = list_iter_next(&unit_iter))
+  {
+    attr_t *attr;
+    list_node_t *attr_iter = list_iter_init(unit->attr_list);
+    while(attr = list_iter_next(&attr_iter))
+      if(attr->id == ATTR_ID_VISU) 
+        attr->run(unit, attr);
+  }
+}
+
+// ------------------------------------------------------------- //
+
+static void game_units_run_cmds()
+{
+  unit_t *unit;
+  list_node_t *unit_iter = list_iter_init(ctx->unit_list);
+  while(unit = list_iter_next(&unit_iter))
+  {
+    attr_t *attr;
+    list_node_t *attr_iter = list_iter_init(unit->attr_list);
+    while(attr = list_iter_next(&attr_iter))
+      if(attr->type == ATTR_TYPE_CMD) 
+      {
+        attr->run(unit, attr);
+        break; // only one command per unit
+      }
+  }
+}
+
+// ------------------------------------------------------------- //
+
+static void game_units_wander()
+{
+  unit_t *unit;
+  list_node_t *unit_iter = list_iter_init(ctx->unit_list);
+  while(unit = list_iter_next(&unit_iter))
+  {
+    attr_t *attr;
+    list_node_t *attr_iter = list_iter_init(unit->attr_list);
+    while(attr = list_iter_next(&attr_iter))
+      if(attr->id == ATTR_ID_WANDER)
+        attr->run(unit, attr);
+  }
+}
+
+// ------------------------------------------------------------- //
+
+static void game_deinit()
+{
+  LOG_INFO("game_deinit\n");
+
   if(ctx->renderer) SDL_DestroyRenderer(ctx->renderer);
   if(ctx->window) SDL_DestroyWindow(ctx->window);
 
-  LOG_INFO("game: deinitialization finished\n");
+  asset_tex_list_destroy(ctx->tex_list);
+  anim_list_destroy(ctx->anim_list);
+  unit_list_destroy(ctx->unit_list);
+
+  LOG_INFO("game_deinit: finished\n");
 }
 
 // ======================== GLOBAL FUNC ======================== //
 
 SDL_AppResult game_init()
 {
-  LOG_INFO("game: init");
+  LOG_INFO("game_init");
 
   game_ctx_init();
   ctx = game_ctx_get();
@@ -56,33 +190,34 @@ SDL_AppResult game_init()
     fps_limit = FPS_LIMIT;
   #endif
 
-  LOG_INFO("game: fps limit: %s\n", fps_limit);
+  LOG_INFO("game_init: fps limit: %s\n", fps_limit);
   SDL_SetHint(SDL_HINT_MAIN_CALLBACK_RATE, fps_limit);
 
-  LOG_INFO("game: initializing SDL\n");
+  LOG_INFO("game_init: initializing SDL\n");
   if(!SDL_Init(SDL_INIT_VIDEO))
   {
-    LOG_ERROR("error: %s\n", SDL_GetError());
+    LOG_ERROR("game_init: SDL: %s\n", SDL_GetError());
     return SDL_APP_FAILURE;
   }
 
-  LOG_INFO("game: creating window x[%d] y[%d]\n", ctx->win_x, ctx->win_y);
+  LOG_INFO("game_init: creating window x[%d] y[%d]\n", ctx->win_x, ctx->win_y);
   if(!SDL_CreateWindowAndRenderer(APPNAME, ctx->win_x, ctx->win_y, 0, &ctx->window, &ctx->renderer))
   { 
-    LOG_ERROR("game: error: %s\n", SDL_GetError());
+    LOG_ERROR("game_init: SDL: %s\n", SDL_GetError());
     return SDL_APP_FAILURE;
   }
 
-  SDL_SetRenderDrawBlendMode(ctx->renderer, SDL_BLENDMODE_NONE);
+  //SDL_SetRenderDrawBlendMode(ctx->renderer, SDL_BLENDMODE_NONE);
 
-  LOG_INFO("game: loading assets\n");
-  if(!asset_texture_load_all(textures, textures_size, ctx->renderer))
+  if(!game_assets_load())
   {
-    LOG_ERROR("game: error: failed to load assets\n");
-    return SDL_APP_FAILURE;
+    LOG_ERROR("game_init: failed to load assets\n");
+    return SDL_APP_FAILURE; 
   }
 
-  LOG_INFO("game: initialization finished\n");
+  ctx->ticks_total_ms = SDL_GetTicksNS() / 1000000;
+
+  LOG_INFO("game_init: initialization finished\n");
 
   return SDL_APP_CONTINUE;
 }
@@ -91,81 +226,15 @@ SDL_AppResult game_init()
 
 SDL_AppResult game_update()
 {
-  LOG_TRACE("game: update\n");
+  LOG_TRACE("game_update\n");
 
-  Uint64 ticks_ms = SDL_GetTicksNS() / 1000000;
-  if(ctx->ticks_total_ms == 0)
-  {
-    ctx->ticks_total_ms = ticks_ms;
-    return SDL_APP_CONTINUE;
-  }
-  ctx->ticks_delta_ms = ticks_ms - ctx->ticks_total_ms;
-  ctx->ticks_total_ms = ticks_ms;
-  ctx->move_mult = (float)ctx->ticks_delta_ms / 10;
-
-  game_ctx_color_set_background();
-  SDL_RenderFillRect(ctx->renderer, NULL);  
-
-  // execute commands
-  unit_t *unit;
-  list_node_t *unit_iter = list_iter_init(ctx->unit_list);
-  while(unit = list_iter_next(&unit_iter))
-  {
-    attr_t *attr;
-    list_node_t *attr_iter = list_iter_init(unit->attr_list);
-    while(attr = list_iter_next(&attr_iter))
-      if(attr->type == ATTR_TYPE_CMD) 
-      {
-        attr->run(unit, attr);
-        break; // only one command is active
-      }
-  }
-
-  // run wander
-  unit_iter = list_iter_init(ctx->unit_list);
-  while(unit = list_iter_next(&unit_iter))
-  {
-    attr_t *attr;
-    list_node_t *attr_iter = list_iter_init(unit->attr_list);
-    while(attr = list_iter_next(&attr_iter))
-      if(attr->id == ATTR_ID_WANDER)
-        attr->run(unit, attr);
-  }
-
-  // render units
-  unit_iter = list_iter_init(ctx->unit_list);
-  while(unit = list_iter_next(&unit_iter))
-  {
-    attr_t *attr;
-    list_node_t *attr_iter = list_iter_init(unit->attr_list);
-    while(attr = list_iter_next(&attr_iter))
-      if(attr->id == ATTR_ID_VISU) 
-        attr->run(unit, attr);
-  }
-
-  // clean attrs
-  unit_iter = list_iter_init(ctx->unit_list);
-  while(unit = list_iter_next(&unit_iter))
-  {
-    attr_t *attr;
-    list_node_t *attr_iter = list_iter_init(unit->attr_list);
-    while(attr = list_iter_next(&attr_iter))
-      if(attr->lcs == ATTR_LCS_CLEAN)
-        unit_attr_del(unit, attr);
-  }
-
-  // render selection rectangle
-  // TBD move to gui module
-  if(ctx->sel_en)
-  {
-    float mouse_x, mouse_y;
-    SDL_GetMouseState(&mouse_x, &mouse_y);
-    game_ctx_color_set_select();
-    SDL_RenderLine(ctx->renderer, mouse_x, mouse_y, ctx->sel_x, mouse_y);
-    SDL_RenderLine(ctx->renderer, mouse_x, mouse_y, mouse_x, ctx->sel_y);
-    SDL_RenderLine(ctx->renderer, ctx->sel_x, mouse_y, ctx->sel_x, ctx->sel_y);
-    SDL_RenderLine(ctx->renderer, mouse_x, ctx->sel_y, ctx->sel_x, ctx->sel_y);
-  }
+  game_ticks_update();
+  game_back_draw();
+  game_units_run_cmds();
+  game_units_wander();
+  game_units_render();
+  game_units_clean_attr();
+  game_sel_rect_draw();
 
   SDL_RenderPresent(ctx->renderer);
 
@@ -180,7 +249,7 @@ SDL_AppResult game_update()
 
 SDL_AppResult game_event(SDL_Event *event)
 {
-  LOG_TRACE("game: event[%d]\n", event->type);
+  LOG_TRACE("game_event: event[%d]\n", event->type);
 
   Uint8 exit = 0;
 
@@ -191,17 +260,12 @@ SDL_AppResult game_event(SDL_Event *event)
     case SDL_EVENT_KEY_DOWN:
       if(keys[SDL_SCANCODE_ESCAPE])
         exit = 1;
-
-      //if(keys[SDL_SCANCODE_UP])    if(ypos >= CHAR_SIZE) ypos -= CHAR_SIZE;
-      //if(keys[SDL_SCANCODE_DOWN])  if(ypos < WINY - CHAR_SIZE) ypos += CHAR_SIZE;
-      //if(keys[SDL_SCANCODE_LEFT])  if(xpos >= CHAR_SIZE) xpos -= CHAR_SIZE;
-      //if(keys[SDL_SCANCODE_RIGHT]) if(xpos < WINX - CHAR_SIZE) xpos += CHAR_SIZE;
       break;
 
     case SDL_EVENT_MOUSE_BUTTON_DOWN:
       if(event->button.button == SDL_BUTTON_MIDDLE)
       {
-        LOG_DEBUG("game: adding unit\n");
+        LOG_DEBUG("game_event: adding unit\n");
         unit_t *unit = unit_worm_new(event->button.x, event->button.y);
         list_add(ctx->unit_list, unit);
       }
@@ -306,6 +370,6 @@ SDL_AppResult game_event(SDL_Event *event)
 
 void game_exit()
 {
-  LOG_INFO("game: exit\n");
-  deinit();
+  LOG_INFO("game_exit\n");
+  game_deinit();
 }

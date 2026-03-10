@@ -32,7 +32,7 @@
 #if LOG_FORCE_STDERR
 
   #if LOG_LEVEL_ERROR
-    #define LOG_ERROR(...) fprintf(stderr, __VA_ARGS__)
+    #define LOG_ERROR(...) do { fprintf(stderr, "ERR: "); fprintf(stderr, __VA_ARGS__); } while(0)
   #else
     #define LOG_ERROR(...)
   #endif
@@ -58,7 +58,7 @@
 #else // LOG_FORCE_STDERR
 
   #if LOG_LEVEL_ERROR
-    #define LOG_ERROR(...) fprintf(stderr, __VA_ARGS__)
+    #define LOG_ERROR(...) do { fprintf(stderr, "ERR: "); fprintf(stderr, __VA_ARGS__); } while(0)
   #else
     #define LOG_ERROR(...)
   #endif
