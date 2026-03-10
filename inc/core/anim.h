@@ -6,18 +6,18 @@
 #include "list.h"
 #include "util.h"
 
-typedef struct anim_step
-{
-  SDL_Texture *tex;
-  Uint32 ticks_ms;
-} anim_step_t;
-
 typedef enum 
 {
   ANIM_STAGE_ID_IDLE = 0,
   ANIM_STAGE_ID_INTRO,
   ANIM_STAGE_ID_MOVE,
 } anim_stage_id_e;
+
+typedef struct anim_step
+{
+  SDL_Texture *tex;
+  Uint32 ticks_ms;
+} anim_step_t;
 
 typedef struct anim_stage
 {
@@ -31,13 +31,6 @@ typedef struct anim
   char *name;
   list_t *stage_list;
 } anim_t;
-
-#include <malloc.h>
-
-#include "anim.h"
-#include "asset.h"
-#include "list.h"
-#include "log.h"
 
 anim_step_t *anim_step_new(SDL_Texture *tex, Uint32 ticks_ms);
 void anim_step_del(anim_step_t *step);
