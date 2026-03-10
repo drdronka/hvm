@@ -183,7 +183,8 @@ static void game_spawn_worm(float pos_x, float pos_y)
 
 SDL_AppResult game_init()
 {
-  LOG_INFO("game_init");
+  LOG_INFO("%s\n", APPNAME);
+  LOG_INFO("game_init\n");
 
   game_ctx_init();
   ctx = game_ctx_get();
