@@ -74,7 +74,7 @@ ret_e attr_psyh_move(unit_t *unit, float dst_x, float dst_y, move_type_e type, U
 
 // ------------------------------------------------------------- //
 
-void attr_psyh_rel_to_abs(attr_psyh_data_t *data, float *x, float *y)
+void attr_psyh_pos_rel_to_abs(attr_psyh_data_t *data, float *x, float *y)
 {
   *x += data->pos_x;
   *y += data->pos_y;

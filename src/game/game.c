@@ -224,7 +224,7 @@ SDL_AppResult game_init()
 
   ctx->ticks_total_ms = SDL_GetTicksNS() / 1000000;
 
-  LOG_INFO("game_init: initialization finished\n");
+  LOG_INFO("game_init: finished\n");
 
   return SDL_APP_CONTINUE;
 }

@@ -124,7 +124,8 @@ void unit_attr_run(unit_t *unit, attr_id_e id, attr_type_e type)
       if(id == ATTR_ID_ANY || attr->id == id)
         if(type == ATTR_TYPE_ANY || attr->type == type)
         {
-          attr->run(unit, attr);
+          if(attr->run)
+            attr->run(unit, attr);
           if(type == ATTR_TYPE_CMD)
             break;
         }

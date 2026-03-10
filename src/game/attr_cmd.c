@@ -31,7 +31,7 @@ void attr_move_run(void *unit_ref, void *attr_ref)
   if(!move_data->initialized)
   {
     if(move_data->type == MOVE_TYPE_REL)
-      attr_psyh_rel_to_abs(psyh_data, &move_data->dst_x, &move_data->dst_y);
+      attr_psyh_pos_rel_to_abs(psyh_data, &move_data->dst_x, &move_data->dst_y);
 
     attr_visu_anim_stage_set(unit_attr_data_get(unit, ATTR_ID_VISU), ANIM_STAGE_ID_MOVE);
 

@@ -19,6 +19,8 @@ typedef struct attr_move_data
 } attr_move_data_t;
 
 attr_t *attr_move_new(float dst_x, float dst_y, move_type_e type, Uint8 temporary);
+void attr_move_run(void *unit_ref, void *attr_ref);
+void attr_move_clean(void *unit_ref, void *attr_ref);
 
 // ------------------------------------------------------------- //
 
