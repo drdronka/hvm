@@ -87,76 +87,7 @@ static void game_sel_rect_draw()
   }
 }
 
-#if 0
 // ------------------------------------------------------------- //
-
-static void game_units_clean_attr()
-{
-  unit_t *unit;
-  list_node_t *unit_iter = list_iter_init(ctx->unit_list);
-  while(unit = list_iter_next(&unit_iter))
-  {
-    attr_t *attr;
-    list_node_t *attr_iter = list_iter_init(unit->attr_list);
-    while(attr = list_iter_next(&attr_iter))
-      if(attr->lcs == ATTR_LCS_CLEAN)
-        unit_attr_clean(unit, attr);
-  }
-}
-
-// ------------------------------------------------------------- //
-
-static void game_units_render()
-{
-  unit_t *unit;
-  list_node_t *unit_iter = list_iter_init(ctx->unit_list);
-  while(unit = list_iter_next(&unit_iter))
-  {
-    attr_t *attr;
-    list_node_t *attr_iter = list_iter_init(unit->attr_list);
-    while(attr = list_iter_next(&attr_iter))
-      if(attr->id == ATTR_ID_VISU) 
-        attr->run(unit, attr);
-  }
-}
-
-// ------------------------------------------------------------- //
-
-static void game_units_run_cmds()
-{
-  unit_t *unit;
-  list_node_t *unit_iter = list_iter_init(ctx->unit_list);
-  while(unit = list_iter_next(&unit_iter))
-  {
-    attr_t *attr;
-    list_node_t *attr_iter = list_iter_init(unit->attr_list);
-    while(attr = list_iter_next(&attr_iter))
-      if(attr->type == ATTR_TYPE_CMD) 
-      {
-        attr->run(unit, attr);
-        break; // only one command per unit
-      }
-  }
-}
-
-// ------------------------------------------------------------- //
-
-static void game_units_wander()
-{
-  unit_t *unit;
-  list_node_t *unit_iter = list_iter_init(ctx->unit_list);
-  while(unit = list_iter_next(&unit_iter))
-  {
-    attr_t *attr;
-    list_node_t *attr_iter = list_iter_init(unit->attr_list);
-    while(attr = list_iter_next(&attr_iter))
-      if(attr->id == ATTR_ID_WANDER)
-        attr->run(unit, attr);
-  }
-}
-
-// ------------------------------------------------------------- //
-#endif
 
 static void game_deinit()
 {
