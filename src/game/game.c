@@ -163,10 +163,10 @@ SDL_AppResult game_update()
 
   game_ticks_update();
   game_back_draw();
+  unit_list_attr_clean(ctx->unit_list, ATTR_ID_ANY, ATTR_TYPE_ANY);
   unit_list_attr_run(ctx->unit_list, ATTR_ID_ANY, ATTR_TYPE_CMD);
   unit_list_attr_run(ctx->unit_list, ATTR_ID_WANDER, ATTR_TYPE_ANY);
   unit_list_attr_run(ctx->unit_list, ATTR_ID_VISU, ATTR_TYPE_ANY);
-  unit_list_attr_clean(ctx->unit_list, ATTR_ID_ANY, ATTR_TYPE_ANY);
   game_sel_rect_draw();
 
   SDL_RenderPresent(ctx->renderer);
@@ -223,7 +223,7 @@ SDL_AppResult game_event(SDL_Event *event)
             if(data)
             {
               if(!keys[SDL_SCANCODE_LSHIFT])
-                unit_cmd_clear_all(unit);
+                unit_cmd_clear(unit);
               unit_attr_add(
                 unit, attr_move_new(event->button.x, event->button.y, MOVE_TYPE_ABS, 0));
             }

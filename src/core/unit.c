@@ -92,7 +92,7 @@ void *unit_attr_data_get(unit_t *unit, unit_id_e id)
 
 // ------------------------------------------------------------- //
 
-void *unit_cmd_clear_all(unit_t *unit)
+void *unit_cmd_clear(unit_t *unit)
 {
   attr_t *attr;
   list_node_t *iter = list_iter_init(unit->attr_list);
@@ -126,7 +126,11 @@ void unit_attr_run(unit_t *unit, attr_id_e id, attr_type_e type)
     if(attr->lcs == ATTR_LCS_RUN)
       if(id == ATTR_ID_ANY || attr->id == id)
         if(type == ATTR_TYPE_ANY || attr->type == type)
+        {
           attr->run(unit, attr);
+          if(type == ATTR_TYPE_CMD)
+            break;
+        }
 }
 
 // ------------------------------------------------------------- //

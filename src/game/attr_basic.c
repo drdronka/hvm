@@ -60,7 +60,7 @@ ret_e attr_psyh_move(unit_t *unit, float dst_x, float dst_y, move_type_e type, U
 
     if(!temporary)
     {
-      attr_wander_pos_set(unit_attr_data_get(unit, ATTR_ID_WANDER), data->pos_x, data->pos_y);
+      attr_wander_pos_update(unit_attr_data_get(unit, ATTR_ID_WANDER), data->pos_x, data->pos_y);
     }
 
     return RET_OK;
@@ -227,7 +227,7 @@ void attr_wander_run(void *unit_ref, void *attr_ref)
 
 // ------------------------------------------------------------- //
 
-void attr_wander_pos_set(attr_wander_data_t *data, float pos_x, float pos_y)
+void attr_wander_pos_update(attr_wander_data_t *data, float pos_x, float pos_y)
 {
   data->org_x = pos_x;
   data->org_y = pos_y;
