@@ -122,10 +122,12 @@ void attr_visu_run(void *unit_ref, void *attr_ref)
     rect.h = psyh_data->size_y;
 
     visu_data->anim_ticks_ms += ctx->ticks_delta_ms;
-    SDL_Texture *texture = anim_tex_get(
-      visu_data->anim, 
-      visu_data->anim_stage_id, 
-      &visu_data->anim_ticks_ms);
+
+    SDL_Texture *texture;
+    texture = anim_tex_get(visu_data->anim, visu_data->anim_stage_id, &visu_data->anim_ticks_ms);
+
+    if(!texture) 
+      texture = anim_tex_get(visu_data->anim, ANIM_STAGE_ID_IDLE, &visu_data->anim_ticks_ms);
 
     if(!SDL_RenderTextureRotated(
       ctx->renderer, 

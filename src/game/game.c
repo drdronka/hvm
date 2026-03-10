@@ -25,6 +25,8 @@ static ret_e game_assets_load()
 {
   LOG_DEBUG("game_assets_load: loading textures\n");
   ctx->tex_list = list_new();
+
+  list_add(ctx->tex_list, asset_tex_new("square", "assets/img/black_square.png", ctx->renderer));
   list_add(ctx->tex_list, asset_tex_new("worm_idle_0", "assets/img/worm_idle_0.png", ctx->renderer));
   list_add(ctx->tex_list, asset_tex_new("worm_idle_1", "assets/img/worm_idle_1.png", ctx->renderer));
   list_add(ctx->tex_list, asset_tex_new("worm_move_0", "assets/img/worm_move_0.png", ctx->renderer));
@@ -35,6 +37,7 @@ static ret_e game_assets_load()
 
   LOG_DEBUG("game_assets_load: composing animations\n");
   ctx->anim_list = list_new();
+    
   anim_t *anim_worm = anim_new("worm");
   anim_stage_t *stage_idle = anim_stage_new(ANIM_STAGE_ID_IDLE);
   anim_stage_add_step(stage_idle, anim_step_new(asset_tex_get(ctx->tex_list, "worm_idle_0"), 600));
