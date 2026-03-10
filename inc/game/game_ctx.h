@@ -23,17 +23,13 @@ typedef struct game_ctx
 
   // engine
   list_t *unit_list;
+  list_t *tex_list;
+  list_t *anim_list;
 
   // gui - move to separate module
   Uint8 sel_en;
   float sel_x;
   float sel_y; 
-
-  // asset
-  list_t *tex_list;
-
-  // anim
-  list_t *anim_list;
 
 } game_ctx_t;
 
