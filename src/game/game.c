@@ -14,6 +14,7 @@
 #include "attr_basic.h"
 #include "attr_cmd.h"
 #include "asset.h"
+#include "gui.h"
 
 // ======================== LOCAL DATA ========================= //
 
@@ -37,7 +38,7 @@ static ret_e game_assets_load()
 
   LOG_DEBUG("game_assets_load: composing animations\n");
   ctx->anim_list = list_new();
-    
+
   anim_t *anim_worm = anim_new("worm");
   anim_stage_t *stage_idle = anim_stage_new(ANIM_STAGE_ID_IDLE);
   anim_stage_add_step(stage_idle, anim_step_new(asset_tex_get(ctx->tex_list, "worm_idle_0"), 600));
@@ -67,30 +68,6 @@ static void game_ticks_update()
 
 // ------------------------------------------------------------- //
 
-static void game_back_draw()
-{
-  game_ctx_color_set_background();
-  SDL_RenderFillRect(ctx->renderer, NULL);  
-}
-
-// ------------------------------------------------------------- //
-
-static void game_sel_rect_draw()
-{
-  if(ctx->sel_en)
-  {
-    float mouse_x, mouse_y;
-    SDL_GetMouseState(&mouse_x, &mouse_y);
-    game_ctx_color_set_select();
-    SDL_RenderLine(ctx->renderer, mouse_x, mouse_y, ctx->sel_x, mouse_y);
-    SDL_RenderLine(ctx->renderer, mouse_x, mouse_y, mouse_x, ctx->sel_y);
-    SDL_RenderLine(ctx->renderer, ctx->sel_x, mouse_y, ctx->sel_x, ctx->sel_y);
-    SDL_RenderLine(ctx->renderer, mouse_x, ctx->sel_y, ctx->sel_x, ctx->sel_y);
-  }
-}
-
-// ------------------------------------------------------------- //
-
 static void game_deinit()
 {
   LOG_INFO("game_deinit\n");
@@ -103,6 +80,99 @@ static void game_deinit()
   unit_list_destroy(ctx->unit_list);
 
   LOG_INFO("game_deinit: finished\n");
+}
+
+// ------------------------------------------------------------- //
+
+static void game_sel_start(float pos_x, float pos_y)
+{
+  ctx->sel_x = pos_x;
+  ctx->sel_y = pos_y;
+  ctx->sel_en = 1;  
+}
+
+// ------------------------------------------------------------- //
+
+static void game_sel_mult_finish(float pos_x, float pos_y)
+{
+  unit_t *unit;
+  list_node_t *iter = list_iter_init(ctx->unit_list);
+  while(unit = list_iter_next(&iter))
+  {
+    attr_psyh_data_t *data = unit_attr_data_get(unit, ATTR_ID_PSYH);
+    if(data)
+    {
+      unit->selected = 
+        IS_BETWEEN(data->pos_x, ctx->sel_x, pos_x) &&
+        IS_BETWEEN(data->pos_y, ctx->sel_y, pos_y);
+    }
+  }
+}
+
+// ------------------------------------------------------------- //
+
+static void game_sel_single(float mouse_x, float mouse_y)
+{
+  Uint8 found;
+  unit_t *unit;
+  list_node_t *iter = list_iter_init(ctx->unit_list);
+  while(unit = list_iter_next(&iter))
+  {
+    attr_psyh_data_t *data = unit_attr_data_get(unit, ATTR_ID_PSYH);
+    if(data)
+    {
+      unit->selected = 
+        IS_BETWEEN(mouse_x, data->pos_x - (data->size_x / 2),  data->pos_x + (data->size_x / 2)) &&
+        IS_BETWEEN(mouse_y, data->pos_y - (data->size_y / 2),  data->pos_y + (data->size_y / 2))
+        && !found;
+                  
+      if(unit->selected) 
+        found = 1;
+    }
+  }
+  ctx->sel_en = 0;
+}
+
+// ------------------------------------------------------------- //
+
+static void game_sel_finish(float pos_x, float pos_y)
+{
+  if(ctx->sel_en)
+    if(ABS(ctx->sel_x, pos_x) < SINGLE_SEL_MARGIN && ABS(ctx->sel_y, pos_y) < SINGLE_SEL_MARGIN)
+      game_sel_single(pos_x, pos_y);
+    else
+      game_sel_mult_finish(pos_x, pos_y);
+  ctx->sel_en = 0;       
+}
+
+// ------------------------------------------------------------- //
+
+static void game_move_units(float dst_x, float dst_y, Uint8 clear_cmd_queue)
+{
+  unit_t *unit;
+  list_node_t *iter = list_iter_init(ctx->unit_list);
+  while(unit = list_iter_next(&iter))
+  {
+    if(unit->selected)
+    {
+      attr_psyh_data_t *data = unit_attr_data_get(unit, ATTR_ID_PSYH);
+      if(data)
+      {
+        if(clear_cmd_queue)
+          unit_cmd_clear_all(unit);
+        unit_attr_add(unit, attr_move_new(dst_x, dst_y, MOVE_TYPE_ABS, 0));
+      }
+    } 
+  }
+}
+
+// ------------------------------------------------------------- //
+
+static void game_spawn_worm(float pos_x, float pos_y)
+{
+  LOG_DEBUG("game_event: spawning worm\n");
+  unit_t *unit = unit_worm_new(pos_x, pos_y);
+  list_add(ctx->unit_list, unit);
 }
 
 // ======================== GLOBAL FUNC ======================== //
@@ -162,13 +232,21 @@ SDL_AppResult game_update()
   LOG_TRACE("game_update\n");
 
   game_ticks_update();
-  game_back_draw();
+
+  gui_bg_draw();
+
   unit_list_attr_clean(ctx->unit_list, ATTR_ID_ANY, ATTR_TYPE_ANY);
   unit_list_attr_run(ctx->unit_list, ATTR_ID_ANY, ATTR_TYPE_CMD);
   unit_list_attr_run(ctx->unit_list, ATTR_ID_WANDER, ATTR_TYPE_ANY);
   unit_list_attr_run(ctx->unit_list, ATTR_ID_VISU, ATTR_TYPE_ANY);
-  game_sel_rect_draw();
 
+  if(ctx->sel_en)
+  {
+    float mouse_x, mouse_y;
+    SDL_GetMouseState(&mouse_x, &mouse_y);
+    gui_sel_rect_draw(ctx->sel_x, ctx->sel_y, mouse_x, mouse_y);
+  }
+   
   SDL_RenderPresent(ctx->renderer);
 
   #if STEP_MODE
@@ -185,109 +263,30 @@ SDL_AppResult game_event(SDL_Event *event)
   LOG_TRACE("game_event: event[%d]\n", event->type);
 
   Uint8 exit = 0;
-
   const bool *keys = SDL_GetKeyboardState(NULL);
 
-  switch(event->type)
+  if(event->type == SDL_EVENT_MOUSE_BUTTON_DOWN)
   {
-    case SDL_EVENT_KEY_DOWN:
-      if(keys[SDL_SCANCODE_ESCAPE])
-        exit = 1;
-      break;
-
-    case SDL_EVENT_MOUSE_BUTTON_DOWN:
-      if(event->button.button == SDL_BUTTON_MIDDLE)
-      {
-        LOG_DEBUG("game_event: adding unit\n");
-        unit_t *unit = unit_worm_new(event->button.x, event->button.y);
-        list_add(ctx->unit_list, unit);
-      }
-      else if(event->button.button == SDL_BUTTON_LEFT)
-      {
-        if(!ctx->sel_en)
-        {
-          ctx->sel_x = event->button.x;
-          ctx->sel_y = event->button.y;
-          ctx->sel_en = 1;
-        }
-      }
-      else if(event->button.button == SDL_BUTTON_RIGHT)
-      {
-        unit_t *unit;
-        list_node_t *iter = list_iter_init(ctx->unit_list);
-        while(unit = list_iter_next(&iter))
-        {
-          if(unit->selected)
-          {
-            attr_psyh_data_t *data = unit_attr_data_get(unit, ATTR_ID_PSYH);
-            if(data)
-            {
-              if(!keys[SDL_SCANCODE_LSHIFT])
-                unit_cmd_clear_all(unit);
-              unit_attr_add(
-                unit, attr_move_new(event->button.x, event->button.y, MOVE_TYPE_ABS, 0));
-            }
-          } 
-        }
-      }
-      break;
-
-    case SDL_EVENT_MOUSE_BUTTON_UP:
-      if(event->button.button == SDL_BUTTON_LEFT)
-      {
-        if(ctx->sel_en)
-        {
-          // single selection
-          if(ABS(ctx->sel_x, event->button.x) < SINGLE_SEL_MARGIN && 
-            ABS(ctx->sel_y, event->button.y) < SINGLE_SEL_MARGIN)
-          {
-            Uint8 found;
-            unit_t *unit;
-            list_node_t *iter = list_iter_init(ctx->unit_list);
-            while(unit = list_iter_next(&iter))
-            {
-              attr_psyh_data_t *data = unit_attr_data_get(unit, ATTR_ID_PSYH);
-              if(data)
-              {
-                unit->selected = 
-                  IS_BETWEEN(
-                    event->button.x, 
-                    data->pos_x - (data->size_x / 2), 
-                    data->pos_x + (data->size_x / 2)) 
-                  && IS_BETWEEN(
-                    event->button.y,
-                    data->pos_y - (data->size_y / 2),
-                    data->pos_y + (data->size_y / 2))
-                  && !found;
-                  
-                if(unit->selected) 
-                  found = 1;
-              }
-            }
-          }
-          else
-          {
-            unit_t *unit;
-            list_node_t *iter = list_iter_init(ctx->unit_list);
-            while(unit = list_iter_next(&iter))
-            {
-              attr_psyh_data_t *data = unit_attr_data_get(unit, ATTR_ID_PSYH);
-              if(data)
-              {
-                unit->selected = 
-                  IS_BETWEEN(data->pos_x, ctx->sel_x, event->button.x) &&
-                  IS_BETWEEN(data->pos_y, ctx->sel_y, event->button.y);
-              }
-            }
-          }
-          ctx->sel_en = 0;
-        }
-      }
-      break;
-
-    case SDL_EVENT_QUIT:
+    if(event->button.button == SDL_BUTTON_MIDDLE)
+      game_spawn_worm(event->button.x, event->button.y);
+    else if(event->button.button == SDL_BUTTON_LEFT)
+      game_sel_start(event->button.x, event->button.y);
+    else if(event->button.button == SDL_BUTTON_RIGHT)
+      game_move_units(event->button.x, event->button.y, !keys[SDL_SCANCODE_LSHIFT]);
+  }
+  else if(event->type == SDL_EVENT_MOUSE_BUTTON_UP)
+  {
+    if(event->button.button == SDL_BUTTON_LEFT)
+      game_sel_finish(event->button.x, event->button.y);
+  }
+  else if(event->type == SDL_EVENT_KEY_DOWN)
+  {
+    if(keys[SDL_SCANCODE_ESCAPE])
       exit = 1;
-      break;
+  }
+  else if(event->type == SDL_EVENT_QUIT)
+  {
+    exit = 1;
   }
 
   if(exit)

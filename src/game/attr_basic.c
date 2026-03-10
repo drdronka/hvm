@@ -11,6 +11,7 @@
 #include "attr_cmd.h"
 #include "unit.h"
 #include "anim.h"
+#include "gui.h"
 
 // ======================== LOCAL DATA ========================= //
 
@@ -113,45 +114,40 @@ void attr_visu_run(void *unit_ref, void *attr_ref)
   attr_psyh_data_t *psyh_data = unit_attr_data_get(unit, ATTR_ID_PSYH);
   attr_visu_data_t *visu_data = attr->data;
 
-  if(psyh_data && visu_data && visu_data->visible)
+  if(!psyh_data || !visu_data || !visu_data->visible)
+    return;
+  
+  SDL_FRect rect;
+  rect.x = psyh_data->pos_x - (psyh_data->size_x / 2);
+  rect.y = psyh_data->pos_y - (psyh_data->size_y / 2);
+  rect.w = psyh_data->size_x;
+  rect.h = psyh_data->size_y;
+
+  visu_data->anim_ticks_ms += ctx->ticks_delta_ms;
+
+  SDL_Texture *texture;
+  texture = anim_tex_get(visu_data->anim, visu_data->anim_stage_id, &visu_data->anim_ticks_ms);
+
+  if(!texture) 
+    texture = anim_tex_get(visu_data->anim, ANIM_STAGE_ID_IDLE, &visu_data->anim_ticks_ms);
+
+  if(!SDL_RenderTextureRotated(
+    ctx->renderer, 
+    texture,
+    NULL, &rect,
+    (psyh_data->dir + (M_PI / 2)) * 180.0 / M_PI,
+    NULL,
+    SDL_FLIP_NONE))
   {
-    SDL_FRect rect;
-    rect.x = psyh_data->pos_x - (psyh_data->size_x / 2);
-    rect.y = psyh_data->pos_y - (psyh_data->size_y / 2);
-    rect.w = psyh_data->size_x;
-    rect.h = psyh_data->size_y;
-
-    visu_data->anim_ticks_ms += ctx->ticks_delta_ms;
-
-    SDL_Texture *texture;
-    texture = anim_tex_get(visu_data->anim, visu_data->anim_stage_id, &visu_data->anim_ticks_ms);
-
-    if(!texture) 
-      texture = anim_tex_get(visu_data->anim, ANIM_STAGE_ID_IDLE, &visu_data->anim_ticks_ms);
-
-    if(!SDL_RenderTextureRotated(
-      ctx->renderer, 
-      texture,
-      NULL, &rect,
-      (psyh_data->dir + (M_PI / 2)) * 180.0 / M_PI,
-      NULL,
-      SDL_FLIP_NONE))
-    {
-      LOG_ERROR("attr_visu: failed to render texture[0x%x]\n", texture);
-    }
-
-    if(unit->selected)
-    {
-      game_ctx_color_set_select();
-      SDL_FRect rect = {
-        psyh_data->pos_x - (psyh_data->size_x / 2),
-        psyh_data->pos_y - (psyh_data->size_y / 2),
-        psyh_data->size_x,
-        psyh_data->size_y,
-      };
-      SDL_RenderRect(ctx->renderer, &rect);
-    }
+    LOG_ERROR("attr_visu: failed to render texture[0x%x]\n", texture);
   }
+
+  if(unit->selected)
+    gui_sel_rect_draw(
+      psyh_data->pos_x - (psyh_data->size_x / 2),
+      psyh_data->pos_y - (psyh_data->size_y / 2),
+      psyh_data->pos_x + (psyh_data->size_x / 2),
+      psyh_data->pos_y + (psyh_data->size_y / 2));
 }
 
 // ------------------------------------------------------------- //

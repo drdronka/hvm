@@ -23,17 +23,3 @@ game_ctx_t *game_ctx_get()
 }
 
 // ------------------------------------------------------------- //
-
-// TBD move to gui module
-void game_ctx_color_set_background()
-{
-  SDL_SetRenderDrawColor(ctx.renderer, 0, 80, 80, 0);
-}
-
-// ------------------------------------------------------------- //
-
-// TBD move to gui module
-void game_ctx_color_set_select()
-{
-  SDL_SetRenderDrawColor(ctx.renderer, 100, 240, 100, 0);
-}
