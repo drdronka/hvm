@@ -209,8 +209,8 @@ void attr_wander_run(void *unit_ref, void *attr_ref)
   {
     if(unit_cmd_is_empty(unit))
     {
-      float dist = SDL_rand(data->range);
-      float dir = SDL_rand(2 * M_PI);
+      float dist = FRAND(data->range);
+      float dir = FRAND(M_PI * 2);
       float dst_x = cos(dir) * dist;
       float dst_y = sin(dir) * dist;
       //LOG_DEBUG("attr_wander_run: wander relative x[%f] y[%f]\n", dst_x, dst_y);

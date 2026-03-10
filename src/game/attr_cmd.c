@@ -30,11 +30,9 @@ void attr_move_run(void *unit_ref, void *attr_ref)
   
   if(!move_data->initialized)
   {
-    // change relative coords to absolute
     if(move_data->type == MOVE_TYPE_REL)
       attr_psyh_rel_to_abs(psyh_data, &move_data->dst_x, &move_data->dst_y);
 
-    // change animation
     attr_visu_anim_stage_set(unit_attr_data_get(unit, ATTR_ID_VISU), ANIM_STAGE_ID_MOVE);
 
     move_data->initialized = 1;
@@ -52,7 +50,6 @@ void attr_move_clean(void *unit_ref, void *attr_ref)
 {
   unit_t *unit = unit_ref;
 
-  // change animation
   attr_visu_anim_stage_set(unit_attr_data_get(unit, ATTR_ID_VISU), ANIM_STAGE_ID_IDLE);
 }
 

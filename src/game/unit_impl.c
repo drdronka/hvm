@@ -1,6 +1,7 @@
 #include <malloc.h>
 #include <math.h>
 
+#include "util.h"
 #include "game_ctx.h"
 #include "unit_impl.h"
 #include "unit_def.h"
@@ -20,7 +21,7 @@ unit_t *unit_worm_new(float pos_x, float pos_y)
   game_ctx_t *ctx = game_ctx_get();
   
   Sint32 size = 96;
-  float dir = SDL_rand(2 * M_PI);
+  float dir = FRAND(2 * M_PI);
   float speed = 3;
 
   unit_attr_add(unit, attr_psyh_new(pos_x, pos_y, size, size, speed, dir));
