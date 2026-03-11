@@ -68,7 +68,7 @@ static ret_e game_assets_load()
   anim_add_stage(anim, stage);
   stage = anim_stage_new(ANIM_STAGE_ID_DEATH);
   anim_stage_add_step(stage, anim_step_new(asset_tex_get(ctx->tex_list, "worm_death_0"), 100));
-  anim_stage_add_step(stage, anim_step_new(asset_tex_get(ctx->tex_list, "worm_death_1"), 120));
+  anim_stage_add_step(stage, anim_step_new(asset_tex_get(ctx->tex_list, "worm_death_1"), 200));
   anim_stage_add_step(stage, anim_step_new(asset_tex_get(ctx->tex_list, "worm_death_2"), 60));
   anim_stage_add_step(stage, anim_step_new(asset_tex_get(ctx->tex_list, "worm_death_3"), 60));
   anim_add_stage(anim, stage);
