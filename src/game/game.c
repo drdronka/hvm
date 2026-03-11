@@ -32,6 +32,10 @@ static ret_e game_assets_load()
   list_add(ctx->tex_list, asset_tex_new("worm_idle_1", "assets/img/worm_idle_1.png", ctx->renderer));
   list_add(ctx->tex_list, asset_tex_new("worm_move_0", "assets/img/worm_move_0.png", ctx->renderer));
   list_add(ctx->tex_list, asset_tex_new("worm_move_1", "assets/img/worm_move_1.png", ctx->renderer));
+  list_add(ctx->tex_list, asset_tex_new("worm_death_0", "assets/img/worm_death_0.png", ctx->renderer));
+  list_add(ctx->tex_list, asset_tex_new("worm_death_1", "assets/img/worm_death_1.png", ctx->renderer));
+  list_add(ctx->tex_list, asset_tex_new("worm_death_2", "assets/img/worm_death_2.png", ctx->renderer));
+  list_add(ctx->tex_list, asset_tex_new("worm_death_3", "assets/img/worm_death_3.png", ctx->renderer));
 
   if(!asset_tex_list_verify(ctx->tex_list)) 
     return RET_ERR;
@@ -51,6 +55,12 @@ static ret_e game_assets_load()
   stage = anim_stage_new(ANIM_STAGE_ID_MOVE);
   anim_stage_add_step(stage, anim_step_new(asset_tex_get(ctx->tex_list, "worm_move_0"), 150));
   anim_stage_add_step(stage, anim_step_new(asset_tex_get(ctx->tex_list, "worm_move_1"), 150));
+  anim_add_stage(anim, stage);
+  stage = anim_stage_new(ANIM_STAGE_ID_DEATH);
+  anim_stage_add_step(stage, anim_step_new(asset_tex_get(ctx->tex_list, "worm_death_0"), 75));
+  anim_stage_add_step(stage, anim_step_new(asset_tex_get(ctx->tex_list, "worm_death_1"), 75));
+  anim_stage_add_step(stage, anim_step_new(asset_tex_get(ctx->tex_list, "worm_death_2"), 75));
+  anim_stage_add_step(stage, anim_step_new(asset_tex_get(ctx->tex_list, "worm_death_3"), 75));
   anim_add_stage(anim, stage);
   list_add(ctx->anim_list, anim);
 
@@ -151,7 +161,7 @@ static void game_sel_finish(float pos_x, float pos_y)
 
 // ------------------------------------------------------------- //
 
-static void game_move_units(float dst_x, float dst_y, Uint8 clear_cmd_queue)
+static void game_units_move(float dst_x, float dst_y, Uint8 clear_cmd_queue)
 {
   unit_t *unit;
   list_node_t *iter = list_iter_init(ctx->unit_list);
@@ -172,7 +182,27 @@ static void game_move_units(float dst_x, float dst_y, Uint8 clear_cmd_queue)
 
 // ------------------------------------------------------------- //
 
-static void game_spawn_worm(float pos_x, float pos_y)
+static void game_units_kill()
+{
+  unit_t *unit;
+  list_node_t *iter = list_iter_init(ctx->unit_list);
+  while(unit = list_iter_next(&iter))
+  {
+    if(unit->selected)
+    {
+      attr_psyh_data_t *data = unit_attr_data_get(unit, ATTR_ID_PSYH);
+      if(data)
+      {
+        unit_cmd_clear_all(unit);
+        unit_attr_add(unit, attr_death_new());
+      }
+    } 
+  }
+}
+
+// ------------------------------------------------------------- //
+
+static void game_worm_spawn(float pos_x, float pos_y)
 {
   LOG_DEBUG("game_event: spawning worm\n");
   unit_t *unit = unit_worm_new(pos_x, pos_y);
@@ -241,6 +271,7 @@ SDL_AppResult game_update()
   gui_bg_draw();
 
   unit_list_attr_clean(ctx->unit_list, ATTR_ID_ANY, ATTR_TYPE_ANY);
+  unit_list_remove_dead(ctx->unit_list);
   unit_list_attr_run(ctx->unit_list, ATTR_ID_ANY, ATTR_TYPE_CMD);
   unit_list_attr_run(ctx->unit_list, ATTR_ID_WANDER, ATTR_TYPE_ANY);
   unit_list_attr_run(ctx->unit_list, ATTR_ID_VISU, ATTR_TYPE_ANY);
@@ -273,11 +304,11 @@ SDL_AppResult game_event(SDL_Event *event)
   if(event->type == SDL_EVENT_MOUSE_BUTTON_DOWN)
   {
     if(event->button.button == SDL_BUTTON_MIDDLE)
-      game_spawn_worm(event->button.x, event->button.y);
+      game_worm_spawn(event->button.x, event->button.y);
     else if(event->button.button == SDL_BUTTON_LEFT)
       game_sel_start(event->button.x, event->button.y);
     else if(event->button.button == SDL_BUTTON_RIGHT)
-      game_move_units(event->button.x, event->button.y, !keys[SDL_SCANCODE_LSHIFT]);
+      game_units_move(event->button.x, event->button.y, !keys[SDL_SCANCODE_LSHIFT]);
   }
   else if(event->type == SDL_EVENT_MOUSE_BUTTON_UP)
   {
@@ -286,6 +317,9 @@ SDL_AppResult game_event(SDL_Event *event)
   }
   else if(event->type == SDL_EVENT_KEY_DOWN)
   {
+    if(keys[SDL_SCANCODE_SPACE])
+      game_units_kill();
+    
     if(keys[SDL_SCANCODE_ESCAPE])
       exit = 1;
   }

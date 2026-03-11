@@ -11,6 +11,7 @@ typedef enum
   ANIM_STAGE_ID_IDLE = 0,
   ANIM_STAGE_ID_INTRO,
   ANIM_STAGE_ID_MOVE,
+  ANIM_STAGE_ID_DEATH,
 } anim_stage_id_e;
 
 typedef struct anim_step
@@ -46,6 +47,7 @@ ret_e anim_add_stage(anim_t *anim, anim_stage_t *stage);
 ret_e anim_list_verify(list_t *list);
 void anim_list_destroy(list_t *list);
 anim_t *anim_get(list_t *anim_list, const char *name);
-SDL_Texture *anim_tex_get(anim_t *anim, anim_stage_id_e stage_id, Uint32 *ticks_ms);
+SDL_Texture *anim_tex_get(anim_t *anim, anim_stage_id_e stage_id, Uint32 *ticks_ms, Uint8 rotate);
+Uint32 anim_stage_ticks_get(anim_t *anim, anim_stage_id_e stage_id);
 
 #endif // __ANIM_H__

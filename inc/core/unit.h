@@ -10,6 +10,7 @@
 typedef struct unit
 {
   Uint8 selected;
+  Uint8 dead;
   unit_id_e id;
   list_t *attr_list;
 } unit_t;
@@ -26,6 +27,7 @@ void unit_attr_run(unit_t *unit, attr_id_e id, attr_type_e type);
 void unit_attr_clean(unit_t *unit, attr_id_e id, attr_type_e type);
 void unit_list_attr_run(list_t *list, attr_id_e id, attr_type_e type);
 void unit_list_attr_clean(list_t *list, attr_id_e id, attr_type_e type);
+void unit_list_remove_dead(list_t *list);
 
 // attr access
 void *unit_attr_data_get(unit_t *unit, Uint32 id);

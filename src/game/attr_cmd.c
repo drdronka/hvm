@@ -33,7 +33,7 @@ void attr_move_run(void *unit_ref, void *attr_ref)
     if(move_data->type == MOVE_TYPE_REL)
       attr_psyh_pos_rel_to_abs(psyh_data, &move_data->dst_x, &move_data->dst_y);
 
-    attr_visu_anim_stage_set(unit_attr_data_get(unit, ATTR_ID_VISU), ANIM_STAGE_ID_MOVE);
+    attr_visu_anim_stage_set(unit_attr_data_get(unit, ATTR_ID_VISU), ANIM_STAGE_ID_MOVE, 1, 0);
 
     move_data->initialized = 1;
   }
@@ -50,7 +50,7 @@ void attr_move_clean(void *unit_ref, void *attr_ref)
 {
   unit_t *unit = unit_ref;
 
-  attr_visu_anim_stage_set(unit_attr_data_get(unit, ATTR_ID_VISU), ANIM_STAGE_ID_IDLE);
+  attr_visu_anim_stage_set(unit_attr_data_get(unit, ATTR_ID_VISU), ANIM_STAGE_ID_IDLE, 1, 1);
 }
 
 // ------------------------------------------------------------- //
@@ -64,6 +64,40 @@ attr_t *attr_move_new(float dst_x, float dst_y, move_type_e type, Uint8 temporar
   data->temporary = temporary;
   data->initialized = 0;
   return attr_new(ATTR_ID_MOVE, ATTR_TYPE_CMD, ATTR_LCS_RUN, data, attr_move_run, attr_move_clean);
+}
+
+// ============================================================= //
+
+void attr_death_run(void *unit_ref, void *attr_ref)
+{
+  unit_t *unit = unit_ref;
+  attr_t *attr = attr_ref;
+
+  game_ctx_t *ctx = game_ctx_get();
+  attr_death_data_t *death_data = attr->data;
+  attr_visu_data_t *visu_data = unit_attr_data_get(unit, ATTR_ID_VISU);  
+  
+  if(death_data->ticks_ms == 0)
+  {
+    attr_visu_anim_stage_set(visu_data, ANIM_STAGE_ID_DEATH, 0, 1);
+    death_data->ticks_limit_ms = attr_visu_anim_stage_ticks_get(visu_data, ANIM_STAGE_ID_DEATH);
+  }
+  
+  death_data->ticks_ms += ctx->ticks_delta_ms;
+  if(death_data->ticks_ms > death_data->ticks_limit_ms)
+  {
+    unit->dead = 1;
+    attr->lcs = ATTR_LCS_CLEAN;
+  }
+}
+
+// ------------------------------------------------------------- //
+
+attr_t *attr_death_new()
+{
+  attr_death_data_t *data = malloc(sizeof(attr_move_data_t));
+  data->ticks_ms = 0;
+  return attr_new(ATTR_ID_MOVE, ATTR_TYPE_CMD, ATTR_LCS_RUN, data, attr_death_run, NULL);
 }
 
 // ============================================================= //

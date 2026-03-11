@@ -168,3 +168,17 @@ void unit_list_attr_clean(list_t *list, attr_id_e id, attr_type_e type)
   while(unit = list_iter_next(&iter))
     unit_attr_clean(unit, id, type);
 }
+
+// ------------------------------------------------------------- //
+
+void unit_list_remove_dead(list_t *list)
+{
+  unit_t *unit;
+  list_node_t *iter = list_iter_init(list);
+  while(unit = list_iter_next(&iter))
+    if(unit->dead)
+    {
+      unit_del(unit);
+      list_del(list, unit);
+    }
+}

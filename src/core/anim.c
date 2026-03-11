@@ -257,7 +257,7 @@ anim_t *anim_get(list_t *anim_list, const char *name)
 
 // ------------------------------------------------------------- //
 
-SDL_Texture *anim_tex_get(anim_t *anim, anim_stage_id_e stage_id, Uint32 *ticks_ms)
+SDL_Texture *anim_tex_get(anim_t *anim, anim_stage_id_e stage_id, Uint32 *ticks_ms, Uint8 rotate)
 {
   anim_stage_t *stage;
   list_node_t *iter = list_iter_init(anim->stage_list);
@@ -266,7 +266,10 @@ SDL_Texture *anim_tex_get(anim_t *anim, anim_stage_id_e stage_id, Uint32 *ticks_
     if(stage->id == stage_id)
     {
       if(*ticks_ms >= stage->ticks_total_ms)
-        *ticks_ms = *ticks_ms % stage->ticks_total_ms;
+        if(rotate)
+          *ticks_ms = *ticks_ms % stage->ticks_total_ms;
+        else
+          *ticks_ms = stage->ticks_total_ms - 1;
 
       Uint32 curr_ticks_ms = 0;
       anim_step_t *step;
@@ -286,4 +289,17 @@ SDL_Texture *anim_tex_get(anim_t *anim, anim_stage_id_e stage_id, Uint32 *ticks_
     }
   }
   return NULL;
+}
+
+// ------------------------------------------------------------- //
+
+Uint32 anim_stage_ticks_get(anim_t *anim, anim_stage_id_e stage_id)
+{
+  anim_stage_t *stage;
+  list_node_t *iter = list_iter_init(anim->stage_list);
+  while(stage = list_iter_next(&iter))
+    if(stage->id == stage_id)
+      return stage->ticks_total_ms;
+
+  return 0;
 }

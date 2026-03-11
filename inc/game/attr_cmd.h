@@ -24,4 +24,16 @@ void attr_move_clean(void *unit_ref, void *attr_ref);
 
 // ------------------------------------------------------------- //
 
+typedef struct attr_death_data
+{
+  Uint32 ticks_ms;
+  Uint32 ticks_limit_ms;
+} attr_death_data_t;
+
+attr_t *attr_death_new();
+void attr_death_run(void *unit_ref, void *attr_ref);
+void attr_death_clean(void *unit_ref, void *attr_ref);
+
+// ------------------------------------------------------------- //
+
 #endif // __ATTR_IMPL_H__
