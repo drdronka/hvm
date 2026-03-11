@@ -101,3 +101,43 @@ attr_t *attr_death_new()
 }
 
 // ============================================================= //
+
+void attr_enter_run(void *unit_ref, void *attr_ref)
+{
+  unit_t *unit = unit_ref;
+  attr_t *attr = attr_ref;
+
+  game_ctx_t *ctx = game_ctx_get();
+  attr_death_data_t *enter_data = attr->data;
+  attr_visu_data_t *visu_data = unit_attr_data_get(unit, ATTR_ID_VISU);  
+  
+  if(enter_data->ticks_ms == 0)
+  {
+    attr_visu_anim_stage_set(visu_data, ANIM_STAGE_ID_ENTER, 0, 1);
+    enter_data->ticks_limit_ms = attr_visu_anim_stage_ticks_get(visu_data, ANIM_STAGE_ID_ENTER);
+  }
+  
+  enter_data->ticks_ms += ctx->ticks_delta_ms;
+  if(enter_data->ticks_ms > enter_data->ticks_limit_ms)
+    attr->lcs = ATTR_LCS_CLEAN;
+}
+
+// ------------------------------------------------------------- //
+
+void attr_enter_clean(void *unit_ref, void *attr_ref)
+{
+  unit_t *unit = unit_ref;
+
+  attr_visu_anim_stage_set(unit_attr_data_get(unit, ATTR_ID_VISU), ANIM_STAGE_ID_IDLE, 1, 1);
+}
+
+// ------------------------------------------------------------- //
+
+attr_t *attr_enter_new()
+{
+  attr_death_data_t *data = malloc(sizeof(attr_move_data_t));
+  data->ticks_ms = 0;
+  return attr_new(ATTR_ID_MOVE, ATTR_TYPE_CMD, ATTR_LCS_RUN, data, attr_enter_run, attr_enter_clean);
+}
+
+// ============================================================= //

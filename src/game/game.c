@@ -28,6 +28,10 @@ static ret_e game_assets_load()
   ctx->tex_list = list_new();
 
   list_add(ctx->tex_list, asset_tex_new("square", "assets/img/black_square.png", ctx->renderer));
+  list_add(ctx->tex_list, asset_tex_new("worm_enter_0", "assets/img/worm_enter_0.png", ctx->renderer));
+  list_add(ctx->tex_list, asset_tex_new("worm_enter_1", "assets/img/worm_enter_1.png", ctx->renderer));
+  list_add(ctx->tex_list, asset_tex_new("worm_enter_2", "assets/img/worm_enter_2.png", ctx->renderer));
+  list_add(ctx->tex_list, asset_tex_new("worm_enter_3", "assets/img/worm_enter_3.png", ctx->renderer));
   list_add(ctx->tex_list, asset_tex_new("worm_idle_0", "assets/img/worm_idle_0.png", ctx->renderer));
   list_add(ctx->tex_list, asset_tex_new("worm_idle_1", "assets/img/worm_idle_1.png", ctx->renderer));
   list_add(ctx->tex_list, asset_tex_new("worm_move_0", "assets/img/worm_move_0.png", ctx->renderer));
@@ -48,6 +52,12 @@ static ret_e game_assets_load()
   anim_step_t *step;
 
   anim = anim_new("worm");
+  stage = anim_stage_new(ANIM_STAGE_ID_ENTER);
+  anim_stage_add_step(stage, anim_step_new(asset_tex_get(ctx->tex_list, "worm_enter_0"), 25));
+  anim_stage_add_step(stage, anim_step_new(asset_tex_get(ctx->tex_list, "worm_enter_1"), 25));
+  anim_stage_add_step(stage, anim_step_new(asset_tex_get(ctx->tex_list, "worm_enter_2"), 25));
+  anim_stage_add_step(stage, anim_step_new(asset_tex_get(ctx->tex_list, "worm_enter_3"), 25));
+  anim_add_stage(anim, stage);
   stage = anim_stage_new(ANIM_STAGE_ID_IDLE);
   anim_stage_add_step(stage, anim_step_new(asset_tex_get(ctx->tex_list, "worm_idle_0"), 600));
   anim_stage_add_step(stage, anim_step_new(asset_tex_get(ctx->tex_list, "worm_idle_1"), 600));
@@ -207,6 +217,7 @@ static void game_worm_spawn(float pos_x, float pos_y)
   LOG_DEBUG("game_event: spawning worm\n");
   unit_t *unit = unit_worm_new(pos_x, pos_y);
   list_add(ctx->unit_list, unit);
+  unit_attr_add(unit, attr_enter_new());
 }
 
 // ======================== GLOBAL FUNC ======================== //

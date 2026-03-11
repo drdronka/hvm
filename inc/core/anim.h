@@ -9,7 +9,7 @@
 typedef enum 
 {
   ANIM_STAGE_ID_IDLE = 0,
-  ANIM_STAGE_ID_INTRO,
+  ANIM_STAGE_ID_ENTER,
   ANIM_STAGE_ID_MOVE,
   ANIM_STAGE_ID_DEATH,
 } anim_stage_id_e;

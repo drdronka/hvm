@@ -36,4 +36,16 @@ void attr_death_clean(void *unit_ref, void *attr_ref);
 
 // ------------------------------------------------------------- //
 
+typedef struct attr_enter_data
+{
+  Uint32 ticks_ms;
+  Uint32 ticks_limit_ms;
+} attr_enter_data_t;
+
+attr_t *attr_enter_new();
+void attr_enter_run(void *unit_ref, void *attr_ref);
+void attr_enter_clean(void *unit_ref, void *attr_ref);
+
+// ------------------------------------------------------------- //
+
 #endif // __ATTR_IMPL_H__
