@@ -51,6 +51,7 @@ void attr_list_destroy(list_t *list)
     LOG_ERROR("attr_list_destroy: NULL list[0x%x]\n", list);
     return;
   }
+  LOG_DEBUG("attr_list_destroy: list[0x%x]\n", list);
 
   attr_t *attr;
   list_node_t *iter = list_iter_init(list);
