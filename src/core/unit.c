@@ -43,7 +43,7 @@ void unit_del(unit_t *unit)
 
 void unit_attr_add(unit_t *unit, attr_t *attr)
 {
-  list_add(unit->attr_list, (void*)attr);
+  list_add(unit->attr_list, attr);
 }
 
 // ------------------------------------------------------------- //
@@ -94,7 +94,7 @@ void *unit_cmd_clear_all(unit_t *unit)
   attr_t *attr;
   list_node_t *iter = list_iter_init(unit->attr_list);
   while(attr = list_iter_next(&iter))
-    if(attr->type == ATTR_TYPE_CMD)
+    if(attr->type == ATTR_TYPE_CMD && !attr->protected)
       attr->lcs = ATTR_LCS_CLEAN;
 
   return NULL;

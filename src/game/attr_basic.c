@@ -100,7 +100,7 @@ attr_t *attr_psyh_new(float pos_x, float pos_y, float size_x, float size_y, floa
   psyh_data->size_y = size_y;
   psyh_data->speed = speed;
   psyh_data->dir = dir;
-  return attr_new(ATTR_ID_PSYH, ATTR_TYPE_BASIC, ATTR_LCS_RUN, psyh_data, NULL, NULL);
+  return attr_new(ATTR_ID_PSYH, ATTR_TYPE_BASIC, ATTR_LCS_RUN, 0, psyh_data, NULL, NULL);
 }
 
 // ============================================================= //
@@ -188,7 +188,7 @@ attr_t *attr_visu_new(anim_t *anim, anim_stage_id_e stage_id)
   visu_data->anim_stage_id = stage_id;
   visu_data->anim_ticks_ms = 0;
   visu_data->visible = 1;
-  return attr_new(ATTR_ID_VISU, ATTR_TYPE_BASIC, ATTR_LCS_RUN, visu_data, attr_visu_run, NULL);
+  return attr_new(ATTR_ID_VISU, ATTR_TYPE_BASIC, ATTR_LCS_RUN, 0, visu_data, attr_visu_run, NULL);
 }
 
 // ============================================================= //
@@ -250,6 +250,6 @@ attr_t *attr_wander_new(float range, float ticks_max_ms)
   data->initialized = 0;
   data->ticks_ms = 0;
   data->ticks_next_ms = SDL_rand(ticks_max_ms);
-  return attr_new(ATTR_ID_WANDER, ATTR_TYPE_BASIC, ATTR_LCS_RUN, data, attr_wander_run, NULL);
+  return attr_new(ATTR_ID_WANDER, ATTR_TYPE_BASIC, ATTR_LCS_RUN, 0, data, attr_wander_run, NULL);
 }
 

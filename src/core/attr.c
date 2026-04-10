@@ -12,7 +12,14 @@
 
 // ======================== GLOBAL FUNC ======================== //
 
-attr_t *attr_new(attr_id_e id, attr_type_e type, attr_lcs_e lcs, void *data, attr_f *run, attr_f *clean)
+attr_t *attr_new(
+  attr_id_e id, 
+  attr_type_e type, 
+  attr_lcs_e lcs, 
+  Uint8 protected,
+  void *data, 
+  attr_f *run, 
+  attr_f *clean)
 {
   LOG_DEBUG("attr_new: id[%u] type[%u] lcs[%u]\n", id, type, lcs);
 
@@ -21,6 +28,7 @@ attr_t *attr_new(attr_id_e id, attr_type_e type, attr_lcs_e lcs, void *data, att
   attr->id = id;
   attr->type = type;
   attr->lcs = lcs;
+  attr->protected = protected;
   attr->data = data;
   attr->run = run;
   attr->clean = clean;

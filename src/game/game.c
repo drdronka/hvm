@@ -192,7 +192,7 @@ static void game_units_move(float dst_x, float dst_y, Uint8 clear_cmd_queue)
 
 // ------------------------------------------------------------- //
 
-static void game_units_kill()
+static void game_units_kill(Uint8 clear_cmd_queue)
 {
   unit_t *unit;
   list_node_t *iter = list_iter_init(ctx->unit_list);
@@ -203,7 +203,8 @@ static void game_units_kill()
       attr_psyh_data_t *data = unit_attr_data_get(unit, ATTR_ID_PSYH);
       if(data)
       {
-        unit_cmd_clear_all(unit);
+        if(clear_cmd_queue)
+          unit_cmd_clear_all(unit);
         unit_attr_add(unit, attr_death_new());
       }
     } 
@@ -329,7 +330,7 @@ SDL_AppResult game_event(SDL_Event *event)
   else if(event->type == SDL_EVENT_KEY_DOWN)
   {
     if(keys[SDL_SCANCODE_SPACE])
-      game_units_kill();
+      game_units_kill(!keys[SDL_SCANCODE_LSHIFT]);
     
     if(keys[SDL_SCANCODE_ESCAPE])
       exit = 1;

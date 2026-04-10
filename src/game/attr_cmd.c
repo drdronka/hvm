@@ -63,7 +63,7 @@ attr_t *attr_move_new(float dst_x, float dst_y, move_type_e type, Uint8 temporar
   data->type = type;
   data->temporary = temporary;
   data->initialized = 0;
-  return attr_new(ATTR_ID_MOVE, ATTR_TYPE_CMD, ATTR_LCS_RUN, data, attr_move_run, attr_move_clean);
+  return attr_new(ATTR_ID_MOVE, ATTR_TYPE_CMD, ATTR_LCS_RUN, 0, data, attr_move_run, attr_move_clean);
 }
 
 // ============================================================= //
@@ -97,7 +97,7 @@ attr_t *attr_death_new()
 {
   attr_death_data_t *data = malloc(sizeof(attr_move_data_t));
   data->ticks_ms = 0;
-  return attr_new(ATTR_ID_MOVE, ATTR_TYPE_CMD, ATTR_LCS_RUN, data, attr_death_run, NULL);
+  return attr_new(ATTR_ID_MOVE, ATTR_TYPE_CMD, ATTR_LCS_RUN, 1, data, attr_death_run, NULL);
 }
 
 // ============================================================= //
@@ -137,7 +137,7 @@ attr_t *attr_enter_new()
 {
   attr_death_data_t *data = malloc(sizeof(attr_move_data_t));
   data->ticks_ms = 0;
-  return attr_new(ATTR_ID_MOVE, ATTR_TYPE_CMD, ATTR_LCS_RUN, data, attr_enter_run, attr_enter_clean);
+  return attr_new(ATTR_ID_MOVE, ATTR_TYPE_CMD, ATTR_LCS_RUN, 1, data, attr_enter_run, attr_enter_clean);
 }
 
 // ============================================================= //
