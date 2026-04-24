@@ -9,7 +9,7 @@
 
 anim_step_t *anim_step_new(SDL_Texture *tex, Uint32 ticks_ms)
 {
-  LOG_DEBUG("anim_step_new: tex[0x%x] ticks_ms[%u]\n", tex, ticks_ms);
+  LOG_DEBUG("tex[0x%x] ticks_ms[%u]\n", tex, ticks_ms);
 
   anim_step_t *step = malloc(sizeof(anim_step_t));
   step->tex = tex;
@@ -24,7 +24,7 @@ void anim_step_del(anim_step_t *step)
 {
   if(!step)
   {
-    LOG_ERROR("anim_step_del: NULL step\n");
+    LOG_ERROR("NULL step\n");
     return;
   }
   free(step);
@@ -36,12 +36,12 @@ ret_e anim_step_verify(anim_step_t *step)
 {
   if(!step)
   {
-    LOG_ERROR("anim_verify: NULL step\n");
+    LOG_ERROR("NULL step\n");
     return RET_ERR;
   }
   if(!step->tex)
   {
-    LOG_ERROR("anim_verify: NULL texture\n");
+    LOG_ERROR("NULL texture\n");
     return RET_ERR;
   }
   return RET_OK;
@@ -51,7 +51,7 @@ ret_e anim_step_verify(anim_step_t *step)
 
 anim_stage_t *anim_stage_new(anim_stage_id_e stage_id)
 {
-  LOG_DEBUG("anim_stage_new: id[%u]\n", stage_id);
+  LOG_DEBUG("id[%u]\n", stage_id);
 
   anim_stage_t *stage = malloc(sizeof(anim_stage_t));
   memset(stage, 0, sizeof(anim_stage_t));
@@ -67,7 +67,7 @@ void anim_stage_del(anim_stage_t *stage)
 {
   if(!stage)
   {
-    LOG_ERROR("anim_stage_del: NULL stage");
+    LOG_ERROR("NULL stage");
     return;
   }
 
@@ -88,12 +88,12 @@ ret_e anim_stage_verify(anim_stage_t *stage)
 {
   if(!stage)
   {
-    LOG_ERROR("anim_verify: NULL stage\n");
+    LOG_ERROR("NULL stage\n");
     return RET_ERR;
   }
   if(!stage->step_list)
   {
-    LOG_ERROR("anim_verify: NULL step list\n");
+    LOG_ERROR("NULL step list\n");
     return RET_ERR;
   }
 
@@ -112,7 +112,7 @@ ret_e anim_stage_add_step(anim_stage_t *stage, anim_step_t *step)
 {
   if(!stage)
   {
-    LOG_ERROR("anim_stage_add_step: NULL stage");
+    LOG_ERROR("NULL stage");
     return RET_ERR;
   }
 
@@ -126,7 +126,7 @@ ret_e anim_stage_add_step(anim_stage_t *stage, anim_step_t *step)
 
 anim_t *anim_new(const char *name)
 {
-  LOG_DEBUG("anim_new: name[%s]\n", name);
+  LOG_DEBUG("name[%s]\n", name);
 
   anim_t *anim = malloc(sizeof(anim_t));
   memset(anim, 0, sizeof(anim_t));
@@ -141,11 +141,11 @@ anim_t *anim_new(const char *name)
 
 void anim_del(anim_t *anim)
 {
-  LOG_DEBUG("anim_del: anim[0x%x]\n", anim);
+  LOG_DEBUG("anim[0x%x]\n", anim);
 
   if(!anim)
   {
-    LOG_ERROR("anim_del: NULL anim\n");
+    LOG_ERROR("NULL anim\n");
     return;
   }
    
@@ -166,12 +166,12 @@ ret_e anim_verify(anim_t *anim)
 {
   if(!anim) 
   {
-    LOG_ERROR("anim_verify: NULL anim\n");
+    LOG_ERROR("NULL anim\n");
     return RET_ERR;
   }
   if(!anim->stage_list)
   {
-    LOG_ERROR("anim_verify: NULL stage list\n");
+    LOG_ERROR("NULL stage list\n");
     return RET_ERR;
   }
 
@@ -190,7 +190,7 @@ ret_e anim_add_stage(anim_t *anim, anim_stage_t *stage)
 {
   if(!anim)
   {
-    LOG_ERROR("anim_add_stage: NULL anim");
+    LOG_ERROR("NULL anim");
     return RET_ERR;
   }
 
@@ -205,10 +205,10 @@ ret_e anim_list_verify(list_t *list)
 {
   if(!list)
   {
-    LOG_ERROR("anim_list_verify: NULL list\n");
+    LOG_ERROR("NULL list\n");
     return RET_ERR;
   }
-  LOG_DEBUG("anim_verify: list[0x%x]\n", list);
+  LOG_DEBUG("list[0x%x]\n", list);
 
   anim_t *anim;
   list_node_t *anim_iter = list_iter_init(list);
@@ -225,10 +225,10 @@ void anim_list_destroy(list_t *list)
 {
   if(!list)
   {
-    LOG_ERROR("anim_list_destroy: NULL list\n");
+    LOG_ERROR("NULL list\n");
     return;
   }
-  LOG_DEBUG("anim_list_destroy: list[0x%x]\n", list);
+  LOG_DEBUG("list[0x%x]\n", list);
 
   anim_t *anim;
   list_node_t *anim_iter = list_iter_init(list);
@@ -250,7 +250,7 @@ anim_t *anim_get(list_t *anim_list, const char *name)
     if(!strncmp(name, anim->name, strlen(name)))
       return anim;
 
-  LOG_ERROR("anim_get: anim not found: name[%s]", name);
+  LOG_ERROR("anim not found: name[%s]", name);
 
   return NULL;
 }
@@ -282,9 +282,7 @@ SDL_Texture *anim_tex_get(anim_t *anim, anim_stage_id_e stage_id, Uint32 *ticks_
           return step->tex;
         }
       }
-      LOG_ERROR(
-        "anim_texture_get: error: texture not found: stage id[%d] ticks_ms[%d]\n", 
-        stage_id, *ticks_ms);
+      LOG_ERROR("texture not found: stage id[%d] ticks_ms[%d]\n", stage_id, *ticks_ms);
       break;
     }
   }

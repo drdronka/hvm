@@ -23,7 +23,7 @@ void attr_move_run(void *unit_ref, void *attr_ref)
 
   if(!move_data || !psyh_data)
   {
-    LOG_DEBUG("attr_move: NULL attr data: move_data[%x] psyh_data[%x]\n", move_data, psyh_data);
+    LOG_DEBUG("NULL attr data: move_data[%x] psyh_data[%x]\n", move_data, psyh_data);
     attr->lcs = ATTR_LCS_CLEAN;
     return;
   }

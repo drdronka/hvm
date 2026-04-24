@@ -26,7 +26,7 @@ ret_e attr_psyh_move(unit_t *unit, float dst_x, float dst_y, move_type_e type, U
 
   if(!data)
   {
-    LOG_ERROR("attr_psyh_move: NULL psyh data\n");
+    LOG_ERROR("NULL psyh data\n");
     return RET_ERR;
   }
 
@@ -141,7 +141,7 @@ void attr_visu_run(void *unit_ref, void *attr_ref)
     NULL,
     SDL_FLIP_NONE))
   {
-    LOG_ERROR("attr_visu: failed to render texture[0x%x]\n", texture);
+    LOG_ERROR("failed to render texture[0x%x]\n", texture);
   }
 
   if(unit->selected)
@@ -211,7 +211,7 @@ void attr_wander_run(void *unit_ref, void *attr_ref)
     }
     else
     {
-      LOG_DEBUG("attr_wander_run: no psyh data\n");
+      LOG_DEBUG("no psyh data\n");
     }
   }
 

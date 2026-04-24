@@ -79,7 +79,7 @@ void list_del(list_t *list, void *ptr)
       }
     }
   }
-  LOG_ERROR("list: invalid node remove [%x]", ptr);
+  LOG_ERROR("invalid node remove [%x]", ptr);
 }
 
 // ------------------------------------------------------------- //
@@ -88,10 +88,10 @@ void list_destroy(list_t *list)
 {
   if(!list) 
   {
-    LOG_ERROR("list_destroy: NULL list");
+    LOG_ERROR("NULL list");
     return;
   }
-  LOG_DEBUG("list_destroy: list[%x]\n", list);
+  LOG_DEBUG("list[%x]\n", list);
   free(list);
 }
 

@@ -5,82 +5,42 @@
 
 #include "gcfg.h"
 
-#if LOG_LEVEL > 0
-  #define LOG_LEVEL_ERROR 1
-#else
-  #define LOG_LEVEL_ERROR 0
-#endif
+#define LOG_LEVEL_ERROR   (LOG_LEVEL >= 1)
+#define LOG_LEVEL_WARNING (LOG_LEVEL >= 2)
+#define LOG_LEVEL_INFO    (LOG_LEVEL >= 3)
+#define LOG_LEVEL_DEBUG   (LOG_LEVEL >= 4)
+#define LOG_LEVEL_TRACE   (LOG_LEVEL >= 5)
 
-#if LOG_LEVEL > 1
-  #define LOG_LEVEL_INFO 1
-#else
-  #define LOG_LEVEL_INFO 0
-#endif
-
-#if LOG_LEVEL > 2
-  #define LOG_LEVEL_DEBUG 1
-#else
-  #define LOG_LEVEL_DEBUG 0
-#endif
-
-#if LOG_LEVEL > 3
-  #define LOG_LEVEL_TRACE 1
-#else
-  #define LOG_LEVEL_TRACE 0
-#endif
+#define LOG_STREAM_ERR stderr
 
 #if LOG_FORCE_STDERR
+  #define LOG_STREAM_STD stderr
+#else
+  #define LOG_STREAM_STD stdout
+#endif
 
-  #if LOG_LEVEL_ERROR
-    #define LOG_ERROR(...) do { fprintf(stderr, "ERR: "); fprintf(stderr, __VA_ARGS__); } while(0)
-  #else
-    #define LOG_ERROR(...)
-  #endif
+#if LOG_LEVEL_ERROR
+  #define LOG_ERROR(...) do { fprintf(LOG_STREAM_ERR, "ERR: %s: ", __FUNCTION__); fprintf(LOG_STREAM_ERR, __VA_ARGS__); } while(0)
+#else
+  #define LOG_ERROR(...)
+#endif
 
-  #if LOG_LEVEL_INFO
-    #define LOG_INFO(...) fprintf(stderr, __VA_ARGS__)
-  #else
-    #define LOG_INFO(...)
-  #endif
+#if LOG_LEVEL_INFO
+  #define LOG_INFO(...) do { fprintf(LOG_STREAM_STD, "%s: ", __FUNCTION__); fprintf(LOG_STREAM_STD, __VA_ARGS__); } while(0)
+#else
+  #define LOG_INFO(...)
+#endif
 
-  #if LOG_LEVEL_DEBUG
-    #define LOG_DEBUG(...) fprintf(stderr, __VA_ARGS__)
-  #else
-    #define LOG_DEBUG(...)
-  #endif
+#if LOG_LEVEL_DEBUG
+  #define LOG_DEBUG(...) do { fprintf(LOG_STREAM_STD, "%s: ", __FUNCTION__); fprintf(LOG_STREAM_STD, __VA_ARGS__); } while(0)
+#else
+  #define LOG_DEBUG(...)
+#endif
 
-  #if LOG_LEVEL_TRACE
-    #define LOG_TRACE(...) fprintf(stderr, __VA_ARGS__)
-  #else
-    #define LOG_TRACE(...)
-  #endif
-
-#else // LOG_FORCE_STDERR
-
-  #if LOG_LEVEL_ERROR
-    #define LOG_ERROR(...) do { fprintf(stderr, "ERR: "); fprintf(stderr, __VA_ARGS__); } while(0)
-  #else
-    #define LOG_ERROR(...)
-  #endif
-
-  #if LOG_LEVEL_INFO
-    #define LOG_INFO(...) printf(__VA_ARGS__)
-  #else
-    #define LOG_INFO(...)
-  #endif
-
-  #if LOG_LEVEL_DEBUG
-    #define LOG_DEBUG(...) printf(__VA_ARGS__)
-  #else
-    #define LOG_DEBUG(...)
-  #endif
-
-  #if LOG_LEVEL_TRACE
-    #define LOG_TRACE(...) printf(__VA_ARGS__)
-  #else
-    #define LOG_TRACE(...)
-  #endif
-
-#endif // __LOG_FORCE_STDERR
+#if LOG_LEVEL_TRACE
+  #define LOG_TRACE(...) do { fprintf(LOG_STREAM_STD, "%s: ", __FUNCTION__); fprintf(LOG_STREAM_STD, __VA_ARGS__); } while(0)
+#else
+  #define LOG_TRACE(...)
+#endif
 
 #endif // __LOG_H__

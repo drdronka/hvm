@@ -13,14 +13,14 @@
 
 asset_tex_t *asset_tex_new(const char *name, const char *path, SDL_Renderer *renderer)
 {
-  LOG_DEBUG("asset_tex_new: name[%s] path[%s]\n", name, path);
+  LOG_DEBUG("name[%s] path[%s]\n", name, path);
 
   asset_tex_t *tex = malloc(sizeof(asset_tex_t));
 
   SDL_Surface *surf = SDL_LoadPNG(path);
   if(!surf)
   {
-    LOG_ERROR("asset_tex_new: SDL: %s\n", SDL_GetError());
+    LOG_ERROR("SDL: %s\n", SDL_GetError());
     free(tex);
     return NULL;
   }
@@ -28,7 +28,7 @@ asset_tex_t *asset_tex_new(const char *name, const char *path, SDL_Renderer *ren
 
   if(!tex->texture)
   {
-    LOG_ERROR("asset_tex_new: SDL: %s\n", SDL_GetError());
+    LOG_ERROR("SDL: %s\n", SDL_GetError());
     free(tex);
     return NULL;
   }
@@ -48,11 +48,11 @@ void asset_tex_del(asset_tex_t *tex)
 {
   if(!tex)
   {
-    LOG_ERROR("asset_tex_del: NULL tex\n");
+    LOG_ERROR("NULL tex\n");
     return;
   }
 
-  LOG_DEBUG("asset_tex_del: tex[0x%x]\n", tex);
+  LOG_DEBUG("tex[0x%x]\n", tex);
   if(tex->texture) SDL_DestroyTexture(tex->texture);
   if(tex->name) free(tex->name);
   free(tex);
@@ -64,12 +64,12 @@ ret_e asset_tex_verify(asset_tex_t *tex)
 {
   if(!tex)
   {
-    LOG_ERROR("asset_tex_verify: NULL tex");
+    LOG_ERROR("NULL tex");
     return RET_ERR;
   }
   if(!tex->texture)
   {
-    LOG_ERROR("asset_tex_verify: NULL texture");
+    LOG_ERROR("NULL texture");
     return RET_ERR;
   }
 
@@ -81,10 +81,10 @@ void asset_tex_list_destroy(list_t *list)
 {
   if(!list)
   {
-    LOG_ERROR("asset_tex_list_destroy: NULL list");
+    LOG_ERROR("NULL list");
     return;
   }
-  LOG_DEBUG("asset_tex_list_destroy: list[0x%x]\n", list);
+  LOG_DEBUG("list[0x%x]\n", list);
 
   asset_tex_t *tex;
   list_node_t *iter = list_iter_init(list);
@@ -106,7 +106,7 @@ SDL_Texture *asset_tex_get(list_t *tex_list, char* name)
     if(!strncmp(name, tex->name, strlen(name)))
       return tex->texture;
 
-  LOG_ERROR("asset_tex_del: tex not found: name[%s]\n", name);
+  LOG_ERROR("tex not found: name[%s]\n", name);
 
   return NULL;
 }
@@ -117,10 +117,10 @@ ret_e asset_tex_list_verify(list_t *list)
 {
   if(!list)
   {
-    LOG_ERROR("asset_tex_list_verify: NULL list\n");
+    LOG_ERROR("NULL list\n");
     return RET_ERR;
   }
-  LOG_DEBUG("asset_tex_list_verify: list[0x%x]\n", list);
+  LOG_DEBUG("list[0x%x]\n", list);
 
   asset_tex_t *tex;
   list_node_t *iter = list_iter_init(list);

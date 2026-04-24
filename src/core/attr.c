@@ -21,7 +21,7 @@ attr_t *attr_new(
   attr_f *run, 
   attr_f *clean)
 {
-  LOG_DEBUG("attr_new: id[%u] type[%u] lcs[%u]\n", id, type, lcs);
+  LOG_DEBUG("id[%u] type[%u] lcs[%u]\n", id, type, lcs);
 
   attr_t *attr = malloc(sizeof(attr_t));
   memset(attr, 0, sizeof(attr));
@@ -42,10 +42,10 @@ void attr_del(attr_t *attr)
 {
   if(!attr)
   {
-    LOG_ERROR("attr_del: NULL attr\n");
+    LOG_ERROR("NULL attr\n");
   }
 
-  LOG_DEBUG("attr_del: id[%u] type[%u] lcs[%u]\n", attr->id, attr->type, attr->lcs);
+  LOG_DEBUG("id[%u] type[%u] lcs[%u]\n", attr->id, attr->type, attr->lcs);
   if(attr->data) free(attr->data);
   free(attr);
 }
@@ -56,10 +56,10 @@ void attr_list_destroy(list_t *list)
 {
   if(!list)
   {
-    LOG_ERROR("attr_list_destroy: NULL list[0x%x]\n", list);
+    LOG_ERROR("NULL list[0x%x]\n", list);
     return;
   }
-  LOG_DEBUG("attr_list_destroy: list[0x%x]\n", list);
+  LOG_DEBUG("list[0x%x]\n", list);
 
   attr_t *attr;
   list_node_t *iter = list_iter_init(list);

@@ -14,7 +14,7 @@
 
 unit_t *unit_new(unit_id_e unit_id)
 {
-  LOG_DEBUG("unit_new: id[%u]\n", unit_id);
+  LOG_DEBUG("id[%u]\n", unit_id);
 
   unit_t *unit = malloc(sizeof(unit_t));
   memset(unit, 0, sizeof(unit_t));
@@ -30,11 +30,11 @@ void unit_del(unit_t *unit)
 {
   if(!unit)
   {
-    LOG_ERROR("unit_del: NULL unit\n");
+    LOG_ERROR("NULL unit\n");
     return;
   }
 
-  LOG_DEBUG("unit_del: id[%u]\n", unit->id);
+  LOG_DEBUG("id[%u]\n", unit->id);
   attr_list_destroy(unit->attr_list);
   free(unit);
 }
@@ -59,10 +59,10 @@ void unit_list_destroy(list_t *list)
 {
   if(!list)
   {
-    LOG_ERROR("unit_list_destroy: NULL list\n");
+    LOG_ERROR("NULL list\n");
     return;
   }
-  LOG_DEBUG("unit_list_destroy: list[0x%x]\n", list);
+  LOG_DEBUG("list[0x%x]\n", list);
 
   unit_t *unit;
   list_node_t *unit_iter = list_iter_init(list);

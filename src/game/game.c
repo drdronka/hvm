@@ -24,7 +24,7 @@ static game_ctx_t *ctx = NULL;
 
 static ret_e game_assets_load()
 {
-  LOG_DEBUG("game_assets_load: loading textures\n");
+  LOG_DEBUG("loading textures\n");
   ctx->tex_list = list_new();
 
   list_add(ctx->tex_list, asset_tex_new("square", "assets/img/black_square.png", ctx->renderer));
@@ -44,7 +44,7 @@ static ret_e game_assets_load()
   if(!asset_tex_list_verify(ctx->tex_list)) 
     return RET_ERR;
 
-  LOG_DEBUG("game_assets_load: composing animations\n");
+  LOG_DEBUG("composing animations\n");
   ctx->anim_list = list_new();
 
   anim_t *anim;
@@ -94,7 +94,7 @@ static void game_ticks_update()
 
 static void game_deinit()
 {
-  LOG_INFO("game_deinit\n");
+  LOG_INFO("deinitializing game\n");
 
   if(ctx->renderer) SDL_DestroyRenderer(ctx->renderer);
   if(ctx->window) SDL_DestroyWindow(ctx->window);
@@ -103,7 +103,7 @@ static void game_deinit()
   anim_list_destroy(ctx->anim_list);
   unit_list_destroy(ctx->unit_list);
 
-  LOG_INFO("game_deinit: finished\n");
+  LOG_INFO("finished\n");
 }
 
 // ------------------------------------------------------------- //
@@ -215,7 +215,7 @@ static void game_units_kill(Uint8 clear_cmd_queue)
 
 static void game_worm_spawn(float pos_x, float pos_y)
 {
-  LOG_DEBUG("game_event: spawning worm\n");
+  LOG_DEBUG("spawning worm\n");
   unit_t *unit = unit_worm_new(pos_x, pos_y);
   list_add(ctx->unit_list, unit);
   unit_attr_add(unit, attr_enter_new());
@@ -226,7 +226,7 @@ static void game_worm_spawn(float pos_x, float pos_y)
 SDL_AppResult game_init()
 {
   LOG_INFO("%s\n", APPNAME);
-  LOG_INFO("game_init\n");
+  LOG_INFO("initializing\n");
 
   game_ctx_init();
   ctx = game_ctx_get();
@@ -242,32 +242,32 @@ SDL_AppResult game_init()
     fps_limit = FPS_LIMIT;
   #endif
 
-  LOG_INFO("game_init: fps limit: %s\n", fps_limit);
+  LOG_INFO("fps limit: %s\n", fps_limit);
   SDL_SetHint(SDL_HINT_MAIN_CALLBACK_RATE, fps_limit);
 
-  LOG_INFO("game_init: initializing SDL\n");
+  LOG_INFO("initializing SDL\n");
   if(!SDL_Init(SDL_INIT_VIDEO))
   {
-    LOG_ERROR("game_init: SDL: %s\n", SDL_GetError());
+    LOG_ERROR("SDL: %s\n", SDL_GetError());
     return SDL_APP_FAILURE;
   }
 
-  LOG_INFO("game_init: creating window x[%d] y[%d]\n", ctx->win_x, ctx->win_y);
+  LOG_INFO("creating window x[%d] y[%d]\n", ctx->win_x, ctx->win_y);
   if(!SDL_CreateWindowAndRenderer(APPNAME, ctx->win_x, ctx->win_y, 0, &ctx->window, &ctx->renderer))
   { 
-    LOG_ERROR("game_init: SDL: %s\n", SDL_GetError());
+    LOG_ERROR("SDL: %s\n", SDL_GetError());
     return SDL_APP_FAILURE;
   }
 
   if(!game_assets_load())
   {
-    LOG_ERROR("game_init: failed to load assets\n");
+    LOG_ERROR("failed to load assets\n");
     return SDL_APP_FAILURE; 
   }
 
   ctx->ticks_total_ms = SDL_GetTicksNS() / 1000000;
 
-  LOG_INFO("game_init: finished\n");
+  LOG_INFO("finished\n");
 
   return SDL_APP_CONTINUE;
 }
@@ -276,7 +276,7 @@ SDL_AppResult game_init()
 
 SDL_AppResult game_update()
 {
-  LOG_TRACE("game_update\n");
+  LOG_TRACE("update\n");
 
   game_ticks_update();
 
@@ -308,7 +308,7 @@ SDL_AppResult game_update()
 
 SDL_AppResult game_event(SDL_Event *event)
 {
-  LOG_TRACE("game_event: event[%d]\n", event->type);
+  LOG_TRACE("event[%d]\n", event->type);
 
   Uint8 exit = 0;
   const bool *keys = SDL_GetKeyboardState(NULL);
@@ -353,6 +353,6 @@ SDL_AppResult game_event(SDL_Event *event)
 
 void game_exit()
 {
-  LOG_INFO("game_exit\n");
+  LOG_INFO("exit\n");
   game_deinit();
 }
