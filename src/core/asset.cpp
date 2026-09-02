@@ -1,4 +1,5 @@
 #include <malloc.h>
+#include <string.h>
 #include <SDL3/SDL_render.h>
 
 #include "log.h"
@@ -15,7 +16,7 @@ asset_tex_t *asset_tex_new(const char *name, const char *path, SDL_Renderer *ren
 {
   LOG_DEBUG("name[%s] path[%s]\n", name, path);
 
-  asset_tex_t *tex = malloc(sizeof(asset_tex_t));
+  asset_tex_t *tex = (asset_tex_t *)malloc(sizeof(asset_tex_t));
 
   SDL_Surface *surf = SDL_LoadPNG(path);
   if(!surf)
@@ -36,7 +37,7 @@ asset_tex_t *asset_tex_new(const char *name, const char *path, SDL_Renderer *ren
   SDL_SetTextureScaleMode(tex->texture, SDL_SCALEMODE_NEAREST);
   SDL_DestroySurface(surf);
 
-  tex->name = malloc(strlen(name) + 1);
+  tex->name = (char *)malloc(strlen(name) + 1);
   memcpy(tex->name, name, strlen(name) + 1);
 
   return tex;
@@ -88,7 +89,7 @@ void asset_tex_list_destroy(list_t *list)
 
   asset_tex_t *tex;
   list_node_t *iter = list_iter_init(list);
-  while(tex = list_iter_next(&iter))
+  while(tex = (asset_tex_t *)list_iter_next(&iter))
   {
     asset_tex_del(tex);
     list_del(list, tex);
@@ -102,7 +103,7 @@ SDL_Texture *asset_tex_get(list_t *tex_list, char* name)
 {
   asset_tex_t *tex;
   list_node_t *iter = list_iter_init(tex_list);
-  while(tex = list_iter_next(&iter))
+  while(tex = (asset_tex_t *)list_iter_next(&iter))
     if(!strcmp(name, tex->name))
       return tex->texture;
 
@@ -124,7 +125,7 @@ ret_e asset_tex_list_verify(list_t *list)
 
   asset_tex_t *tex;
   list_node_t *iter = list_iter_init(list);
-  while(tex = list_iter_next(&iter))
+  while(tex = (asset_tex_t *)list_iter_next(&iter))
     if(!asset_tex_verify(tex))
       return RET_ERR;
 

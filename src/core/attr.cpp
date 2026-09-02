@@ -1,4 +1,5 @@
 #include <malloc.h>
+#include <string.h>
 #include <SDL3/SDL_render.h>
 
 #include "attr.h"
@@ -15,20 +16,20 @@
 attr_t *attr_new(
   attr_id_e id, 
   attr_type_e type, 
-  attr_lcs_e lcs, 
-  Uint8 protected,
-  void *data, 
+  attr_lcs_e lcs,
+  Uint8 is_protected,
+  void *data,
   attr_f *run, 
   attr_f *clean)
 {
   LOG_DEBUG("id[%u] type[%u] lcs[%u]\n", id, type, lcs);
 
-  attr_t *attr = malloc(sizeof(attr_t));
+  attr_t *attr = (attr_t *)malloc(sizeof(attr_t));
   memset(attr, 0, sizeof(attr));
   attr->id = id;
   attr->type = type;
   attr->lcs = lcs;
-  attr->protected = protected;
+  attr->is_protected = is_protected;
   attr->data = data;
   attr->run = run;
   attr->clean = clean;
@@ -63,7 +64,7 @@ void attr_list_destroy(list_t *list)
 
   attr_t *attr;
   list_node_t *iter = list_iter_init(list);
-  while(attr = list_iter_next(&iter))
+  while(attr = (attr_t *)list_iter_next(&iter))
   {
     attr_del(attr);
     list_del(list, attr);

@@ -1,4 +1,5 @@
 #include <malloc.h>
+#include <string.h>
 
 #include "anim.h"
 #include "asset.h"
@@ -11,7 +12,7 @@ anim_step_t *anim_step_new(SDL_Texture *tex, Uint32 ticks_ms)
 {
   LOG_DEBUG("tex[0x%x] ticks_ms[%u]\n", tex, ticks_ms);
 
-  anim_step_t *step = malloc(sizeof(anim_step_t));
+  anim_step_t *step = (anim_step_t *)malloc(sizeof(anim_step_t));
   step->tex = tex;
   step->ticks_ms = ticks_ms;
 
@@ -53,7 +54,7 @@ anim_stage_t *anim_stage_new(anim_stage_id_e stage_id)
 {
   LOG_DEBUG("id[%u]\n", stage_id);
 
-  anim_stage_t *stage = malloc(sizeof(anim_stage_t));
+  anim_stage_t *stage = (anim_stage_t *)malloc(sizeof(anim_stage_t));
   memset(stage, 0, sizeof(anim_stage_t));
   stage->id = stage_id;
   stage->step_list = list_new();
@@ -73,7 +74,7 @@ void anim_stage_del(anim_stage_t *stage)
 
   anim_step_t *step;
   list_node_t *iter = list_iter_init(stage->step_list);
-  while(step = list_iter_next(&iter))
+  while(step = (anim_step_t *)list_iter_next(&iter))
   {
     anim_step_del(step);
     list_del(stage->step_list, step);
@@ -99,7 +100,7 @@ ret_e anim_stage_verify(anim_stage_t *stage)
 
   anim_step_t *step;
   list_node_t *step_iter = list_iter_init(stage->step_list);
-  while(step = list_iter_next(&step_iter))
+  while(step = (anim_step_t *)list_iter_next(&step_iter))
     if(!anim_step_verify(step))
       return RET_ERR;
 
@@ -128,10 +129,10 @@ anim_t *anim_new(const char *name)
 {
   LOG_DEBUG("name[%s]\n", name);
 
-  anim_t *anim = malloc(sizeof(anim_t));
+  anim_t *anim = (anim_t *)malloc(sizeof(anim_t));
   memset(anim, 0, sizeof(anim_t));
   anim->stage_list = list_new();
-  anim->name = malloc(strlen(name) + 1);
+  anim->name = (char *)malloc(strlen(name) + 1);
   strncpy(anim->name, name, strlen(name) + 1);
 
   return anim;
@@ -151,7 +152,7 @@ void anim_del(anim_t *anim)
    
   anim_stage_t *stage;
   list_node_t *iter = list_iter_init(anim->stage_list);
-  while(stage = list_iter_next(&iter))
+  while(stage = (anim_stage_t *)list_iter_next(&iter))
   {
     anim_stage_del(stage);
     list_del(anim->stage_list, stage);
@@ -177,7 +178,7 @@ ret_e anim_verify(anim_t *anim)
 
   anim_stage_t *stage;
   list_node_t *stage_iter = list_iter_init(anim->stage_list);
-  while(stage = list_iter_next(&stage_iter))
+  while(stage = (anim_stage_t *)list_iter_next(&stage_iter))
     if(!anim_stage_verify(stage))
       return RET_ERR;
 
@@ -212,7 +213,7 @@ ret_e anim_list_verify(list_t *list)
 
   anim_t *anim;
   list_node_t *anim_iter = list_iter_init(list);
-  while(anim = list_iter_next(&anim_iter))
+  while(anim = (anim_t *)list_iter_next(&anim_iter))
     if(!anim_verify(anim))
       return RET_ERR;
 
@@ -232,7 +233,7 @@ void anim_list_destroy(list_t *list)
 
   anim_t *anim;
   list_node_t *anim_iter = list_iter_init(list);
-  while(anim = list_iter_next(&anim_iter))
+  while(anim = (anim_t *)list_iter_next(&anim_iter))
   {
     anim_del(anim);
     list_del(list, anim);
@@ -246,7 +247,7 @@ anim_t *anim_get(list_t *anim_list, const char *name)
 {
   anim_t *anim;
   list_node_t *iter = list_iter_init(anim_list);
-  while(anim = list_iter_next(&iter))
+  while(anim = (anim_t *)list_iter_next(&iter))
     if(!strcmp(name, anim->name))
       return anim;
 
@@ -261,7 +262,7 @@ SDL_Texture *anim_tex_get(anim_t *anim, anim_stage_id_e stage_id, Uint32 *ticks_
 {
   anim_stage_t *stage;
   list_node_t *iter = list_iter_init(anim->stage_list);
-  while(stage = list_iter_next(&iter))
+  while(stage = (anim_stage_t *)list_iter_next(&iter))
   {
     if(stage->id == stage_id)
     {
@@ -274,7 +275,7 @@ SDL_Texture *anim_tex_get(anim_t *anim, anim_stage_id_e stage_id, Uint32 *ticks_
       Uint32 curr_ticks_ms = 0;
       anim_step_t *step;
       list_node_t *iter = list_iter_init(stage->step_list);
-      while(step = list_iter_next(&iter))
+      while(step = (anim_step_t *)list_iter_next(&iter))
       {
         curr_ticks_ms += step->ticks_ms;
         if(*ticks_ms < curr_ticks_ms)
@@ -295,7 +296,7 @@ Uint32 anim_stage_ticks_get(anim_t *anim, anim_stage_id_e stage_id)
 {
   anim_stage_t *stage;
   list_node_t *iter = list_iter_init(anim->stage_list);
-  while(stage = list_iter_next(&iter))
+  while(stage = (anim_stage_t *)list_iter_next(&iter))
     if(stage->id == stage_id)
       return stage->ticks_total_ms;
 

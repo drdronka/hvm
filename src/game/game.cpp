@@ -121,9 +121,9 @@ static void game_sel_mult_finish(float pos_x, float pos_y)
 {
   unit_t *unit;
   list_node_t *iter = list_iter_init(ctx->unit_list);
-  while(unit = list_iter_next(&iter))
+  while(unit = (unit_t *)list_iter_next(&iter))
   {
-    attr_psyh_data_t *data = unit_attr_data_get(unit, ATTR_ID_PSYH);
+    attr_psyh_data_t *data = (attr_psyh_data_t *)unit_attr_data_get(unit, ATTR_ID_PSYH);
     if(data)
     {
       unit->selected = 
@@ -140,9 +140,9 @@ static void game_sel_single(float mouse_x, float mouse_y)
   Uint8 found;
   unit_t *unit;
   list_node_t *iter = list_iter_init(ctx->unit_list);
-  while(unit = list_iter_next(&iter))
+  while(unit = (unit_t *)list_iter_next(&iter))
   {
-    attr_psyh_data_t *data = unit_attr_data_get(unit, ATTR_ID_PSYH);
+    attr_psyh_data_t *data = (attr_psyh_data_t *)unit_attr_data_get(unit, ATTR_ID_PSYH);
     if(data)
     {
       unit->selected = 
@@ -175,11 +175,11 @@ static void game_units_move(float dst_x, float dst_y, Uint8 clear_cmd_queue)
 {
   unit_t *unit;
   list_node_t *iter = list_iter_init(ctx->unit_list);
-  while(unit = list_iter_next(&iter))
+  while(unit = (unit_t *)list_iter_next(&iter))
   {
     if(unit->selected)
     {
-      attr_psyh_data_t *data = unit_attr_data_get(unit, ATTR_ID_PSYH);
+      attr_psyh_data_t *data = (attr_psyh_data_t *)unit_attr_data_get(unit, ATTR_ID_PSYH);
       if(data)
       {
         if(clear_cmd_queue)
@@ -196,11 +196,11 @@ static void game_units_kill(Uint8 clear_cmd_queue)
 {
   unit_t *unit;
   list_node_t *iter = list_iter_init(ctx->unit_list);
-  while(unit = list_iter_next(&iter))
+  while(unit = (unit_t *)list_iter_next(&iter))
   {
     if(unit->selected)
     {
-      attr_psyh_data_t *data = unit_attr_data_get(unit, ATTR_ID_PSYH);
+      attr_psyh_data_t *data = (attr_psyh_data_t *)unit_attr_data_get(unit, ATTR_ID_PSYH);
       if(data)
       {
         if(clear_cmd_queue)

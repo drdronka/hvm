@@ -1,4 +1,5 @@
 #include <malloc.h>
+#include <string.h>
 
 #include "log.h"
 #include "unit.h"
@@ -16,7 +17,7 @@ unit_t *unit_new(unit_id_e unit_id)
 {
   LOG_DEBUG("id[%u]\n", unit_id);
 
-  unit_t *unit = malloc(sizeof(unit_t));
+  unit_t *unit = (unit_t *)malloc(sizeof(unit_t));
   memset(unit, 0, sizeof(unit_t));
   unit->attr_list = list_new();
   unit->id = unit_id;
@@ -66,7 +67,7 @@ void unit_list_destroy(list_t *list)
 
   unit_t *unit;
   list_node_t *unit_iter = list_iter_init(list);
-  while(unit = list_iter_next(&unit_iter))
+  while(unit = (unit_t *)list_iter_next(&unit_iter))
   {
     unit_del(unit);
     list_del(list, unit);
@@ -76,11 +77,11 @@ void unit_list_destroy(list_t *list)
 
 // ------------------------------------------------------------- //
 
-void *unit_attr_data_get(unit_t *unit, unit_id_e id)
+void *unit_attr_data_get(unit_t *unit, Uint32 id)
 {
   attr_t *attr;
   list_node_t *iter = list_iter_init(unit->attr_list);
-  while(attr = list_iter_next(&iter))
+  while(attr = (attr_t *)list_iter_next(&iter))
     if(attr->id == id)
       return attr->data;
 
@@ -93,8 +94,8 @@ void *unit_cmd_clear_all(unit_t *unit)
 {
   attr_t *attr;
   list_node_t *iter = list_iter_init(unit->attr_list);
-  while(attr = list_iter_next(&iter))
-    if(attr->type == ATTR_TYPE_CMD && !attr->protected)
+  while(attr = (attr_t *)list_iter_next(&iter))
+    if(attr->type == ATTR_TYPE_CMD && !attr->is_protected)
       attr->lcs = ATTR_LCS_CLEAN;
 
   return NULL;
@@ -106,7 +107,7 @@ Uint8 unit_cmd_is_empty(unit_t *unit)
 {
   attr_t *attr;
   list_node_t *iter = list_iter_init(unit->attr_list);
-  while(attr = list_iter_next(&iter))
+  while(attr = (attr_t *)list_iter_next(&iter))
     if(attr->type == ATTR_TYPE_CMD)
       return 0;
   
@@ -119,7 +120,7 @@ void unit_attr_run(unit_t *unit, attr_id_e id, attr_type_e type)
 {
   attr_t *attr;
   list_node_t *iter = list_iter_init(unit->attr_list);
-  while(attr = list_iter_next(&iter))
+  while(attr = (attr_t *)list_iter_next(&iter))
     if(attr->lcs == ATTR_LCS_RUN)
       if(id == ATTR_ID_ANY || attr->id == id)
         if(type == ATTR_TYPE_ANY || attr->type == type)
@@ -137,7 +138,7 @@ void unit_attr_clean(unit_t *unit, attr_id_e id, attr_type_e type)
 {
   attr_t *attr;
   list_node_t *iter = list_iter_init(unit->attr_list);
-  while(attr = list_iter_next(&iter))
+  while(attr = (attr_t *)list_iter_next(&iter))
     if(attr->lcs == ATTR_LCS_CLEAN)
       if(id == ATTR_ID_ANY || attr->id == id)
         if(type == ATTR_TYPE_ANY || attr->type == type)
@@ -155,7 +156,7 @@ void unit_list_attr_run(list_t *list, attr_id_e id, attr_type_e type)
 {
   unit_t *unit;
   list_node_t *iter = list_iter_init(list);
-  while(unit = list_iter_next(&iter))
+  while(unit = (unit_t *)list_iter_next(&iter))
     unit_attr_run(unit, id, type);
 }
 
@@ -165,7 +166,7 @@ void unit_list_attr_clean(list_t *list, attr_id_e id, attr_type_e type)
 {
   unit_t *unit;
   list_node_t *iter = list_iter_init(list);
-  while(unit = list_iter_next(&iter))
+  while(unit = (unit_t *)list_iter_next(&iter))
     unit_attr_clean(unit, id, type);
 }
 
@@ -175,7 +176,7 @@ void unit_list_remove_dead(list_t *list)
 {
   unit_t *unit;
   list_node_t *iter = list_iter_init(list);
-  while(unit = list_iter_next(&iter))
+  while(unit = (unit_t *)list_iter_next(&iter))
     if(unit->dead)
     {
       unit_del(unit);

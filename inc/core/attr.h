@@ -13,7 +13,7 @@ typedef struct attr
   attr_id_e id;
   attr_type_e type;
   attr_lcs_e lcs;
-  Uint8 protected;
+  Uint8 is_protected;
   void *data;
   attr_f *run;
   attr_f *clean;
@@ -22,9 +22,9 @@ typedef struct attr
 attr_t *attr_new(
   attr_id_e id, 
   attr_type_e type, 
-  attr_lcs_e lcs, 
-  Uint8 protected, 
-  void *data, 
+  attr_lcs_e lcs,
+  Uint8 is_protected,
+  void *data,
   attr_f *run, 
   attr_f *clean);
 void attr_del(attr_t *attr);

@@ -6,8 +6,8 @@
 #define LOG_FORCE_STDERR 0
 
 #define APPNAME "HUMANS VS MACHINES"
-#define WINX 1024
-#define WINY 768
+#define WINX 1920
+#define WINY 1024
 #define FWINX ((float)(WINX))
 #define FWINY ((float)(WINY))
 #define SINGLE_SEL_MARGIN 16

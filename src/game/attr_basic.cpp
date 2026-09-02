@@ -1,4 +1,5 @@
 #include <malloc.h>
+#include <string.h>
 #include <SDL3/SDL_render.h>
 #include <math.h>
 
@@ -22,7 +23,7 @@
 ret_e attr_psyh_move(unit_t *unit, float dst_x, float dst_y, move_type_e type, Uint8 temporary)
 {
   game_ctx_t *ctx = game_ctx_get();
-  attr_psyh_data_t *data = unit_attr_data_get(unit, ATTR_ID_PSYH);
+  attr_psyh_data_t *data = (attr_psyh_data_t *)unit_attr_data_get(unit, ATTR_ID_PSYH);
 
   if(!data)
   {
@@ -60,7 +61,7 @@ ret_e attr_psyh_move(unit_t *unit, float dst_x, float dst_y, move_type_e type, U
     data->pos_y = dst_y;
 
     if(!temporary)
-      attr_wander_pos_update(unit_attr_data_get(unit, ATTR_ID_WANDER), data->pos_x, data->pos_y);
+      attr_wander_pos_update((attr_wander_data_t *)unit_attr_data_get(unit, ATTR_ID_WANDER), data->pos_x, data->pos_y);
 
     return RET_OK;
   }
@@ -92,7 +93,7 @@ void attr_psyh_pos_get(attr_psyh_data_t *data, float *x, float *y)
 
 attr_t *attr_psyh_new(float pos_x, float pos_y, float size_x, float size_y, float speed, float dir)
 {
-  attr_psyh_data_t *psyh_data = malloc(sizeof(attr_psyh_data_t));
+  attr_psyh_data_t *psyh_data = (attr_psyh_data_t *)malloc(sizeof(attr_psyh_data_t));
   memset(psyh_data, 0, sizeof(attr_psyh_data_t));
   psyh_data->pos_x = pos_x;
   psyh_data->pos_y = pos_y;
@@ -107,12 +108,12 @@ attr_t *attr_psyh_new(float pos_x, float pos_y, float size_x, float size_y, floa
 
 void attr_visu_run(void *unit_ref, void *attr_ref)
 {
-  unit_t *unit = unit_ref;
-  attr_t *attr = attr_ref;
+  unit_t *unit = (unit_t *)unit_ref;
+  attr_t *attr = (attr_t *)attr_ref;
 
   game_ctx_t *ctx = game_ctx_get();
-  attr_psyh_data_t *psyh_data = unit_attr_data_get(unit, ATTR_ID_PSYH);
-  attr_visu_data_t *visu_data = attr->data;
+  attr_psyh_data_t *psyh_data = (attr_psyh_data_t *)unit_attr_data_get(unit, ATTR_ID_PSYH);
+  attr_visu_data_t *visu_data = (attr_visu_data_t *)attr->data;
 
   if(!psyh_data || !visu_data || !visu_data->visible)
     return;
@@ -127,7 +128,7 @@ void attr_visu_run(void *unit_ref, void *attr_ref)
 
   SDL_Texture *texture;
   texture = anim_tex_get(
-    visu_data->anim, visu_data->anim_stage_id, &visu_data->anim_ticks_ms, visu_data->anim_rotate);
+    visu_data->anim, (anim_stage_id_e)visu_data->anim_stage_id, &visu_data->anim_ticks_ms, visu_data->anim_rotate);
 
   if(!texture) 
     texture = anim_tex_get(
@@ -156,8 +157,8 @@ void attr_visu_run(void *unit_ref, void *attr_ref)
 
 void attr_visu_clean(void *unit_ref, void *attr_ref)
 {
-  unit_t *unit = unit_ref;
-  attr_t *attr = attr_ref;
+  unit_t *unit = (unit_t *)unit_ref;
+  attr_t *attr = (attr_t *)attr_ref;
 }
 
 // ------------------------------------------------------------- //
@@ -180,7 +181,7 @@ Uint32 attr_visu_anim_stage_ticks_get(attr_visu_data_t *data, anim_stage_id_e st
 
 attr_t *attr_visu_new(anim_t *anim, anim_stage_id_e stage_id)
 {
-  attr_visu_data_t *visu_data = malloc(sizeof(attr_visu_data_t));
+  attr_visu_data_t *visu_data = (attr_visu_data_t *)malloc(sizeof(attr_visu_data_t));
   visu_data->anim = anim;
   visu_data->anim_stage_id = stage_id;
   visu_data->anim_ticks_ms = 0;
@@ -192,15 +193,15 @@ attr_t *attr_visu_new(anim_t *anim, anim_stage_id_e stage_id)
 
 void attr_wander_run(void *unit_ref, void *attr_ref)
 {
-  unit_t *unit = unit_ref;
-  attr_t *attr = attr_ref;
+  unit_t *unit = (unit_t *)unit_ref;
+  attr_t *attr = (attr_t *)attr_ref;
 
-  attr_wander_data_t *data = attr->data;
+  attr_wander_data_t *data = (attr_wander_data_t *)attr->data;
   game_ctx_t *ctx = game_ctx_get();
 
   if(!data->initialized)
   {
-    attr_psyh_data_t *psyh_data = unit_attr_data_get(unit, ATTR_ID_PSYH);
+    attr_psyh_data_t *psyh_data = (attr_psyh_data_t *)unit_attr_data_get(unit, ATTR_ID_PSYH);
     if(psyh_data)
     {
       attr_psyh_pos_get(psyh_data, &data->org_x, &data->org_y);
@@ -241,7 +242,7 @@ void attr_wander_pos_update(attr_wander_data_t *data, float pos_x, float pos_y)
 
 attr_t *attr_wander_new(float range, float ticks_max_ms)
 {
-  attr_wander_data_t *data = malloc(sizeof(attr_wander_data_t));
+  attr_wander_data_t *data = (attr_wander_data_t *)malloc(sizeof(attr_wander_data_t));
   data->range = range;
   data->ticks_max_ms = ticks_max_ms;
   data->initialized = 0;
