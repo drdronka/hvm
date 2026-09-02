@@ -247,7 +247,7 @@ anim_t *anim_get(list_t *anim_list, const char *name)
   anim_t *anim;
   list_node_t *iter = list_iter_init(anim_list);
   while(anim = list_iter_next(&iter))
-    if(!strncmp(name, anim->name, strlen(name)))
+    if(!strcmp(name, anim->name))
       return anim;
 
   LOG_ERROR("anim not found: name[%s]", name);

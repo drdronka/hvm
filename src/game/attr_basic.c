@@ -158,9 +158,6 @@ void attr_visu_clean(void *unit_ref, void *attr_ref)
 {
   unit_t *unit = unit_ref;
   attr_t *attr = attr_ref;
-
-  attr_visu_data_t *data = attr->data;
-  if(data->anim) free(data->anim);
 }
 
 // ------------------------------------------------------------- //

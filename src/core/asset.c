@@ -103,7 +103,7 @@ SDL_Texture *asset_tex_get(list_t *tex_list, char* name)
   asset_tex_t *tex;
   list_node_t *iter = list_iter_init(tex_list);
   while(tex = list_iter_next(&iter))
-    if(!strncmp(name, tex->name, strlen(name)))
+    if(!strcmp(name, tex->name))
       return tex->texture;
 
   LOG_ERROR("tex not found: name[%s]\n", name);

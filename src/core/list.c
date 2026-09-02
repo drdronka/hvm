@@ -13,7 +13,7 @@
 list_t *list_new()
 {
   list_t *list = malloc(sizeof(list_t));
-  memset(list, 0, sizeof(list));
+  memset(list, 0, sizeof(list_t));
   return list;
 }
 
