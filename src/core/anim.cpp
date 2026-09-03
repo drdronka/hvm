@@ -65,10 +65,10 @@ ret_e anim_stage::verify()
 // ------------------------------------------------------------- //
 
 anim_obj::anim_obj(const char *name)
-  : name((char *)malloc(strlen(name) + 1))
 {
   LOG_DEBUG("name[%s]\n", name);
 
+  this->name = (char *)malloc(strlen(name) + 1);
   strncpy(this->name, name, strlen(name) + 1);
 }
 

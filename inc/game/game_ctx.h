@@ -4,7 +4,8 @@
 #include <SDL3/SDL_render.h>
 
 #include "list.h"
-#include <anim.h>
+#include "anim.h"
+#include "asset.h"
 #include <vector>
 
 typedef struct game_ctx
@@ -25,7 +26,7 @@ typedef struct game_ctx
 
   // engine
   list_t *unit_list;
-  list_t *tex_list;
+  std::vector<asset_tex*> textures;
   std::vector<anim_obj*> anims;
 
   // gui - move to separate module

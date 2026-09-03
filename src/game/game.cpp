@@ -25,24 +25,24 @@ static game_ctx_t *ctx = NULL;
 static ret_e game_assets_load()
 {
   LOG_DEBUG("loading textures\n");
-  ctx->tex_list = list_new();
 
-  list_add(ctx->tex_list, asset_tex_new("square", "assets/img/black_square.png", ctx->renderer));
-  list_add(ctx->tex_list, asset_tex_new("worm_enter_0", "assets/img/worm_enter_0.png", ctx->renderer));
-  list_add(ctx->tex_list, asset_tex_new("worm_enter_1", "assets/img/worm_enter_1.png", ctx->renderer));
-  list_add(ctx->tex_list, asset_tex_new("worm_enter_2", "assets/img/worm_enter_2.png", ctx->renderer));
-  list_add(ctx->tex_list, asset_tex_new("worm_enter_3", "assets/img/worm_enter_3.png", ctx->renderer));
-  list_add(ctx->tex_list, asset_tex_new("worm_idle_0", "assets/img/worm_idle_0.png", ctx->renderer));
-  list_add(ctx->tex_list, asset_tex_new("worm_idle_1", "assets/img/worm_idle_1.png", ctx->renderer));
-  list_add(ctx->tex_list, asset_tex_new("worm_move_0", "assets/img/worm_move_0.png", ctx->renderer));
-  list_add(ctx->tex_list, asset_tex_new("worm_move_1", "assets/img/worm_move_1.png", ctx->renderer));
-  list_add(ctx->tex_list, asset_tex_new("worm_death_0", "assets/img/worm_death_0.png", ctx->renderer));
-  list_add(ctx->tex_list, asset_tex_new("worm_death_1", "assets/img/worm_death_1.png", ctx->renderer));
-  list_add(ctx->tex_list, asset_tex_new("worm_death_2", "assets/img/worm_death_2.png", ctx->renderer));
-  list_add(ctx->tex_list, asset_tex_new("worm_death_3", "assets/img/worm_death_3.png", ctx->renderer));
+  ctx->textures.push_back(new asset_tex("square", "assets/img/black_square.png", ctx->renderer));
+  ctx->textures.push_back(new asset_tex("worm_enter_0", "assets/img/worm_enter_0.png", ctx->renderer));
+  ctx->textures.push_back(new asset_tex("worm_enter_1", "assets/img/worm_enter_1.png", ctx->renderer));
+  ctx->textures.push_back(new asset_tex("worm_enter_2", "assets/img/worm_enter_2.png", ctx->renderer));
+  ctx->textures.push_back(new asset_tex("worm_enter_3", "assets/img/worm_enter_3.png", ctx->renderer));
+  ctx->textures.push_back(new asset_tex("worm_idle_0", "assets/img/worm_idle_0.png", ctx->renderer));
+  ctx->textures.push_back(new asset_tex("worm_idle_1", "assets/img/worm_idle_1.png", ctx->renderer));
+  ctx->textures.push_back(new asset_tex("worm_move_0", "assets/img/worm_move_0.png", ctx->renderer));
+  ctx->textures.push_back(new asset_tex("worm_move_1", "assets/img/worm_move_1.png", ctx->renderer));
+  ctx->textures.push_back(new asset_tex("worm_death_0", "assets/img/worm_death_0.png", ctx->renderer));
+  ctx->textures.push_back(new asset_tex("worm_death_1", "assets/img/worm_death_1.png", ctx->renderer));
+  ctx->textures.push_back(new asset_tex("worm_death_2", "assets/img/worm_death_2.png", ctx->renderer));
+  ctx->textures.push_back(new asset_tex("worm_death_3", "assets/img/worm_death_3.png", ctx->renderer));
 
-  if(!asset_tex_list_verify(ctx->tex_list)) 
-    return RET_ERR;
+  for(const auto& tex : ctx->textures)
+    if(!tex->verify())
+      return RET_ERR;
 
   LOG_DEBUG("composing animations\n");
   anim_obj *obj;
@@ -51,24 +51,24 @@ static ret_e game_assets_load()
 
   obj = new anim_obj("worm");
   stage = new anim_stage(ANIM_STAGE_ID_ENTER);
-  stage->add_step(new anim_step(asset_tex_get(ctx->tex_list, "worm_enter_0"), 25));
-  stage->add_step(new anim_step(asset_tex_get(ctx->tex_list, "worm_enter_1"), 25));
-  stage->add_step(new anim_step(asset_tex_get(ctx->tex_list, "worm_enter_2"), 25));
-  stage->add_step(new anim_step(asset_tex_get(ctx->tex_list, "worm_enter_3"), 25));
+  stage->add_step(new anim_step(asset_tex_get(ctx->textures, "worm_enter_0"), 25));
+  stage->add_step(new anim_step(asset_tex_get(ctx->textures, "worm_enter_1"), 25));
+  stage->add_step(new anim_step(asset_tex_get(ctx->textures, "worm_enter_2"), 25));
+  stage->add_step(new anim_step(asset_tex_get(ctx->textures, "worm_enter_3"), 25));
   obj->add_stage(stage);
   stage = new anim_stage(ANIM_STAGE_ID_IDLE);
-  stage->add_step(new anim_step(asset_tex_get(ctx->tex_list, "worm_idle_0"), 600));
-  stage->add_step(new anim_step(asset_tex_get(ctx->tex_list, "worm_idle_1"), 600));
+  stage->add_step(new anim_step(asset_tex_get(ctx->textures, "worm_idle_0"), 600));
+  stage->add_step(new anim_step(asset_tex_get(ctx->textures, "worm_idle_1"), 600));
   obj->add_stage(stage);
   stage = new anim_stage(ANIM_STAGE_ID_MOVE);
-  stage->add_step(new anim_step(asset_tex_get(ctx->tex_list, "worm_move_0"), 150));
-  stage->add_step(new anim_step(asset_tex_get(ctx->tex_list, "worm_move_1"), 150));
+  stage->add_step(new anim_step(asset_tex_get(ctx->textures, "worm_move_0"), 150));
+  stage->add_step(new anim_step(asset_tex_get(ctx->textures, "worm_move_1"), 150));
   obj->add_stage(stage);
   stage = new anim_stage(ANIM_STAGE_ID_DEATH);
-  stage->add_step(new anim_step(asset_tex_get(ctx->tex_list, "worm_death_0"), 100));
-  stage->add_step(new anim_step(asset_tex_get(ctx->tex_list, "worm_death_1"), 150));
-  stage->add_step(new anim_step(asset_tex_get(ctx->tex_list, "worm_death_2"), 60));
-  stage->add_step(new anim_step(asset_tex_get(ctx->tex_list, "worm_death_3"), 60));
+  stage->add_step(new anim_step(asset_tex_get(ctx->textures, "worm_death_0"), 100));
+  stage->add_step(new anim_step(asset_tex_get(ctx->textures, "worm_death_1"), 150));
+  stage->add_step(new anim_step(asset_tex_get(ctx->textures, "worm_death_2"), 60));
+  stage->add_step(new anim_step(asset_tex_get(ctx->textures, "worm_death_3"), 60));
   obj->add_stage(stage);
   ctx->anims.push_back(obj);
 
@@ -98,7 +98,7 @@ static void game_deinit()
   if(ctx->renderer) SDL_DestroyRenderer(ctx->renderer);
   if(ctx->window) SDL_DestroyWindow(ctx->window);
 
-  asset_tex_list_destroy(ctx->tex_list);
+  ctx->textures.clear();
   ctx->anims.clear();
   unit_list_destroy(ctx->unit_list);
 

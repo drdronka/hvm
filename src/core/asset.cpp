@@ -5,70 +5,50 @@
 #include "log.h"
 #include "list.h"
 #include "asset.h"
+#include <vector>
 
-// ======================== LOCAL DATA ========================= //
+// ------------------------------------------------------------- //
 
-// ======================== LOCAL FUNC ========================= //
-
-// ======================== GLOBAL FUNC ======================== //
-
-asset_tex_t *asset_tex_new(const char *name, const char *path, SDL_Renderer *renderer)
+asset_tex::asset_tex(const char *name, const char *path, SDL_Renderer *renderer)
 {
   LOG_DEBUG("name[%s] path[%s]\n", name, path);
 
-  asset_tex_t *tex = (asset_tex_t *)malloc(sizeof(asset_tex_t));
-
+  this->name = (char *)malloc(strlen(name) + 1);
+  memcpy(this->name, name, strlen(name) + 1);
+  
   SDL_Surface *surf = SDL_LoadPNG(path);
   if(!surf)
   {
     LOG_ERROR("SDL: %s\n", SDL_GetError());
-    free(tex);
-    return NULL;
-  }
-  tex->texture = SDL_CreateTextureFromSurface(renderer, surf);
-
-  if(!tex->texture)
-  {
-    LOG_ERROR("SDL: %s\n", SDL_GetError());
-    free(tex);
-    return NULL;
-  }
-
-  SDL_SetTextureScaleMode(tex->texture, SDL_SCALEMODE_NEAREST);
-  SDL_DestroySurface(surf);
-
-  tex->name = (char *)malloc(strlen(name) + 1);
-  memcpy(tex->name, name, strlen(name) + 1);
-
-  return tex;
-}
-
-// ------------------------------------------------------------- //
-
-void asset_tex_del(asset_tex_t *tex)
-{
-  if(!tex)
-  {
-    LOG_ERROR("NULL tex\n");
     return;
   }
 
-  LOG_DEBUG("tex[0x%x]\n", tex);
-  if(tex->texture) SDL_DestroyTexture(tex->texture);
-  if(tex->name) free(tex->name);
-  free(tex);
+  texture = SDL_CreateTextureFromSurface(renderer, surf);
+
+  if(!texture)
+  {
+    LOG_ERROR("SDL: %s\n", SDL_GetError());
+    return;
+  }
+
+  SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_NEAREST);
+  SDL_DestroySurface(surf);
 }
 
-// ------------------------------------------------------------- //
-
-ret_e asset_tex_verify(asset_tex_t *tex)
+asset_tex::~asset_tex()
 {
-  if(!tex)
-  {
-    LOG_ERROR("NULL tex");
-    return RET_ERR;
-  }
-  if(!tex->texture)
+  LOG_DEBUG("name[%x]\n", name);
+
+  if(texture) 
+    SDL_DestroyTexture(texture);
+
+  if(name) 
+    free(name);
+}
+
+ret_e asset_tex::verify()
+{
+  if(!texture)
   {
     LOG_ERROR("NULL texture");
     return RET_ERR;
@@ -76,60 +56,16 @@ ret_e asset_tex_verify(asset_tex_t *tex)
 
   return RET_OK;
 }
-// ------------------------------------------------------------- //
 
-void asset_tex_list_destroy(list_t *list)
+SDL_Texture *asset_tex_get(std::vector<asset_tex*> textures, const char* name)
 {
-  if(!list)
-  {
-    LOG_ERROR("NULL list");
-    return;
-  }
-  LOG_DEBUG("list[0x%x]\n", list);
-
-  asset_tex_t *tex;
-  list_node_t *iter = list_iter_init(list);
-  while(tex = (asset_tex_t *)list_iter_next(&iter))
-  {
-    asset_tex_del(tex);
-    list_del(list, tex);
-  }
-  list_destroy(list);
-}
-
-// ------------------------------------------------------------- //
-
-SDL_Texture *asset_tex_get(list_t *tex_list, const char* name)
-{
-  asset_tex_t *tex;
-  list_node_t *iter = list_iter_init(tex_list);
-  while(tex = (asset_tex_t *)list_iter_next(&iter))
+  for(const auto& tex : textures)
     if(!strcmp(name, tex->name))
       return tex->texture;
 
   LOG_ERROR("tex not found: name[%s]\n", name);
 
   return NULL;
-}
-
-// ------------------------------------------------------------- //
-
-ret_e asset_tex_list_verify(list_t *list)
-{
-  if(!list)
-  {
-    LOG_ERROR("NULL list\n");
-    return RET_ERR;
-  }
-  LOG_DEBUG("list[0x%x]\n", list);
-
-  asset_tex_t *tex;
-  list_node_t *iter = list_iter_init(list);
-  while(tex = (asset_tex_t *)list_iter_next(&iter))
-    if(!asset_tex_verify(tex))
-      return RET_ERR;
-
-  return RET_OK;
 }
 
 // ------------------------------------------------------------- //
