@@ -36,18 +36,18 @@ void attr_psyh_pos_get(attr_psyh_data_t *data, float *x, float *y);
 
 typedef struct attr_visu_data
 {
-  anim_t *anim;
+  anim_obj *anim;
   Uint8 anim_stage_id;
-  Uint8 anim_rotate;
-  Uint32 anim_ticks_ms;
+  Uint8 anim_cycle;
+  Uint32 animicks_ms;
   Uint8 visible;
 } attr_visu_data_t;
 
-attr_t *attr_visu_new(anim_t *anim, anim_stage_id_e stage_id);
+attr_t *attr_visu_new(anim_obj *anim, anim_stage_id_e stage_id);
 void attr_visu_run(void *unit_ref, void *attr_ref);
 void attr_visu_clean(void *unit_ref, void *attr_ref);
 void attr_visu_anim_stage_set(attr_visu_data_t *data, anim_stage_id_e stage_id, Uint8 rotate, Uint8 reset);
-Uint32 attr_visu_anim_stage_ticks_get(attr_visu_data_t *data, anim_stage_id_e stage_id);
+Uint32 attr_visu_anim_stage_get_ticks_get(attr_visu_data_t *data, anim_stage_id_e stage_id);
 
 // ------------------------------------------------------------- //
 

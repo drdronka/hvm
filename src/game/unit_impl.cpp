@@ -25,7 +25,7 @@ unit_t *unit_worm_new(float pos_x, float pos_y)
   float speed = 3;
 
   unit_attr_add(unit, attr_psyh_new(pos_x, pos_y, size, size, speed, dir));
-  unit_attr_add(unit, attr_visu_new(anim_get(ctx->anim_list, "worm"), ANIM_STAGE_ID_IDLE));
+  unit_attr_add(unit, attr_visu_new(anim_get(ctx->anims, "worm"), ANIM_STAGE_ID_IDLE));
   unit_attr_add(unit, attr_wander_new(size / 2, 4000));
 
   return unit;

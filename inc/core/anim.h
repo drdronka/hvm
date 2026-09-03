@@ -5,8 +5,9 @@
 
 #include "list.h"
 #include "util.h"
+#include <vector>
 
-typedef enum 
+typedef enum
 {
   ANIM_STAGE_ID_IDLE = 0,
   ANIM_STAGE_ID_ENTER,
@@ -14,40 +15,44 @@ typedef enum
   ANIM_STAGE_ID_DEATH,
 } anim_stage_id_e;
 
-typedef struct anim_step
+class anim_step
 {
+public:
   SDL_Texture *tex;
   Uint32 ticks_ms;
-} anim_step_t;
 
-typedef struct anim_stage
+  anim_step(SDL_Texture *tex, Uint32 ticks_ms);
+  ~anim_step();
+  ret_e verify();
+};
+
+class anim_stage
 {
-  list_t *step_list;
+public:
+  anim_stage_id_e id;
+  std::vector<anim_step*> steps;
   Uint32 ticks_total_ms;
-  Uint8 id;
-} anim_stage_t;
 
-typedef struct anim
+  anim_stage(anim_stage_id_e stage_id);
+  ~anim_stage();
+  void add_step(anim_step *step);
+  ret_e verify();
+};
+
+class anim_obj
 {
+public:
   char *name;
-  list_t *stage_list;
-} anim_t;
+  std::vector<anim_stage*> stages;
 
-anim_step_t *anim_step_new(SDL_Texture *tex, Uint32 ticks_ms);
-void anim_step_del(anim_step_t *step);
-ret_e anim_step_verify(anim_step_t *step);
-anim_stage_t *anim_stage_new(anim_stage_id_e stage_id);
-void anim_stage_del(anim_stage_t *stage);
-ret_e anim_stage_verify(anim_stage_t *stage);
-ret_e anim_stage_add_step(anim_stage_t *stage, anim_step_t *step);
-anim_t *anim_new(const char *name);
-void anim_del(anim_t *anim);
-ret_e anim_verify(anim_t *anim);
-ret_e anim_add_stage(anim_t *anim, anim_stage_t *stage);
-ret_e anim_list_verify(list_t *list);
-void anim_list_destroy(list_t *list);
-anim_t *anim_get(list_t *anim_list, const char *name);
-SDL_Texture *anim_tex_get(anim_t *anim, anim_stage_id_e stage_id, Uint32 *ticks_ms, Uint8 rotate);
-Uint32 anim_stage_ticks_get(anim_t *anim, anim_stage_id_e stage_id);
+  anim_obj(const char *name);
+  ~anim_obj();
+  void add_stage(anim_stage *stage);
+  ret_e verify();
+  SDL_Texture *get_tex(anim_stage_id_e stage_id, Uint32 *ticks_ms, bool cycle);
+  Uint32 get_ticks(anim_stage_id_e stage_id);
+};
+
+anim_obj *anim_get(std::vector<anim_obj*> anims, const char *name);
 
 #endif // __ANIM_H__

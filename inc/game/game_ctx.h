@@ -4,13 +4,15 @@
 #include <SDL3/SDL_render.h>
 
 #include "list.h"
+#include <anim.h>
+#include <vector>
 
 typedef struct game_ctx
 {
   // window
   int win_x;
   int win_y;
-  char* app_name;
+  const char* app_name;
 
   // time
   Uint64 ticks_delta_ms;
@@ -24,7 +26,7 @@ typedef struct game_ctx
   // engine
   list_t *unit_list;
   list_t *tex_list;
-  list_t *anim_list;
+  std::vector<anim_obj*> anims;
 
   // gui - move to separate module
   Uint8 sel_en;

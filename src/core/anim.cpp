@@ -8,100 +8,55 @@
 
 // ------------------------------------------------------------- //
 
-anim_step_t *anim_step_new(SDL_Texture *tex, Uint32 ticks_ms)
+anim_step::anim_step(SDL_Texture *tex, Uint32 ticks_ms)
+  : tex(tex), ticks_ms(ticks_ms)
 {
   LOG_DEBUG("tex[0x%x] ticks_ms[%u]\n", tex, ticks_ms);
-
-  anim_step_t *step = (anim_step_t *)malloc(sizeof(anim_step_t));
-  step->tex = tex;
-  step->ticks_ms = ticks_ms;
-
-  return step;
 }
 
-// ------------------------------------------------------------- //
-
-void anim_step_del(anim_step_t *step)
+anim_step::~anim_step()
 {
-  if(!step)
-  {
-    LOG_ERROR("NULL step\n");
-    return;
-  }
-  free(step);
 }
 
-// ------------------------------------------------------------- //
-
-ret_e anim_step_verify(anim_step_t *step)
+ret_e anim_step::verify()
 {
-  if(!step)
-  {
-    LOG_ERROR("NULL step\n");
-    return RET_ERR;
-  }
-  if(!step->tex)
+  if(!this->tex)
   {
     LOG_ERROR("NULL texture\n");
     return RET_ERR;
   }
-  return RET_OK;
+  return RET_OK;  
 }
 
 // ------------------------------------------------------------- //
 
-anim_stage_t *anim_stage_new(anim_stage_id_e stage_id)
+anim_stage::anim_stage(anim_stage_id_e stage_id)
+  : ticks_total_ms(0), id(stage_id)
 {
   LOG_DEBUG("id[%u]\n", stage_id);
-
-  anim_stage_t *stage = (anim_stage_t *)malloc(sizeof(anim_stage_t));
-  memset(stage, 0, sizeof(anim_stage_t));
-  stage->id = stage_id;
-  stage->step_list = list_new();
-
-  return stage;
 }
 
-// ------------------------------------------------------------- //
-
-void anim_stage_del(anim_stage_t *stage)
+anim_stage::~anim_stage()
 {
-  if(!stage)
-  {
-    LOG_ERROR("NULL stage");
-    return;
-  }
-
-  anim_step_t *step;
-  list_node_t *iter = list_iter_init(stage->step_list);
-  while(step = (anim_step_t *)list_iter_next(&iter))
-  {
-    anim_step_del(step);
-    list_del(stage->step_list, step);
-  }
-  list_destroy(stage->step_list);
-  free(stage);
+  steps.clear();
 }
 
-// ------------------------------------------------------------- //
-
-ret_e anim_stage_verify(anim_stage_t *stage)
+void anim_stage::add_step(anim_step *step)
 {
-  if(!stage)
+  steps.push_back(step);
+  this->ticks_total_ms += step->ticks_ms;
+}
+
+ret_e anim_stage::verify()
+{
+  if(!steps.size())
   {
-    LOG_ERROR("NULL stage\n");
-    return RET_ERR;
-  }
-  if(!stage->step_list)
-  {
-    LOG_ERROR("NULL step list\n");
+    LOG_ERROR("no steps\n");
     return RET_ERR;
   }
 
-  anim_step_t *step;
-  list_node_t *step_iter = list_iter_init(stage->step_list);
-  while(step = (anim_step_t *)list_iter_next(&step_iter))
-    if(!anim_step_verify(step))
+  for(const auto& step : this->steps)
+    if(!step->verify())
       return RET_ERR;
 
   return RET_OK;
@@ -109,196 +64,87 @@ ret_e anim_stage_verify(anim_stage_t *stage)
 
 // ------------------------------------------------------------- //
 
-ret_e anim_stage_add_step(anim_stage_t *stage, anim_step_t *step)
-{
-  if(!stage)
-  {
-    LOG_ERROR("NULL stage");
-    return RET_ERR;
-  }
-
-  list_add(stage->step_list, step);
-  stage->ticks_total_ms += step->ticks_ms;
-
-  return RET_OK;
-}
-
-// ------------------------------------------------------------- //
-
-anim_t *anim_new(const char *name)
+anim_obj::anim_obj(const char *name)
+  : name((char *)malloc(strlen(name) + 1))
 {
   LOG_DEBUG("name[%s]\n", name);
 
-  anim_t *anim = (anim_t *)malloc(sizeof(anim_t));
-  memset(anim, 0, sizeof(anim_t));
-  anim->stage_list = list_new();
-  anim->name = (char *)malloc(strlen(name) + 1);
-  strncpy(anim->name, name, strlen(name) + 1);
-
-  return anim;
+  strncpy(this->name, name, strlen(name) + 1);
 }
 
-// ------------------------------------------------------------- //
-
-void anim_del(anim_t *anim)
+anim_obj::~anim_obj()
 {
-  LOG_DEBUG("anim[0x%x]\n", anim);
-
-  if(!anim)
-  {
-    LOG_ERROR("NULL anim\n");
-    return;
-  }
-   
-  anim_stage_t *stage;
-  list_node_t *iter = list_iter_init(anim->stage_list);
-  while(stage = (anim_stage_t *)list_iter_next(&iter))
-  {
-    anim_stage_del(stage);
-    list_del(anim->stage_list, stage);
-  }
-  list_destroy(anim->stage_list);
-  if(anim->name) free(anim->name);
-  free(anim);
+  stages.clear();
+  if(name) 
+    free(name);
 }
-// ------------------------------------------------------------- //
 
-ret_e anim_verify(anim_t *anim)
+void anim_obj::add_stage(anim_stage *stage)
 {
-  if(!anim) 
+  stages.push_back(stage);
+}
+
+ret_e anim_obj::verify()
+{
+  if(!stages.size())
   {
-    LOG_ERROR("NULL anim\n");
-    return RET_ERR;
-  }
-  if(!anim->stage_list)
-  {
-    LOG_ERROR("NULL stage list\n");
+    LOG_ERROR("no stages\n");
     return RET_ERR;
   }
 
-  anim_stage_t *stage;
-  list_node_t *stage_iter = list_iter_init(anim->stage_list);
-  while(stage = (anim_stage_t *)list_iter_next(&stage_iter))
-    if(!anim_stage_verify(stage))
+  for(const auto& stage : stages)
+    if(!stage->verify())
       return RET_ERR;
 
   return RET_OK;
 }
 
-// ------------------------------------------------------------- //
-
-ret_e anim_add_stage(anim_t *anim, anim_stage_t *stage)
+SDL_Texture *anim_obj::get_tex(anim_stage_id_e stage_id, Uint32 *ticks_ms, bool cycle)
 {
-  if(!anim)
-  {
-    LOG_ERROR("NULL anim");
-    return RET_ERR;
-  }
-
-  list_add(anim->stage_list, stage);
-
-  return RET_OK;
-}
-
-// ------------------------------------------------------------- //
-
-ret_e anim_list_verify(list_t *list)
-{
-  if(!list)
-  {
-    LOG_ERROR("NULL list\n");
-    return RET_ERR;
-  }
-  LOG_DEBUG("list[0x%x]\n", list);
-
-  anim_t *anim;
-  list_node_t *anim_iter = list_iter_init(list);
-  while(anim = (anim_t *)list_iter_next(&anim_iter))
-    if(!anim_verify(anim))
-      return RET_ERR;
-
-  return RET_OK;
-}
-
-// ------------------------------------------------------------- //
-
-void anim_list_destroy(list_t *list)
-{
-  if(!list)
-  {
-    LOG_ERROR("NULL list\n");
-    return;
-  }
-  LOG_DEBUG("list[0x%x]\n", list);
-
-  anim_t *anim;
-  list_node_t *anim_iter = list_iter_init(list);
-  while(anim = (anim_t *)list_iter_next(&anim_iter))
-  {
-    anim_del(anim);
-    list_del(list, anim);
-  }
-  list_destroy(list);
-}
-
-// ------------------------------------------------------------- //
-
-anim_t *anim_get(list_t *anim_list, const char *name)
-{
-  anim_t *anim;
-  list_node_t *iter = list_iter_init(anim_list);
-  while(anim = (anim_t *)list_iter_next(&iter))
-    if(!strcmp(name, anim->name))
-      return anim;
-
-  LOG_ERROR("anim not found: name[%s]", name);
-
-  return NULL;
-}
-
-// ------------------------------------------------------------- //
-
-SDL_Texture *anim_tex_get(anim_t *anim, anim_stage_id_e stage_id, Uint32 *ticks_ms, Uint8 rotate)
-{
-  anim_stage_t *stage;
-  list_node_t *iter = list_iter_init(anim->stage_list);
-  while(stage = (anim_stage_t *)list_iter_next(&iter))
+  for(const auto& stage : stages)
   {
     if(stage->id == stage_id)
     {
       if(*ticks_ms >= stage->ticks_total_ms)
-        if(rotate)
+        if(cycle)
           *ticks_ms = *ticks_ms % stage->ticks_total_ms;
         else
           *ticks_ms = stage->ticks_total_ms - 1;
 
       Uint32 curr_ticks_ms = 0;
-      anim_step_t *step;
-      list_node_t *iter = list_iter_init(stage->step_list);
-      while(step = (anim_step_t *)list_iter_next(&iter))
+      for(const auto& step : stage->steps)
       {
         curr_ticks_ms += step->ticks_ms;
         if(*ticks_ms < curr_ticks_ms)
-        {
           return step->tex;
-        }
       }
-      LOG_ERROR("texture not found: stage id[%d] ticks_ms[%d]\n", stage_id, *ticks_ms);
+      
       break;
     }
   }
+  LOG_ERROR("texture not found: stage id[%d] ticks_ms[%d]\n", stage_id, *ticks_ms);
+
   return NULL;
 }
 
-// ------------------------------------------------------------- //
-
-Uint32 anim_stage_ticks_get(anim_t *anim, anim_stage_id_e stage_id)
+Uint32 anim_obj::get_ticks(anim_stage_id_e stage_id)
 {
-  anim_stage_t *stage;
-  list_node_t *iter = list_iter_init(anim->stage_list);
-  while(stage = (anim_stage_t *)list_iter_next(&iter))
+  for(const auto& stage : stages)
     if(stage->id == stage_id)
       return stage->ticks_total_ms;
 
   return 0;
+}
+
+// ------------------------------------------------------------- //
+
+anim_obj *anim_get(std::vector<anim_obj*> anims, const char *name)
+{
+  for(const auto& obj : anims)
+    if(!strcmp(name, obj->name))
+      return obj;
+
+  LOG_ERROR("anim not found: name[%s]", name);
+
+  return NULL;
 }

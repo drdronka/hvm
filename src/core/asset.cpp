@@ -99,7 +99,7 @@ void asset_tex_list_destroy(list_t *list)
 
 // ------------------------------------------------------------- //
 
-SDL_Texture *asset_tex_get(list_t *tex_list, char* name)
+SDL_Texture *asset_tex_get(list_t *tex_list, const char* name)
 {
   asset_tex_t *tex;
   list_node_t *iter = list_iter_init(tex_list);

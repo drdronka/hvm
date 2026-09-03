@@ -1,0 +1,15 @@
+{
+  // Treat all headers in this project as C++ (no C translation units remain).
+  "files.associations": {
+    "*.h": "cpp"
+  },
+
+  // Point IntelliSense at the CMake-generated compile database and force C++98.
+  "C_Cpp.default.compileCommands": "${workspaceFolder}/build/compile_commands.json",
+  "C_Cpp.default.cppStandard": "c++98",
+  "C_Cpp.default.cStandard": "c11",
+  "C_Cpp.default.compilerPath": "/usr/bin/g++",
+
+  // Prefer the CMake Tools configuration provider when available.
+  "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools"
+}
