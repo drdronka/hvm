@@ -41,7 +41,7 @@ anim_stage::~anim_stage()
   steps.clear();
 }
 
-void anim_stage::add_step(anim_step *step)
+void anim_stage::step_add(anim_step *step)
 {
   steps.push_back(step);
   this->ticks_total_ms += step->ticks_ms;
@@ -79,7 +79,7 @@ anim_obj::~anim_obj()
     free(name);
 }
 
-void anim_obj::add_stage(anim_stage *stage)
+void anim_obj::stage_add(anim_stage *stage)
 {
   stages.push_back(stage);
 }
@@ -99,7 +99,7 @@ ret_e anim_obj::verify()
   return RET_OK;
 }
 
-SDL_Texture *anim_obj::get_tex(anim_stage_id_e stage_id, Uint32 *ticks_ms, bool cycle)
+SDL_Texture *anim_obj::tex_get(anim_stage_id_e stage_id, Uint32 *ticks_ms, bool cycle)
 {
   for(const auto& stage : stages)
   {
@@ -127,7 +127,7 @@ SDL_Texture *anim_obj::get_tex(anim_stage_id_e stage_id, Uint32 *ticks_ms, bool 
   return NULL;
 }
 
-Uint32 anim_obj::get_ticks(anim_stage_id_e stage_id)
+Uint32 anim_obj::ticks_get(anim_stage_id_e stage_id)
 {
   for(const auto& stage : stages)
     if(stage->id == stage_id)

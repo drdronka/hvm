@@ -35,7 +35,7 @@ public:
 
   anim_stage(anim_stage_id_e stage_id);
   ~anim_stage();
-  void add_step(anim_step *step);
+  void step_add(anim_step *step);
   ret_e verify();
 };
 
@@ -47,10 +47,10 @@ public:
 
   anim_obj(const char *name);
   ~anim_obj();
-  void add_stage(anim_stage *stage);
+  void stage_add(anim_stage *stage);
   ret_e verify();
-  SDL_Texture *get_tex(anim_stage_id_e stage_id, Uint32 *ticks_ms, bool cycle);
-  Uint32 get_ticks(anim_stage_id_e stage_id);
+  SDL_Texture *tex_get(anim_stage_id_e stage_id, Uint32 *ticks_ms, bool cycle);
+  Uint32 ticks_get(anim_stage_id_e stage_id);
 };
 
 anim_obj *anim_get(std::vector<anim_obj*> anims, const char *name);

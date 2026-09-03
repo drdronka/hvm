@@ -51,25 +51,25 @@ static ret_e game_assets_load()
 
   obj = new anim_obj("worm");
   stage = new anim_stage(ANIM_STAGE_ID_ENTER);
-  stage->add_step(new anim_step(asset_tex_get(ctx->textures, "worm_enter_0"), 25));
-  stage->add_step(new anim_step(asset_tex_get(ctx->textures, "worm_enter_1"), 25));
-  stage->add_step(new anim_step(asset_tex_get(ctx->textures, "worm_enter_2"), 25));
-  stage->add_step(new anim_step(asset_tex_get(ctx->textures, "worm_enter_3"), 25));
-  obj->add_stage(stage);
+  stage->step_add(new anim_step(asset_tex_get(ctx->textures, "worm_enter_0"), 25));
+  stage->step_add(new anim_step(asset_tex_get(ctx->textures, "worm_enter_1"), 25));
+  stage->step_add(new anim_step(asset_tex_get(ctx->textures, "worm_enter_2"), 25));
+  stage->step_add(new anim_step(asset_tex_get(ctx->textures, "worm_enter_3"), 25));
+  obj->stage_add(stage);
   stage = new anim_stage(ANIM_STAGE_ID_IDLE);
-  stage->add_step(new anim_step(asset_tex_get(ctx->textures, "worm_idle_0"), 600));
-  stage->add_step(new anim_step(asset_tex_get(ctx->textures, "worm_idle_1"), 600));
-  obj->add_stage(stage);
+  stage->step_add(new anim_step(asset_tex_get(ctx->textures, "worm_idle_0"), 600));
+  stage->step_add(new anim_step(asset_tex_get(ctx->textures, "worm_idle_1"), 600));
+  obj->stage_add(stage);
   stage = new anim_stage(ANIM_STAGE_ID_MOVE);
-  stage->add_step(new anim_step(asset_tex_get(ctx->textures, "worm_move_0"), 150));
-  stage->add_step(new anim_step(asset_tex_get(ctx->textures, "worm_move_1"), 150));
-  obj->add_stage(stage);
+  stage->step_add(new anim_step(asset_tex_get(ctx->textures, "worm_move_0"), 150));
+  stage->step_add(new anim_step(asset_tex_get(ctx->textures, "worm_move_1"), 150));
+  obj->stage_add(stage);
   stage = new anim_stage(ANIM_STAGE_ID_DEATH);
-  stage->add_step(new anim_step(asset_tex_get(ctx->textures, "worm_death_0"), 100));
-  stage->add_step(new anim_step(asset_tex_get(ctx->textures, "worm_death_1"), 150));
-  stage->add_step(new anim_step(asset_tex_get(ctx->textures, "worm_death_2"), 60));
-  stage->add_step(new anim_step(asset_tex_get(ctx->textures, "worm_death_3"), 60));
-  obj->add_stage(stage);
+  stage->step_add(new anim_step(asset_tex_get(ctx->textures, "worm_death_0"), 100));
+  stage->step_add(new anim_step(asset_tex_get(ctx->textures, "worm_death_1"), 150));
+  stage->step_add(new anim_step(asset_tex_get(ctx->textures, "worm_death_2"), 60));
+  stage->step_add(new anim_step(asset_tex_get(ctx->textures, "worm_death_3"), 60));
+  obj->stage_add(stage);
   ctx->anims.push_back(obj);
 
   for(const auto& obj : ctx->anims)

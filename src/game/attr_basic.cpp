@@ -127,11 +127,11 @@ void attr_visu_run(void *unit_ref, void *attr_ref)
   visu_data->animicks_ms += ctx->ticks_delta_ms;
 
   SDL_Texture *texture;
-  texture = visu_data->anim->get_tex(
+  texture = visu_data->anim->tex_get(
     (anim_stage_id_e)visu_data->anim_stage_id, &visu_data->animicks_ms, visu_data->anim_cycle);
 
   if(!texture) 
-    texture = visu_data->anim->get_tex(
+    texture = visu_data->anim->tex_get(
       ANIM_STAGE_ID_IDLE, &visu_data->animicks_ms, visu_data->anim_cycle);
 
   if(!SDL_RenderTextureRotated(
@@ -174,7 +174,7 @@ void attr_visu_anim_stage_set(attr_visu_data_t *data, anim_stage_id_e stage_id, 
 
 Uint32 attr_visu_anim_stage_get_ticks(attr_visu_data_t *data, anim_stage_id_e stage_id)
 {
-  return data->anim->get_ticks(stage_id);
+  return data->anim->ticks_get(stage_id);
 }
 
 // ------------------------------------------------------------- //

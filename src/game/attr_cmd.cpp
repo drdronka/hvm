@@ -80,7 +80,7 @@ void attr_death_run(void *unit_ref, void *attr_ref)
   if(death_data->ticks_ms == 0)
   {
     attr_visu_anim_stage_set(visu_data, ANIM_STAGE_ID_DEATH, 0, 1);
-    death_data->ticks_limit_ms = visu_data->anim->get_ticks(ANIM_STAGE_ID_DEATH);
+    death_data->ticks_limit_ms = visu_data->anim->ticks_get(ANIM_STAGE_ID_DEATH);
   }
   
   death_data->ticks_ms += ctx->ticks_delta_ms;
@@ -114,7 +114,7 @@ void attr_enter_run(void *unit_ref, void *attr_ref)
   if(enter_data->ticks_ms == 0)
   {
     attr_visu_anim_stage_set(visu_data, ANIM_STAGE_ID_ENTER, 0, 1);
-    enter_data->ticks_limit_ms = visu_data->anim->get_ticks(ANIM_STAGE_ID_ENTER);
+    enter_data->ticks_limit_ms = visu_data->anim->ticks_get(ANIM_STAGE_ID_ENTER);
   }
   
   enter_data->ticks_ms += ctx->ticks_delta_ms;
