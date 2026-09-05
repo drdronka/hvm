@@ -1,5 +1,4 @@
-#ifndef __GUTIL_H__
-#define __GUTIL_H__
+#pragma once
 
 #include <SDL3/SDL_stdinc.h>
 #include <math.h>
@@ -17,5 +16,3 @@ typedef enum
 #define IS_BETWEEN(x, a, b) ((a) < (b) ? ((x) > (a) && (x) < (b)) : ((x) > (b) && (x) < (a)))
 
 #define FRAND(range) ((float)SDL_rand(((Sint32)(range) * (Sint32)1000)) / 1000)
-
-#endif // __GUTIL_H__

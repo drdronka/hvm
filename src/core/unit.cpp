@@ -4,182 +4,93 @@
 #include "log.h"
 #include "unit.h"
 #include "unit_def.h"
-#include "attr.h"
-#include "attr_def.h"
 
-// ======================== LOCAL DATA ========================= //
+// ------------------------------------------------------------- //
 
-// ======================== LOCAL FUNC ========================= //
-
-// ======================== GLOBAL FUNC ======================== //
-
-unit_t *unit_new(unit_id_e unit_id)
+mod_c::mod_c(mod_id_e id, mod_type_e type, mod_lcs_e lcs)
+  : id(id), type(type), lcs(lcs)
 {
-  LOG_DEBUG("id[%u]\n", unit_id);
+  unit = NULL;
+}
 
-  unit_t *unit = (unit_t *)malloc(sizeof(unit_t));
-  memset(unit, 0, sizeof(unit_t));
-  unit->attr_list = list_new();
-  unit->id = unit_id;
+mod_c::~mod_c()
+{
+}
 
-  return unit;
+void mod_c::run()
+{
+}
+
+void mod_c::clean()
+{
 }
 
 // ------------------------------------------------------------- //
 
-void unit_del(unit_t *unit)
+unit_c::unit_c(unit_id_e id) : id(id), dead(false), selected(false)
 {
-  if(!unit)
-  {
-    LOG_ERROR("NULL unit\n");
-    return;
-  }
-
-  LOG_DEBUG("id[%u]\n", unit->id);
-  attr_list_destroy(unit->attr_list);
-  free(unit);
+  LOG_DEBUG("id[%u]\n", id);
 }
 
-// ------------------------------------------------------------- //
-
-void unit_attr_add(unit_t *unit, attr_t *attr)
+unit_c::~unit_c()
 {
-  list_add(unit->attr_list, attr);
+  LOG_DEBUG("id[%u]\n", id);
+
+  for(const auto& mod : mods)
+    delete mod;
+  mods.clear();
 }
 
-// ------------------------------------------------------------- //
 
-void unit_attr_add_head(unit_t *unit, attr_t *attr)
+void unit_c::mod_add(mod_c *mod)
 {
-  list_add_head(unit->attr_list, attr);
+  mod->unit = this;
+  mods.push_back(mod);
 }
 
-// ------------------------------------------------------------- //
-
-void unit_list_destroy(list_t *list)
+mod_c *unit_c::mod_get(Uint32 id)
 {
-  if(!list)
-  {
-    LOG_ERROR("NULL list\n");
-    return;
-  }
-  LOG_DEBUG("list[0x%x]\n", list);
-
-  unit_t *unit;
-  list_node_t *unit_iter = list_iter_init(list);
-  while(unit = (unit_t *)list_iter_next(&unit_iter))
-  {
-    unit_del(unit);
-    list_del(list, unit);
-  }
-  list_destroy(list);
-}
-
-// ------------------------------------------------------------- //
-
-void *unit_attr_data_get(unit_t *unit, Uint32 id)
-{
-  attr_t *attr;
-  list_node_t *iter = list_iter_init(unit->attr_list);
-  while(attr = (attr_t *)list_iter_next(&iter))
-    if(attr->id == id)
-      return attr->data;
+  for(const auto& mod : mods)
+    if(mod->id == id)
+      return mod;
 
   return NULL;
 }
 
-// ------------------------------------------------------------- //
-
-void *unit_cmd_clear_all(unit_t *unit)
+void unit_c::mods_run(mod_id_e id, mod_type_e type)
 {
-  attr_t *attr;
-  list_node_t *iter = list_iter_init(unit->attr_list);
-  while(attr = (attr_t *)list_iter_next(&iter))
-    if(attr->type == ATTR_TYPE_CMD && !attr->is_protected)
-      attr->lcs = ATTR_LCS_CLEAN;
-
-  return NULL;
+  for(const auto& mod : mods)
+    if(mod->lcs == MOD_LCS_RUN)
+      if(id == MOD_ID_ANY || mod->id == id)
+        if(type == MOD_TYPE_ANY || mod->type == type)
+          mod->run();
 }
 
-// ------------------------------------------------------------- //
-
-Uint8 unit_cmd_is_empty(unit_t *unit)
+void unit_c::mods_clean(mod_id_e id, mod_type_e type)
 {
-  attr_t *attr;
-  list_node_t *iter = list_iter_init(unit->attr_list);
-  while(attr = (attr_t *)list_iter_next(&iter))
-    if(attr->type == ATTR_TYPE_CMD)
-      return 0;
-  
-  return 1;
-}
-
-// ------------------------------------------------------------- //
-
-void unit_attr_run(unit_t *unit, attr_id_e id, attr_type_e type)
-{
-  attr_t *attr;
-  list_node_t *iter = list_iter_init(unit->attr_list);
-  while(attr = (attr_t *)list_iter_next(&iter))
-    if(attr->lcs == ATTR_LCS_RUN)
-      if(id == ATTR_ID_ANY || attr->id == id)
-        if(type == ATTR_TYPE_ANY || attr->type == type)
-        {
-          if(attr->run)
-            attr->run(unit, attr);
-          if(type == ATTR_TYPE_CMD)
-            break;
-        }
-}
-
-// ------------------------------------------------------------- //
-
-void unit_attr_clean(unit_t *unit, attr_id_e id, attr_type_e type)
-{
-  attr_t *attr;
-  list_node_t *iter = list_iter_init(unit->attr_list);
-  while(attr = (attr_t *)list_iter_next(&iter))
-    if(attr->lcs == ATTR_LCS_CLEAN)
-      if(id == ATTR_ID_ANY || attr->id == id)
-        if(type == ATTR_TYPE_ANY || attr->type == type)
-        {
-          if(attr->clean) 
-            attr->clean(unit, attr);
-          attr_del(attr);
-          list_del(unit->attr_list, attr);
-        }
-}
-
-// ------------------------------------------------------------- //
-
-void unit_list_attr_run(list_t *list, attr_id_e id, attr_type_e type)
-{
-  unit_t *unit;
-  list_node_t *iter = list_iter_init(list);
-  while(unit = (unit_t *)list_iter_next(&iter))
-    unit_attr_run(unit, id, type);
-}
-
-// ------------------------------------------------------------- //
-
-void unit_list_attr_clean(list_t *list, attr_id_e id, attr_type_e type)
-{
-  unit_t *unit;
-  list_node_t *iter = list_iter_init(list);
-  while(unit = (unit_t *)list_iter_next(&iter))
-    unit_attr_clean(unit, id, type);
-}
-
-// ------------------------------------------------------------- //
-
-void unit_list_remove_dead(list_t *list)
-{
-  unit_t *unit;
-  list_node_t *iter = list_iter_init(list);
-  while(unit = (unit_t *)list_iter_next(&iter))
-    if(unit->dead)
+  for(auto it = mods.begin(); it != mods.end();)
+  {
+    mod_c *mod = *it;
+    if(mod->lcs == MOD_LCS_CLEAN && 
+      (mod->id == id || id == MOD_ID_ANY) && 
+      (mod->type == type || type == MOD_TYPE_ANY))
     {
-      unit_del(unit);
-      list_del(list, unit);
+      mod->clean();
+      it = mods.erase(it);
+      continue;
     }
+    it++;
+  }
 }
+
+void *unit_c::cmd_clear()
+{
+
+}
+
+Uint8 unit_c::cmd_is_empty()
+{
+    
+}
+
+// ------------------------------------------------------------- //

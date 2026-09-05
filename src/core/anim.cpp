@@ -3,22 +3,21 @@
 
 #include "anim.h"
 #include "asset.h"
-#include "list.h"
 #include "log.h"
 
 // ------------------------------------------------------------- //
 
-anim_step::anim_step(SDL_Texture *tex, Uint32 ticks_ms)
+anim_step_c::anim_step_c(SDL_Texture *tex, Uint32 ticks_ms)
   : tex(tex), ticks_ms(ticks_ms)
 {
   LOG_DEBUG("tex[0x%x] ticks_ms[%u]\n", tex, ticks_ms);
 }
 
-anim_step::~anim_step()
+anim_step_c::~anim_step_c()
 {
 }
 
-ret_e anim_step::verify()
+ret_e anim_step_c::verify()
 {
   if(!this->tex)
   {
@@ -30,24 +29,26 @@ ret_e anim_step::verify()
 
 // ------------------------------------------------------------- //
 
-anim_stage::anim_stage(anim_stage_id_e stage_id)
+anim_stage_c::anim_stage_c(anim_stage_id_e stage_id)
   : ticks_total_ms(0), id(stage_id)
 {
   LOG_DEBUG("id[%u]\n", stage_id);
 }
 
-anim_stage::~anim_stage()
+anim_stage_c::~anim_stage_c()
 {
+  for(const auto& step : steps)
+    delete step;
   steps.clear();
 }
 
-void anim_stage::step_add(anim_step *step)
+void anim_stage_c::step_add(anim_step_c *step)
 {
   steps.push_back(step);
   this->ticks_total_ms += step->ticks_ms;
 }
 
-ret_e anim_stage::verify()
+ret_e anim_stage_c::verify()
 {
   if(!steps.size())
   {
@@ -64,7 +65,7 @@ ret_e anim_stage::verify()
 
 // ------------------------------------------------------------- //
 
-anim_obj::anim_obj(const char *name)
+anim_c::anim_c(const char *name)
 {
   LOG_DEBUG("name[%s]\n", name);
 
@@ -72,19 +73,21 @@ anim_obj::anim_obj(const char *name)
   strncpy(this->name, name, strlen(name) + 1);
 }
 
-anim_obj::~anim_obj()
+anim_c::~anim_c()
 {
+  for(const auto& stage : stages)
+    delete stage;
   stages.clear();
   if(name) 
     free(name);
 }
 
-void anim_obj::stage_add(anim_stage *stage)
+void anim_c::stage_add(anim_stage_c *stage)
 {
   stages.push_back(stage);
 }
 
-ret_e anim_obj::verify()
+ret_e anim_c::verify()
 {
   if(!stages.size())
   {
@@ -99,7 +102,7 @@ ret_e anim_obj::verify()
   return RET_OK;
 }
 
-SDL_Texture *anim_obj::tex_get(anim_stage_id_e stage_id, Uint32 *ticks_ms, bool cycle)
+SDL_Texture *anim_c::tex_get(anim_stage_id_e stage_id, Uint32 *ticks_ms, bool cycle)
 {
   for(const auto& stage : stages)
   {
@@ -127,7 +130,7 @@ SDL_Texture *anim_obj::tex_get(anim_stage_id_e stage_id, Uint32 *ticks_ms, bool 
   return NULL;
 }
 
-Uint32 anim_obj::ticks_get(anim_stage_id_e stage_id)
+Uint32 anim_c::ticks_get(anim_stage_id_e stage_id)
 {
   for(const auto& stage : stages)
     if(stage->id == stage_id)
@@ -138,11 +141,11 @@ Uint32 anim_obj::ticks_get(anim_stage_id_e stage_id)
 
 // ------------------------------------------------------------- //
 
-anim_obj *anim_get(std::vector<anim_obj*> anims, const char *name)
+anim_c *anim_get(std::vector<anim_c*> anims, const char *name)
 {
-  for(const auto& obj : anims)
-    if(!strcmp(name, obj->name))
-      return obj;
+  for(const auto& anim : anims)
+    if(!strcmp(name, anim->name))
+      return anim;
 
   LOG_ERROR("anim not found: name[%s]", name);
 

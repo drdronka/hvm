@@ -3,13 +3,12 @@
 #include <SDL3/SDL_render.h>
 
 #include "log.h"
-#include "list.h"
 #include "asset.h"
 #include <vector>
 
 // ------------------------------------------------------------- //
 
-asset_tex::asset_tex(const char *name, const char *path, SDL_Renderer *renderer)
+asset_tex_c::asset_tex_c(const char *name, const char *path, SDL_Renderer *renderer)
 {
   LOG_DEBUG("name[%s] path[%s]\n", name, path);
 
@@ -35,9 +34,9 @@ asset_tex::asset_tex(const char *name, const char *path, SDL_Renderer *renderer)
   SDL_DestroySurface(surf);
 }
 
-asset_tex::~asset_tex()
+asset_tex_c::~asset_tex_c()
 {
-  LOG_DEBUG("name[%x]\n", name);
+  LOG_DEBUG("name[%s]\n", name);
 
   if(texture) 
     SDL_DestroyTexture(texture);
@@ -46,7 +45,7 @@ asset_tex::~asset_tex()
     free(name);
 }
 
-ret_e asset_tex::verify()
+ret_e asset_tex_c::verify()
 {
   if(!texture)
   {
@@ -57,7 +56,7 @@ ret_e asset_tex::verify()
   return RET_OK;
 }
 
-SDL_Texture *asset_tex_get(std::vector<asset_tex*> textures, const char* name)
+SDL_Texture *asset_tex_get(std::vector<asset_tex_c*> textures, const char* name)
 {
   for(const auto& tex : textures)
     if(!strcmp(name, tex->name))

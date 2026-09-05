@@ -4,12 +4,12 @@
 #include "game_ctx.h"
 #include "log.h"
 #include "util.h"
-#include "attr.h"
-#include "attr_def.h"
-#include "attr_cmd.h"
-#include "attr_basic.h"
+#include "mod_def.h"
+#include "mod_basic.h"
+#include "cmd_basic.h"
 #include "unit.h"
 
+#if 0
 // ============================================================= //
 
 void attr_move_run(void *unit_ref, void *attr_ref)
@@ -141,3 +141,4 @@ attr_t *attr_enter_new()
 }
 
 // ============================================================= //
+#endif

@@ -1,11 +1,10 @@
-#ifndef __CONTEXT_H__
-#define __CONTEXT_H__
+#pragma once
 
 #include <SDL3/SDL_render.h>
 
-#include "list.h"
 #include "anim.h"
 #include "asset.h"
+#include "unit.h"
 #include <vector>
 
 typedef struct game_ctx
@@ -25,9 +24,9 @@ typedef struct game_ctx
   SDL_Renderer *renderer;
 
   // engine
-  list_t *unit_list;
-  std::vector<asset_tex*> textures;
-  std::vector<anim_obj*> anims;
+  std::vector<unit_c*> units;
+  std::vector<asset_tex_c*> textures;
+  std::vector<anim_c*> anims;
 
   // gui - move to separate module
   Uint8 sel_en;
@@ -38,8 +37,3 @@ typedef struct game_ctx
 
 void game_ctx_init();
 game_ctx_t *game_ctx_get();
-
-void game_ctx_color_set_background();
-void game_ctx_color_set_select();
-
-#endif 

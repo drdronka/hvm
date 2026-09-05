@@ -1,12 +1,12 @@
-#ifndef __ATTR_CMD_H__
-#define __ATTR_CMD_H__
+#pragma once
 
 #include <SDL3/SDL_render.h>
 
-#include "attr.h"
-#include "attr_def.h"
-#include "attr_basic.h"
+#include "unit.h"
+#include "mod_def.h"
+#include "mod_basic.h"
 
+#if 0
 // ------------------------------------------------------------- //
 
 typedef struct attr_move_data
@@ -47,5 +47,4 @@ void attr_enter_run(void *unit_ref, void *attr_ref);
 void attr_enter_clean(void *unit_ref, void *attr_ref);
 
 // ------------------------------------------------------------- //
-
-#endif // __ATTR_IMPL_H__
+#endif

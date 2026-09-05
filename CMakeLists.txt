@@ -21,13 +21,11 @@ add_subdirectory(vendored/SDL EXCLUDE_FROM_ALL)
 add_executable(hvm WIN32 
     src/main.cpp
     src/game/game.cpp
-    src/game/attr_basic.cpp
-    src/game/attr_cmd.cpp
-    src/game/unit_impl.cpp
+    src/game/mod_basic.cpp
+    src/game/cmd_basic.cpp
+    src/game/unit_basic.cpp
     src/game/game_ctx.cpp
     src/game/gui.cpp
-    src/core/list.cpp
-    src/core/attr.cpp
     src/core/unit.cpp
     src/core/asset.cpp
     src/core/anim.cpp

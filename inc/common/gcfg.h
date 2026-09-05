@@ -1,7 +1,6 @@
-#ifndef __GCFG_H__
-#define __GCFG_H__
+#pragma once
 
-#define STEP_MODE 0 // force 1 FPS
+#define STEP_MODE 1 // force 1 FPS
 #define LOG_LEVEL 4 // 0 none, 1 error, 2 warning, 3 info, 4 debug, 5 trace
 #define LOG_FORCE_STDERR 0
 
@@ -25,5 +24,3 @@
 #else
   #define FPS_LIMIT "120"
 #endif
-
-#endif // __GCFG_H__

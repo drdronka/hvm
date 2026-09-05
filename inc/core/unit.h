@@ -1,39 +1,41 @@
-#ifndef __UNIT_H__
-#define __UNIT_H__
+#pragma once
 
 #include <SDL3/SDL_stdinc.h>
 
-#include "attr.h"
-#include "list.h"
 #include "unit_def.h"
+#include "mod_def.h"
+#include <vector>
 
-typedef struct unit
+class unit_c;
+
+class mod_c
 {
-  Uint8 selected;
-  Uint8 dead;
+public:  
+  unit_c *unit;
+  mod_id_e id;
+  mod_type_e type;
+  mod_lcs_e lcs;
+
+  mod_c(mod_id_e id, mod_type_e type, mod_lcs_e lcs);
+  ~mod_c();
+  virtual void run();
+  virtual void clean();
+};
+
+class unit_c
+{
+public:
+  bool selected;
+  bool dead;
   unit_id_e id;
-  list_t *attr_list;
-} unit_t;
+  std::vector<mod_c*> mods;
 
-// create / destroy
-unit_t *unit_new(unit_id_e unit_id);
-void unit_del(unit_t *unit);
-void unit_attr_add(unit_t *unit, attr_t *attr);
-void unit_attr_add_head(unit_t *unit, attr_t *attr);
-void unit_list_destroy(list_t *list);
-
-// batch run / clean
-void unit_attr_run(unit_t *unit, attr_id_e id, attr_type_e type);
-void unit_attr_clean(unit_t *unit, attr_id_e id, attr_type_e type);
-void unit_list_attr_run(list_t *list, attr_id_e id, attr_type_e type);
-void unit_list_attr_clean(list_t *list, attr_id_e id, attr_type_e type);
-void unit_list_remove_dead(list_t *list);
-
-// attr access
-void *unit_attr_data_get(unit_t *unit, Uint32 id);
-
-// command queue
-void *unit_cmd_clear_all(unit_t *unit);
-Uint8 unit_cmd_is_empty(unit_t *unit);
-
-#endif // __UNIT_H__
+  unit_c(unit_id_e id);
+  ~unit_c();
+  void mod_add(mod_c *mod);
+  mod_c *mod_get(Uint32 id);
+  void mods_run(mod_id_e id, mod_type_e type);
+  void mods_clean(mod_id_e id, mod_type_e type);
+  void *cmd_clear();
+  Uint8 cmd_is_empty();
+};

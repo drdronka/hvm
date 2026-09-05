@@ -1,5 +1,4 @@
-#ifndef __LOG_H__
-#define __LOG_H__
+#pragma once
 
 #include <stdio.h>
 
@@ -42,5 +41,3 @@
 #else
   #define LOG_TRACE(...)
 #endif
-
-#endif // __LOG_H__
