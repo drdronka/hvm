@@ -174,7 +174,6 @@ static void game_sel_finish(float pos_x, float pos_y)
 static void game_units_move(float dst_x, float dst_y, Uint8 clear_cmd_queue)
 {
   for(const auto& unit : ctx->units)
-  {
     if(unit->selected)
     {
       mod_psyh_c *psyh = (mod_psyh_c*)unit->mod_get(MOD_ID_PSYH);
@@ -182,10 +181,9 @@ static void game_units_move(float dst_x, float dst_y, Uint8 clear_cmd_queue)
       {
         if(clear_cmd_queue)
           unit->cmd_clear();
-        //unit_attr_add(unit, attr_move_new(dst_x, dst_y, MOVE_TYPE_ABS, 0)); // TBD
+        unit->cmd_add(new cmd_move_c(dst_x, dst_y, MOVE_TYPE_ABS, false));
       }
     } 
-  }
 }
 
 // ------------------------------------------------------------- //
@@ -193,14 +191,12 @@ static void game_units_move(float dst_x, float dst_y, Uint8 clear_cmd_queue)
 static void game_units_kill(Uint8 clear_cmd_queue)
 {
   for(const auto& unit : ctx->units)
-  {
     if(unit->selected)
     {
         if(clear_cmd_queue)
           unit->cmd_clear();
         //unit_attr_add(unit, attr_death_new()); // TBD
-    } 
-  }
+    }
 }
 
 // ------------------------------------------------------------- //
@@ -274,7 +270,7 @@ SDL_AppResult game_update()
 
   /* run clean functions */
   for(const auto& unit : ctx->units)
-    unit->mods_clean(MOD_ID_ANY, MOD_TYPE_ANY);
+    unit->mod_clean(MOD_ID_ANY, MOD_TYPE_ANY);
 
   /* remove dead units */
   for(auto it = ctx->units.begin(); it != ctx->units.end();)
@@ -282,7 +278,6 @@ SDL_AppResult game_update()
     unit_c *unit = *it;
     if(unit->dead)
     {
-      LOG_ERROR("--- dead unit\n");
       delete unit;
       it = ctx->units.erase(it);
       continue;
@@ -291,19 +286,16 @@ SDL_AppResult game_update()
   }
 
   /* run commands */
-  //unit_list_attr_run(ctx->unit_list, ATTR_ID_ANY, ATTR_TYPE_CMD); // TBD
+  for(const auto& unit : ctx->units)
+    unit->cmd_run();
 
   /* run wanderer */
   for(const auto& unit : ctx->units)
-    unit->mods_run(MOD_ID_WANDER, MOD_TYPE_ANY);
+    unit->mod_run(MOD_ID_WANDER, MOD_TYPE_ANY);
 
   /* render units */
-  LOG_ERROR("> ITERATIN\n");
   for(const auto& unit : ctx->units)
-  {
-    LOG_ERROR("> UNIT\n");
-    unit->mods_run(MOD_ID_VISU, MOD_TYPE_ANY);
-  }
+    unit->mod_run(MOD_ID_VISU, MOD_TYPE_ANY);
   
   if(ctx->sel_en)
   {

@@ -4,10 +4,50 @@
 #include "game_ctx.h"
 #include "log.h"
 #include "util.h"
-#include "mod_def.h"
+#include "core_def.h"
 #include "mod_basic.h"
 #include "cmd_basic.h"
 #include "unit.h"
+
+
+cmd_move_c::cmd_move_c(float dst_x, float dst_y, move_type_e type, bool temporary)
+  : cmd_c(CMD_ID_MOVE), dst_x(dst_x), dst_y(dst_y), type(type), temporary(temporary)
+{
+}
+
+cmd_move_c::~cmd_move_c()
+{
+}
+
+void cmd_move_c::run()
+{
+  game_ctx_t *ctx = game_ctx_get();
+  mod_psyh_c *psyh = (mod_psyh_c*)unit->mod_get(MOD_ID_PSYH);
+  mod_visu_c *visu = (mod_visu_c*)unit->mod_get(MOD_ID_VISU);
+
+  if(!psyh)
+  {
+    LOG_ERROR("no psyh mod");
+    return;
+  }
+  
+  if(!initialized)
+  {
+    if(type == MOVE_TYPE_REL)
+      psyh->pos_rel_to_abs(&dst_x, &dst_y);
+
+    if(visu)
+      visu->anim_stage_set(ANIM_STAGE_ID_MOVE, true, 0);
+
+    initialized = true;
+  }
+
+  if(psyh->move(dst_x, dst_y, MOVE_TYPE_ABS, temporary) != RET_PENDING)
+  {
+    visu->anim_stage_set(ANIM_STAGE_ID_IDLE, true, true);
+    unit->cmd_remove(this);
+  }
+}
 
 #if 0
 // ============================================================= //

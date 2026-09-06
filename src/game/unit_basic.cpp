@@ -5,7 +5,7 @@
 #include "game_ctx.h"
 #include "mod_basic.h"
 #include "unit_basic.h"
-#include "unit_def.h"
+#include "core_def.h"
 #include "asset.h"
 #include "anim.h"
 

@@ -3,7 +3,8 @@
 
 #include "log.h"
 #include "unit.h"
-#include "unit_def.h"
+#include "core_def.h"
+#include <algorithm>
 
 // ------------------------------------------------------------- //
 
@@ -22,6 +23,20 @@ void mod_c::run()
 }
 
 void mod_c::clean()
+{
+}
+
+// ------------------------------------------------------------- //
+
+cmd_c::cmd_c(cmd_id_e id) : id(id)
+{
+}
+
+cmd_c::~cmd_c()
+{
+}
+
+void cmd_c::run()
 {
 }
 
@@ -57,7 +72,7 @@ mod_c *unit_c::mod_get(Uint32 id)
   return NULL;
 }
 
-void unit_c::mods_run(mod_id_e id, mod_type_e type)
+void unit_c::mod_run(mod_id_e id, mod_type_e type)
 {
   for(const auto& mod : mods)
     if(mod->lcs == MOD_LCS_RUN)
@@ -66,7 +81,7 @@ void unit_c::mods_run(mod_id_e id, mod_type_e type)
           mod->run();
 }
 
-void unit_c::mods_clean(mod_id_e id, mod_type_e type)
+void unit_c::mod_clean(mod_id_e id, mod_type_e type)
 {
   for(auto it = mods.begin(); it != mods.end();)
   {
@@ -83,14 +98,42 @@ void unit_c::mods_clean(mod_id_e id, mod_type_e type)
   }
 }
 
-void *unit_c::cmd_clear()
+void unit_c::cmd_add(cmd_c *cmd)
 {
-
+  cmd->unit = this;
+  cmds.push_back(cmd);
 }
 
-Uint8 unit_c::cmd_is_empty()
+void unit_c::cmd_run()
 {
-    
+  if(cmds.size() > 0)
+    cmds.front()->run();
+}
+
+void unit_c::cmd_clear()
+{
+  for(auto it = cmds.begin(); it != cmds.end();)
+  {
+    cmd_c *cmd = *it;
+    if(!cmd->protect)
+    {
+      delete cmd;
+      cmds.erase(it);
+      continue;
+    }
+    it++;
+  }
+}
+
+void unit_c::cmd_remove(cmd_c *cmd)
+{
+  delete cmd;
+  cmds.erase(std::remove(cmds.begin(), cmds.end(), cmd), cmds.end());
+}
+  
+Uint32 unit_c::cmd_size()
+{
+  return cmds.size();
 }
 
 // ------------------------------------------------------------- //
