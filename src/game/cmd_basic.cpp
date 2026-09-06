@@ -12,7 +12,7 @@
 // ------------------------------------------------------------- //
 
 cmd_move_c::cmd_move_c(float dst_x, float dst_y, move_type_e type, bool temporary)
-  : cmd_c(CMD_ID_MOVE), dst_x(dst_x), dst_y(dst_y), type(type), temporary(temporary)
+  : cmd_c(CMD_ID_MOVE, false), dst_x(dst_x), dst_y(dst_y), type(type), temporary(temporary)
 {
 }
 
@@ -52,7 +52,7 @@ void cmd_move_c::run()
 
 // ------------------------------------------------------------- //
 
-cmd_death_c::cmd_death_c() : cmd_c(CMD_ID_DEATH), ticks(0)
+cmd_death_c::cmd_death_c() : cmd_c(CMD_ID_DEATH, true), ticks(0)
 {
 }
 

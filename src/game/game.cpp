@@ -178,11 +178,7 @@ static void game_units_move(float dst_x, float dst_y, Uint8 clear_cmd_queue)
     {
       mod_psyh_c *psyh = (mod_psyh_c*)unit->mod_get(MOD_ID_PSYH);
       if(psyh)
-      {
-        if(clear_cmd_queue)
-          unit->cmd_clear();
-        unit->cmd_add(new cmd_move_c(dst_x, dst_y, MOVE_TYPE_ABS, false));
-      }
+        unit->cmd_add(new cmd_move_c(dst_x, dst_y, MOVE_TYPE_ABS, false), clear_cmd_queue);
     } 
 }
 
@@ -192,11 +188,7 @@ static void game_units_kill(Uint8 clear_cmd_queue)
 {
   for(const auto& unit : ctx->units)
     if(unit->selected)
-    {
-        if(clear_cmd_queue)
-          unit->cmd_clear();
-        unit->cmd_add(new cmd_death_c());
-    }
+        unit->cmd_add(new cmd_death_c(), clear_cmd_queue);
 }
 
 // ------------------------------------------------------------- //

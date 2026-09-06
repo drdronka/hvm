@@ -28,7 +28,7 @@ void mod_c::clean()
 
 // ------------------------------------------------------------- //
 
-cmd_c::cmd_c(cmd_id_e id) : id(id)
+cmd_c::cmd_c(cmd_id_e id, bool protect) : id(id), protect(protect)
 {
 }
 
@@ -98,8 +98,10 @@ void unit_c::mod_clean(mod_id_e id, mod_type_e type)
   }
 }
 
-void unit_c::cmd_add(cmd_c *cmd)
+void unit_c::cmd_add(cmd_c *cmd, bool clear_queue)
 {
+  if(clear_queue)
+    this->cmd_clear();
   cmd->unit = this;
   cmds.push_back(cmd);
 }

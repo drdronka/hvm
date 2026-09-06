@@ -39,7 +39,7 @@ public:
   cmd_id_e id;
   bool protect;
 
-  cmd_c(cmd_id_e id);
+  cmd_c(cmd_id_e id, bool protect);
   ~cmd_c();
   virtual void run();
 };
@@ -63,7 +63,7 @@ public:
   void mod_run(mod_id_e id, mod_type_e type);
   void mod_clean(mod_id_e id, mod_type_e type);
 
-  void cmd_add(cmd_c *cmd);
+  void cmd_add(cmd_c *cmd, bool clear_queue);
   void cmd_run();
   void cmd_clear();
   void cmd_remove(cmd_c *cmd);
