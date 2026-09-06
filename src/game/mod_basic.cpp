@@ -142,7 +142,8 @@ Uint32 mod_visu_c::anim_ticks_get(anim_stage_id_e stage_id)
   return anim->ticks_get(stage_id);
 }
 
-// ============================================================= //
+// ------------------------------------------------------------- //
+
 #if 0
 void attr_wander_run(void *unit_ref, void *attr_ref)
 {
@@ -183,15 +184,11 @@ void attr_wander_run(void *unit_ref, void *attr_ref)
   }
 }
 
-// ------------------------------------------------------------- //
-
 void attr_wander_pos_update(attr_wander_data_t *data, float pos_x, float pos_y)
 {
   data->org_x = pos_x;
   data->org_y = pos_y;
 }
-
-// ------------------------------------------------------------- //
 
 attr_t *attr_wander_new(float range, float ticks_max_ms)
 {

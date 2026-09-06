@@ -56,6 +56,8 @@ ret_e asset_tex_c::verify()
   return RET_OK;
 }
 
+// ------------------------------------------------------------- //
+
 SDL_Texture *asset_tex_get(std::vector<asset_tex_c*> textures, const char* name)
 {
   for(const auto& tex : textures)
@@ -66,5 +68,3 @@ SDL_Texture *asset_tex_get(std::vector<asset_tex_c*> textures, const char* name)
 
   return NULL;
 }
-
-// ------------------------------------------------------------- //

@@ -5,6 +5,8 @@
 #include "core_def.h"
 #include <vector>
 
+// ------------------------------------------------------------- //
+
 typedef enum
 {
   MOD_LCS_ANY = 0,
@@ -28,17 +30,21 @@ public:
   virtual void clean();
 };
 
+// ------------------------------------------------------------- //
+
 class cmd_c
 {
 public:
   unit_c *unit;
   cmd_id_e id;
   bool protect;
-  
+
   cmd_c(cmd_id_e id);
   ~cmd_c();
   virtual void run();
 };
+
+// ------------------------------------------------------------- //
 
 class unit_c
 {

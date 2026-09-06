@@ -5,13 +5,7 @@
 #include "util.h"
 #include <vector>
 
-typedef enum
-{
-  ANIM_STAGE_ID_IDLE = 0,
-  ANIM_STAGE_ID_ENTER,
-  ANIM_STAGE_ID_MOVE,
-  ANIM_STAGE_ID_DEATH,
-} anim_stage_id_e;
+// ------------------------------------------------------------- //
 
 class anim_step_c
 {
@@ -23,6 +17,16 @@ public:
   ~anim_step_c();
   ret_e verify();
 };
+
+// ------------------------------------------------------------- //
+
+typedef enum
+{
+  ANIM_STAGE_ID_IDLE = 0,
+  ANIM_STAGE_ID_ENTER,
+  ANIM_STAGE_ID_MOVE,
+  ANIM_STAGE_ID_DEATH,
+} anim_stage_id_e;
 
 class anim_stage_c
 {
@@ -36,6 +40,8 @@ public:
   void step_add(anim_step_c *step);
   ret_e verify();
 };
+
+// ------------------------------------------------------------- //
 
 class anim_c
 {

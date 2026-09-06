@@ -55,6 +55,7 @@ public:
 };
 
 // ------------------------------------------------------------- //
+
 #if 0
 typedef struct attr_wander_data
 {
@@ -71,4 +72,4 @@ attr_t *attr_wander_new(float range, float ticks_max_ms);
 void attr_wander_run(void *unit_ref, void *attr_ref);
 void attr_wander_pos_update(attr_wander_data_t *data, float pos_x, float pos_y);
 #endif
-// ------------------------------------------------------------- //
+
