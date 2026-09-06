@@ -86,9 +86,9 @@ void mod_psyh_c::pos_rel_to_abs(float *x, float *y)
 
 // ============================================================= //
 
-mod_visu_c::mod_visu_c(anim_c *anim, anim_stage_id_e stage_id) 
+mod_visu_c::mod_visu_c(anim_c *anim, anim_stage_id_e stage_id, bool cycle) 
 : mod_c(MOD_ID_VISU, MOD_TYPE_BASIC, MOD_LCS_RUN),
-anim(anim), anim_stage_id(stage_id), anim_cycle(false), anim_ticks(0), visible(true)
+anim(anim), anim_stage_id(stage_id), anim_cycle(cycle), anim_ticks(0), visible(true)
 {
 }
 

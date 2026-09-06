@@ -42,11 +42,11 @@ class mod_visu_c : public mod_c
 public:
   anim_c *anim;
   anim_stage_id_e anim_stage_id;
-  Uint8 anim_cycle;
+  bool anim_cycle;
   Uint32 anim_ticks;
   bool visible;
 
-  mod_visu_c(anim_c *anim, anim_stage_id_e stage_id);
+  mod_visu_c(anim_c *anim, anim_stage_id_e stage_id, bool cycle);
   ~mod_visu_c();
   void run();
   //void clean();
