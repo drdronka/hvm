@@ -137,7 +137,7 @@ void mod_visu_c::anim_stage_set(anim_stage_id_e stage_id, bool cycle, bool reset
   anim_ticks = reset ? 0 : anim_ticks;
 }
 
-Uint32 mod_visu_c::stage_ticks_get(anim_stage_id_e stage_id)
+Uint32 mod_visu_c::anim_ticks_get(anim_stage_id_e stage_id)
 {
   return anim->ticks_get(stage_id);
 }

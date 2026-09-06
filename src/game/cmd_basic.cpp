@@ -9,6 +9,7 @@
 #include "cmd_basic.h"
 #include "unit.h"
 
+// ============================================================= //
 
 cmd_move_c::cmd_move_c(float dst_x, float dst_y, move_type_e type, bool temporary)
   : cmd_c(CMD_ID_MOVE), dst_x(dst_x), dst_y(dst_y), type(type), temporary(temporary)
@@ -37,7 +38,7 @@ void cmd_move_c::run()
       psyh->pos_rel_to_abs(&dst_x, &dst_y);
 
     if(visu)
-      visu->anim_stage_set(ANIM_STAGE_ID_MOVE, true, 0);
+      visu->anim_stage_set(ANIM_STAGE_ID_MOVE, true, false);
 
     initialized = true;
   }
@@ -47,6 +48,36 @@ void cmd_move_c::run()
     visu->anim_stage_set(ANIM_STAGE_ID_IDLE, true, true);
     unit->cmd_remove(this);
   }
+}
+
+// ============================================================= //
+
+cmd_death_c::cmd_death_c() : cmd_c(CMD_ID_DEATH), ticks(0)
+{
+}
+
+cmd_death_c::~cmd_death_c()
+{
+}
+
+void cmd_death_c::run()
+{
+  game_ctx_t *ctx = game_ctx_get();
+  mod_psyh_c *psyh = (mod_psyh_c*)unit->mod_get(MOD_ID_PSYH);
+  mod_visu_c *visu = (mod_visu_c*)unit->mod_get(MOD_ID_VISU);
+  
+  if(ticks == 0)
+  {
+    visu->anim_stage_set(ANIM_STAGE_ID_DEATH, false, true);
+    ticks_limit = visu->anim_ticks_get(ANIM_STAGE_ID_DEATH);
+  }
+  
+  ticks += ctx->ticks_delta_ms;
+  if(ticks > ticks_limit)
+  {
+    unit->dead = 1;
+    unit->cmd_remove(this);
+  }   
 }
 
 #if 0

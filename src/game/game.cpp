@@ -195,7 +195,7 @@ static void game_units_kill(Uint8 clear_cmd_queue)
     {
         if(clear_cmd_queue)
           unit->cmd_clear();
-        //unit_attr_add(unit, attr_death_new()); // TBD
+        unit->cmd_add(new cmd_death_c());
     }
 }
 

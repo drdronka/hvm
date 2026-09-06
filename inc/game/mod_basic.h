@@ -51,7 +51,7 @@ public:
   void run();
   //void clean();
   void anim_stage_set(anim_stage_id_e stage_id, bool cycle, bool reset);
-  Uint32 stage_ticks_get(anim_stage_id_e stage_id);
+  Uint32 anim_ticks_get(anim_stage_id_e stage_id);
 };
 
 // ------------------------------------------------------------- //

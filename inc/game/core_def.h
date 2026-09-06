@@ -22,6 +22,7 @@ typedef enum
 {
   CMD_ID_ANY = 0,
   CMD_ID_MOVE,
+  CMD_ID_DEATH,
 } cmd_id_e;
 
 // ============================================================= //

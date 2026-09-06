@@ -6,6 +6,8 @@
 #include "core_def.h"
 #include "mod_basic.h"
 
+// ------------------------------------------------------------- //
+
 class cmd_move_c : public cmd_c
 {
 public:
@@ -15,26 +17,28 @@ public:
   bool temporary;
   bool initialized;
   bool finished;
+
   cmd_move_c(float dst_x, float dst_y, move_type_e type, bool temporary);
   ~cmd_move_c();
   void run();
 };
 
-#if 0
 // ------------------------------------------------------------- //
 
-typedef struct attr_move_data
+class cmd_death_c : public cmd_c
 {
-  float dst_x;
-  float dst_y;
-  move_type_e type;
-  Uint8 temporary;
-  Uint8 initialized;
-} attr_move_data_t;
+public:
+  Uint32 ticks;
+  Uint32 ticks_limit;
 
-attr_t *attr_move_new(float dst_x, float dst_y, move_type_e type, Uint8 temporary);
-void attr_move_run(void *unit_ref, void *attr_ref);
-void attr_move_clean(void *unit_ref, void *attr_ref);
+  cmd_death_c();
+  ~cmd_death_c();
+  void run();
+};
+
+// ------------------------------------------------------------- //
+
+#if 0
 
 // ------------------------------------------------------------- //
 
