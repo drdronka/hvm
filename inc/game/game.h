@@ -4,11 +4,13 @@
 #include <SDL3/SDL_events.h>
 
 #include "game_ctx.h"
+#include "gui.h"
 
 class game_c
 {
 public:
   game_ctx_c *ctx;
+  gui_c *gui;
 
   game_c();
   ~game_c();

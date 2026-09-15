@@ -7,20 +7,23 @@
 
 // ------------------------------------------------------------- //
 
-void gui_bg_draw()
+gui_c::gui_c()
 {
-  game_ctx_c *ctx = game_ctx_c::get();
+  ctx = game_ctx_c::get();
+}
 
+gui_c::~gui_c()
+{
+}
+
+void gui_c::bg_draw()
+{
   SDL_SetRenderDrawColor(ctx->renderer, COLOR_BG_R, COLOR_BG_G, COLOR_BG_B, 0);
   SDL_RenderFillRect(ctx->renderer, NULL);  
 }
 
-// ------------------------------------------------------------- //
-
-void gui_sel_rect_draw(float x0, float y0, float x1, float y1)
+void gui_c::draw_sel_rect(float x0, float y0, float x1, float y1)
 {
-  game_ctx_c *ctx = game_ctx_c::get();
-
   SDL_FRect rect = { x0, y0, x1 - x0, y1 - y0 };
   SDL_SetRenderDrawColor(ctx->renderer, COLOR_SEL_R, COLOR_SEL_G, COLOR_SEL_B, 0);
   SDL_RenderRect(ctx->renderer, &rect);

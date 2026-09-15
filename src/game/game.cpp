@@ -20,6 +20,7 @@
 game_c::game_c()
 {
   ctx = game_ctx_c::get();
+  gui = gui_c::get();
 }
 
 // ------------------------------------------------------------- //
@@ -84,7 +85,7 @@ SDL_AppResult game_c::update()
   LOG_TRACE("update\n");
 
   ticks_update();
-  gui_bg_draw();
+  gui->bg_draw();
 
   /* run clean functions */
   for(const auto& unit : ctx->units)
@@ -120,7 +121,7 @@ SDL_AppResult game_c::update()
   {
     float mouse_x, mouse_y;
     SDL_GetMouseState(&mouse_x, &mouse_y);
-    gui_sel_rect_draw(ctx->sel_x, ctx->sel_y, mouse_x, mouse_y);
+    gui->draw_sel_rect(ctx->sel_x, ctx->sel_y, mouse_x, mouse_y);
   }
    
   SDL_RenderPresent(ctx->renderer);

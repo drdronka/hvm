@@ -96,6 +96,7 @@ void mod_visu_c::run()
 {
   mod_psyh_c *psyh = (mod_psyh_c*)unit->mod_get(MOD_ID_PSYH);
   game_ctx_c *ctx = game_ctx_c::get();
+  gui_c *gui = gui_c::get();
 
   if(!psyh || !visible)
     return;
@@ -121,7 +122,7 @@ void mod_visu_c::run()
   }
 
   if(unit->selected)
-    gui_sel_rect_draw(
+    gui->draw_sel_rect(
       psyh->pos_x - (psyh->size_x / 2), psyh->pos_y - (psyh->size_y / 2),
       psyh->pos_x + (psyh->size_x / 2), psyh->pos_y + (psyh->size_y / 2));
 }
