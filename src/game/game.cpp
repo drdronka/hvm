@@ -230,21 +230,21 @@ ret_e game_c::assets_load()
   anim_step_c *step;
 
   anim = new anim_c("worm");
-  stage = new anim_stage_c(ANIM_STAGE_ID_ENTER);
+  stage = new anim_stage_c("enter");
   stage->step_add(new anim_step_c(asset_tex_get(ctx->textures, "worm_enter_0"), 25));
   stage->step_add(new anim_step_c(asset_tex_get(ctx->textures, "worm_enter_1"), 25));
   stage->step_add(new anim_step_c(asset_tex_get(ctx->textures, "worm_enter_2"), 25));
   stage->step_add(new anim_step_c(asset_tex_get(ctx->textures, "worm_enter_3"), 25));
   anim->stage_add(stage);
-  stage = new anim_stage_c(ANIM_STAGE_ID_IDLE);
+  stage = new anim_stage_c("idle");
   stage->step_add(new anim_step_c(asset_tex_get(ctx->textures, "worm_idle_0"), 600));
   stage->step_add(new anim_step_c(asset_tex_get(ctx->textures, "worm_idle_1"), 600));
   anim->stage_add(stage);
-  stage = new anim_stage_c(ANIM_STAGE_ID_MOVE);
+  stage = new anim_stage_c("move");
   stage->step_add(new anim_step_c(asset_tex_get(ctx->textures, "worm_move_0"), 150));
   stage->step_add(new anim_step_c(asset_tex_get(ctx->textures, "worm_move_1"), 150));
   anim->stage_add(stage);
-  stage = new anim_stage_c(ANIM_STAGE_ID_DEATH);
+  stage = new anim_stage_c("death");
   stage->step_add(new anim_step_c(asset_tex_get(ctx->textures, "worm_death_0"), 100));
   stage->step_add(new anim_step_c(asset_tex_get(ctx->textures, "worm_death_1"), 150));
   stage->step_add(new anim_step_c(asset_tex_get(ctx->textures, "worm_death_2"), 60));

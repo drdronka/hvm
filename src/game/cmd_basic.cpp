@@ -37,14 +37,14 @@ void cmd_move_c::run()
       psyh->pos_rel_to_abs(&dst_x, &dst_y);
 
     if(visu)
-      visu->anim_stage_set(ANIM_STAGE_ID_MOVE, true, false);
+      visu->anim_stage_set("move", true, false);
 
     initialized = true;
   }
 
   if(psyh->move(dst_x, dst_y, MOVE_TYPE_ABS, temporary) != RET_PENDING)
   {
-    visu->anim_stage_set(ANIM_STAGE_ID_IDLE, true, true);
+    visu->anim_stage_set("idle", true, true);
     unit->cmd_remove(this);
   }
 }
@@ -65,8 +65,8 @@ void cmd_death_c::run()
   
   if(ticks == 0)
   {
-    visu->anim_stage_set(ANIM_STAGE_ID_DEATH, false, true);
-    ticks_limit = visu->anim_ticks_get(ANIM_STAGE_ID_DEATH);
+    visu->anim_stage_set("death", false, true);
+    ticks_limit = visu->anim_ticks_get("death");
   }
   
   ticks += game_ctx_c::get()->ticks_delta_ms;

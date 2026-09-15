@@ -40,17 +40,17 @@ class mod_visu_c : public mod_c
 {
 public:
   anim_c *anim;
-  anim_stage_id_e anim_stage_id;
+  const char *anim_stage_name;
   bool anim_cycle;
   Uint32 anim_ticks;
   bool visible;
 
-  mod_visu_c(anim_c *anim, anim_stage_id_e stage_id, bool cycle);
+  mod_visu_c(anim_c *anim, const char *stage_name, bool cycle);
   ~mod_visu_c();
   void run();
   //void clean();
-  void anim_stage_set(anim_stage_id_e stage_id, bool cycle, bool reset);
-  Uint32 anim_ticks_get(anim_stage_id_e stage_id);
+  void anim_stage_set(const char *stage_name, bool cycle, bool reset);
+  Uint32 anim_ticks_get(const char *stage_name);
 };
 
 // ------------------------------------------------------------- //

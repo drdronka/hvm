@@ -20,22 +20,14 @@ public:
 
 // ------------------------------------------------------------- //
 
-typedef enum
-{
-  ANIM_STAGE_ID_IDLE = 0,
-  ANIM_STAGE_ID_ENTER,
-  ANIM_STAGE_ID_MOVE,
-  ANIM_STAGE_ID_DEATH,
-} anim_stage_id_e;
-
 class anim_stage_c
 {
 public:
-  anim_stage_id_e id;
+  const char *name;
   std::vector<anim_step_c*> steps;
   Uint32 ticks_total_ms;
 
-  anim_stage_c(anim_stage_id_e stage_id);
+  anim_stage_c(const char *name);
   ~anim_stage_c();
   void step_add(anim_step_c *step);
   ret_e verify();
@@ -46,15 +38,15 @@ public:
 class anim_c
 {
 public:
-  char *name;
+  const char *name;
   std::vector<anim_stage_c*> stages;
 
   anim_c(const char *name);
   ~anim_c();
   void stage_add(anim_stage_c *stage);
   ret_e verify();
-  SDL_Texture *tex_get(anim_stage_id_e stage_id, Uint32 *ticks_ms, bool cycle);
-  Uint32 ticks_get(anim_stage_id_e stage_id);
+  SDL_Texture *tex_get(const char *stage_name, Uint32 *ticks_ms, bool cycle);
+  Uint32 ticks_get(const char *stage_name);
 };
 
 anim_c *anim_get(std::vector<anim_c*> anims, const char *name);

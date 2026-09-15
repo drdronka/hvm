@@ -82,9 +82,9 @@ void mod_psyh_c::pos_rel_to_abs(float *x, float *y)
 
 // ============================================================= //
 
-mod_visu_c::mod_visu_c(anim_c *anim, anim_stage_id_e stage_id, bool cycle) 
+mod_visu_c::mod_visu_c(anim_c *anim, const char *stage_name, bool cycle) 
 : mod_c(MOD_ID_VISU, MOD_TYPE_BASIC, MOD_LCS_RUN),
-anim(anim), anim_stage_id(stage_id), anim_cycle(cycle), anim_ticks(0), visible(true)
+anim(anim), anim_stage_name(stage_name), anim_cycle(cycle), anim_ticks(0), visible(true)
 {
 }
 
@@ -110,10 +110,10 @@ void mod_visu_c::run()
   anim_ticks += ctx->ticks_delta_ms;
 
   SDL_Texture *texture;
-  texture = anim->tex_get(anim_stage_id, &anim_ticks, anim_cycle);
+  texture = anim->tex_get(anim_stage_name, &anim_ticks, anim_cycle);
 
   if(!texture) 
-    texture = anim->tex_get(ANIM_STAGE_ID_IDLE, &anim_ticks, anim_cycle);
+    texture = anim->tex_get("idle", &anim_ticks, anim_cycle);
 
   if(!SDL_RenderTextureRotated(ctx->renderer, texture, NULL, &rect, 
     (psyh->dir + (M_PI / 2)) * 180.0 / M_PI, NULL, SDL_FLIP_NONE))
@@ -127,16 +127,16 @@ void mod_visu_c::run()
       psyh->pos_x + (psyh->size_x / 2), psyh->pos_y + (psyh->size_y / 2));
 }
 
-void mod_visu_c::anim_stage_set(anim_stage_id_e stage_id, bool cycle, bool reset)
+void mod_visu_c::anim_stage_set(const char *stage_name, bool cycle, bool reset)
 {
-  anim_stage_id = stage_id;
+  anim_stage_name = stage_name;
   anim_cycle = cycle;
   anim_ticks = reset ? 0 : anim_ticks;
 }
 
-Uint32 mod_visu_c::anim_ticks_get(anim_stage_id_e stage_id)
+Uint32 mod_visu_c::anim_ticks_get(const char *stage_name)
 {
-  return anim->ticks_get(stage_id);
+  return anim->ticks_get(stage_name);
 }
 
 // ------------------------------------------------------------- //
