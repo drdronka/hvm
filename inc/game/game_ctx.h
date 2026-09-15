@@ -7,8 +7,9 @@
 #include "unit.h"
 #include <vector>
 
-typedef struct game_ctx
+class game_ctx_c
 {
+public:
   // window
   int win_x;
   int win_y;
@@ -33,7 +34,9 @@ typedef struct game_ctx
   float sel_x;
   float sel_y; 
 
-} game_ctx_t;
-
-void game_ctx_init();
-game_ctx_t *game_ctx_get();
+  static game_ctx_c* get() 
+  {
+    static game_ctx_c instance;
+    return &instance;
+  }
+};

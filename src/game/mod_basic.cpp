@@ -28,7 +28,7 @@ mod_psyh_c::~mod_psyh_c()
 
 ret_e mod_psyh_c::move(float dst_x, float dst_y, move_type_e type, bool temporary)
 {
-  game_ctx_t *ctx = game_ctx_get();
+  game_ctx_c *ctx = game_ctx_c::get();
 
   if(pos_x == dst_x && pos_y == dst_y)
     return RET_OK;
@@ -95,7 +95,7 @@ mod_visu_c::~mod_visu_c()
 void mod_visu_c::run()
 {
   mod_psyh_c *psyh = (mod_psyh_c*)unit->mod_get(MOD_ID_PSYH);
-  game_ctx_t *ctx = game_ctx_get();
+  game_ctx_c *ctx = game_ctx_c::get();
 
   if(!psyh || !visible)
     return;
@@ -153,8 +153,6 @@ mod_wander_c::~mod_wander_c()
 
 void mod_wander_c::run()
 {
-  game_ctx_t *ctx = game_ctx_get();
-
   if(!initialized)
   {
     mod_psyh_c *psyh = (mod_psyh_c*)unit->mod_get(MOD_ID_PSYH); 
@@ -170,7 +168,7 @@ void mod_wander_c::run()
     }
   }
 
-  ticks += ctx->ticks_delta_ms;
+  ticks += game_ctx_c::get()->ticks_delta_ms;
   if(ticks > ticks_next)
   {
     if(unit->cmd_size() == 0)

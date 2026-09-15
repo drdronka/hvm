@@ -22,7 +22,6 @@ cmd_move_c::~cmd_move_c()
 
 void cmd_move_c::run()
 {
-  game_ctx_t *ctx = game_ctx_get();
   mod_psyh_c *psyh = (mod_psyh_c*)unit->mod_get(MOD_ID_PSYH);
   mod_visu_c *visu = (mod_visu_c*)unit->mod_get(MOD_ID_VISU);
 
@@ -62,7 +61,6 @@ cmd_death_c::~cmd_death_c()
 
 void cmd_death_c::run()
 {
-  game_ctx_t *ctx = game_ctx_get();
   mod_visu_c *visu = (mod_visu_c*)unit->mod_get(MOD_ID_VISU);
   
   if(ticks == 0)
@@ -71,7 +69,7 @@ void cmd_death_c::run()
     ticks_limit = visu->anim_ticks_get(ANIM_STAGE_ID_DEATH);
   }
   
-  ticks += ctx->ticks_delta_ms;
+  ticks += game_ctx_c::get()->ticks_delta_ms;
   if(ticks > ticks_limit)
   {
     unit->dead = 1;

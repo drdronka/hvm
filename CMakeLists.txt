@@ -24,7 +24,6 @@ add_executable(hvm WIN32
     src/game/mod_basic.cpp
     src/game/cmd_basic.cpp
     src/game/unit_basic.cpp
-    src/game/game_ctx.cpp
     src/game/gui.cpp
     src/core/unit.cpp
     src/core/asset.cpp

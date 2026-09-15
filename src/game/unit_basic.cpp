@@ -14,9 +14,9 @@
 unit_c *unit_worm_new(float pos_x, float pos_y)
 {
   unit_c *unit = new unit_c(UNIT_ID_WORM);
-  game_ctx_t *ctx = game_ctx_get();
+  game_ctx_c *ctx = game_ctx_c::get();
   
-  Sint32 size = 96;
+  Uint32 size = 96;
   float dir = FRAND(2 * M_PI);
   float speed = 3;
 

@@ -17,7 +17,7 @@
 
 // ------------------------------------------------------------- //
 
-static game_ctx_t *ctx = NULL;
+static game_ctx_c *ctx = NULL;
 
 // ------------------------------------------------------------- //
 
@@ -208,8 +208,7 @@ SDL_AppResult game_init()
   LOG_INFO("%s\n", APPNAME);
   LOG_INFO("initializing\n");
 
-  game_ctx_init();
-  ctx = game_ctx_get();
+  ctx = game_ctx_c::get();
   ctx->win_x = WINX;
   ctx->win_y = WINY;
   ctx->app_name = APPNAME;
