@@ -14,7 +14,6 @@ public:
 
   asset_tex_c(const char *name, const char *path, SDL_Renderer *renderer);
   ~asset_tex_c();
-
   ret_e verify();
 };
 

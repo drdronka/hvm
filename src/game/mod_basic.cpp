@@ -31,9 +31,7 @@ ret_e mod_psyh_c::move(float dst_x, float dst_y, move_type_e type, bool temporar
   game_ctx_t *ctx = game_ctx_get();
 
   if(pos_x == dst_x && pos_y == dst_y)
-  {
     return RET_OK;
-  }
 
   if(type == MOVE_TYPE_REL)
   {
@@ -59,8 +57,12 @@ ret_e mod_psyh_c::move(float dst_x, float dst_y, move_type_e type, bool temporar
     pos_x = dst_x;
     pos_y = dst_y;
 
-    //if(!temporary)
-    //  attr_wander_pos_update((attr_wander_data_t *)unit_attr_data_get(unit, ATTR_ID_WANDER), data->pos_x, data->pos_y);
+    if(!temporary)
+    {
+      mod_wander_c *wander = (mod_wander_c*)unit->mod_get(MOD_ID_WANDER);
+      if(wander)
+        wander->rebase();
+    }
 
     return RET_OK;
   }
@@ -70,12 +72,6 @@ ret_e mod_psyh_c::move(float dst_x, float dst_y, move_type_e type, bool temporar
   pos_y = step_dst_y;
   
   return RET_PENDING;
-}
-
-void mod_psyh_c::pos_get(float *x, float *y)
-{
-  *x = pos_x;
-  *y = pos_y;
 }
 
 void mod_psyh_c::pos_rel_to_abs(float *x, float *y)
@@ -144,60 +140,55 @@ Uint32 mod_visu_c::anim_ticks_get(anim_stage_id_e stage_id)
 
 // ------------------------------------------------------------- //
 
-#if 0
-void attr_wander_run(void *unit_ref, void *attr_ref)
+mod_wander_c::mod_wander_c(float range, Uint32 ticks_max)
+  : mod_c(MOD_ID_WANDER, MOD_TYPE_BASIC, MOD_LCS_RUN), 
+  range(range), ticks_max(ticks_max), initialized(false), ticks(0)
 {
-  unit_t *unit = (unit_t *)unit_ref;
-  attr_t *attr = (attr_t *)attr_ref;
+  ticks_next = SDL_rand(ticks_max);
+}
 
-  attr_wander_data_t *data = (attr_wander_data_t *)attr->data;
+mod_wander_c::~mod_wander_c()
+{
+}
+
+void mod_wander_c::run()
+{
   game_ctx_t *ctx = game_ctx_get();
 
-  if(!data->initialized)
+  if(!initialized)
   {
-    attr_psyh_data_t *psyh_data = (attr_psyh_data_t *)unit_attr_data_get(unit, ATTR_ID_PSYH);
-    if(psyh_data)
+    mod_psyh_c *psyh = (mod_psyh_c*)unit->mod_get(MOD_ID_PSYH); 
+    if(psyh)
     {
-      attr_psyh_pos_get(psyh_data, &data->org_x, &data->org_y);
-      data->initialized = 1;
+      org_x = psyh->pos_x;
+      org_y = psyh->pos_y;
+      initialized = true;
     }
     else
     {
-      LOG_DEBUG("no psyh data\n");
+      LOG_ERROR("no psyh module\n");
     }
   }
 
-  data->ticks_ms += ctx->ticks_delta_ms;
-  if(data->ticks_ms > data->ticks_next_ms)
+  ticks += ctx->ticks_delta_ms;
+  if(ticks > ticks_next)
   {
-    if(unit_cmd_is_empty(unit))
+    if(unit->cmd_size() == 0)
     {
-      float dist = FRAND(data->range);
+      float dist = FRAND(range);
       float dir = FRAND(M_PI * 2);
       float dst_x = cos(dir) * dist;
       float dst_y = sin(dir) * dist;
-      //LOG_DEBUG("attr_wander_run: wander relative x[%f] y[%f]\n", dst_x, dst_y);
-      unit_attr_add(unit, attr_move_new(data->org_x + dst_x, data->org_y + dst_y, MOVE_TYPE_ABS, 1));
+      unit->cmd_add(new cmd_move_c(org_x + dst_x, org_y + dst_y, MOVE_TYPE_ABS, true), false);
     }
-    data->ticks_next_ms = SDL_rand(data->ticks_max_ms);
-    data->ticks_ms = 0;
+    ticks_next = SDL_rand(ticks_max);
+    ticks = 0;
   }
 }
 
-void attr_wander_pos_update(attr_wander_data_t *data, float pos_x, float pos_y)
+void mod_wander_c::rebase()
 {
-  data->org_x = pos_x;
-  data->org_y = pos_y;
+  mod_psyh_c *psyh = (mod_psyh_c*)unit->mod_get(MOD_ID_PSYH); 
+  org_x = psyh->pos_x;
+  org_y = psyh->pos_y;
 }
-
-attr_t *attr_wander_new(float range, float ticks_max_ms)
-{
-  attr_wander_data_t *data = (attr_wander_data_t *)malloc(sizeof(attr_wander_data_t));
-  data->range = range;
-  data->ticks_max_ms = ticks_max_ms;
-  data->initialized = 0;
-  data->ticks_ms = 0;
-  data->ticks_next_ms = SDL_rand(ticks_max_ms);
-  return attr_new(ATTR_ID_WANDER, ATTR_TYPE_BASIC, ATTR_LCS_RUN, 0, data, attr_wander_run, NULL);
-}
-#endif

@@ -31,7 +31,6 @@ public:
   //void run();
   //void clean();
   ret_e move(float dst_x, float dst_y, move_type_e type, bool temporary);
-  void pos_get(float *x, float *y);
   void pos_rel_to_abs(float *x, float *y);
 };
 
@@ -56,20 +55,19 @@ public:
 
 // ------------------------------------------------------------- //
 
-#if 0
-typedef struct attr_wander_data
+class mod_wander_c : public mod_c
 {
-  Uint8 initialized;
+public:
+  bool initialized;
   float range;
-  Uint32 ticks_ms;
-  Uint32 ticks_next_ms;
-  Uint32 ticks_max_ms;
+  Uint32 ticks;
+  Uint32 ticks_next;
+  Uint32 ticks_max;
   float org_x;
   float org_y;
-} attr_wander_data_t;
 
-attr_t *attr_wander_new(float range, float ticks_max_ms);
-void attr_wander_run(void *unit_ref, void *attr_ref);
-void attr_wander_pos_update(attr_wander_data_t *data, float pos_x, float pos_y);
-#endif
-
+  mod_wander_c(float range, Uint32 ticks_max);
+  ~mod_wander_c();
+  void run();
+  void rebase();
+};

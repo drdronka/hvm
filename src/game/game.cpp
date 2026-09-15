@@ -289,6 +289,7 @@ SDL_AppResult game_update()
   for(const auto& unit : ctx->units)
     unit->mod_run(MOD_ID_VISU, MOD_TYPE_ANY);
   
+  /* render gui */
   if(ctx->sel_en)
   {
     float mouse_x, mouse_y;

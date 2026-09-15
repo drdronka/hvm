@@ -63,7 +63,6 @@ cmd_death_c::~cmd_death_c()
 void cmd_death_c::run()
 {
   game_ctx_t *ctx = game_ctx_get();
-  mod_psyh_c *psyh = (mod_psyh_c*)unit->mod_get(MOD_ID_PSYH);
   mod_visu_c *visu = (mod_visu_c*)unit->mod_get(MOD_ID_VISU);
   
   if(ticks == 0)
