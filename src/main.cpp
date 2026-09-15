@@ -3,22 +3,25 @@
 
 #include "game.h"
 
+game_c *game;
+
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv)
 {
-  return game_init();
+  game = new game_c();
+  return game->init();
 }
 
 SDL_AppResult SDL_AppIterate(void *appstate)
 {
-  return game_update();
+  return game->update();
 }
 
 SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 {
-  return game_event(event);
+  return game->event(event);
 }
 
 void SDL_AppQuit(void *appstate, SDL_AppResult result)
 {
-  game_exit();
+  delete game;
 }

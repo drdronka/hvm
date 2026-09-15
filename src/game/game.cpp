@@ -17,11 +17,193 @@
 
 // ------------------------------------------------------------- //
 
-static game_ctx_c *ctx = NULL;
+game_c::game_c()
+{
+  ctx = game_ctx_c::get();
+}
 
 // ------------------------------------------------------------- //
 
-static ret_e game_assets_load()
+game_c::~game_c()
+{
+  deinit();
+}
+
+// ------------------------------------------------------------- //
+
+SDL_AppResult game_c::init()
+{
+  LOG_INFO("%s\n", APPNAME);
+  LOG_INFO("initializing\n");
+
+  ctx->win_x = WINX;
+  ctx->win_y = WINY;
+  ctx->app_name = APPNAME;
+  
+  const char *fps_limit;
+  #if STEP_MODE  
+    fps_limit = "1";
+  #else
+    fps_limit = FPS_LIMIT;
+  #endif
+
+  LOG_INFO("fps limit: %s\n", fps_limit);
+  SDL_SetHint(SDL_HINT_MAIN_CALLBACK_RATE, fps_limit);
+
+  LOG_INFO("initializing SDL\n");
+  if(!SDL_Init(SDL_INIT_VIDEO))
+  {
+    LOG_ERROR("SDL: %s\n", SDL_GetError());
+    return SDL_APP_FAILURE;
+  }
+
+  LOG_INFO("creating window x[%d] y[%d]\n", ctx->win_x, ctx->win_y);
+  if(!SDL_CreateWindowAndRenderer(APPNAME, ctx->win_x, ctx->win_y, 0, &ctx->window, &ctx->renderer))
+  { 
+    LOG_ERROR("SDL: %s\n", SDL_GetError());
+    return SDL_APP_FAILURE;
+  }
+
+  if(!assets_load())
+  {
+    LOG_ERROR("failed to load assets\n");
+    return SDL_APP_FAILURE; 
+  }
+
+  ctx->ticks_total_ms = SDL_GetTicksNS() / 1000000;
+
+  LOG_INFO("finished\n");
+
+  return SDL_APP_CONTINUE;
+}
+
+// ------------------------------------------------------------- //
+
+SDL_AppResult game_c::update()
+{
+  LOG_TRACE("update\n");
+
+  ticks_update();
+  gui_bg_draw();
+
+  /* run clean functions */
+  for(const auto& unit : ctx->units)
+    unit->mod_clean(MOD_ID_ANY, MOD_TYPE_ANY);
+
+  /* remove dead units */
+  for(auto it = ctx->units.begin(); it != ctx->units.end();)
+  {
+    unit_c *unit = *it;
+    if(unit->dead)
+    {
+      delete unit;
+      it = ctx->units.erase(it);
+      continue;
+    }
+    it++;
+  }
+
+  /* run commands */
+  for(const auto& unit : ctx->units)
+    unit->cmd_run();
+
+  /* run wanderer */
+  for(const auto& unit : ctx->units)
+    unit->mod_run(MOD_ID_WANDER, MOD_TYPE_ANY);
+
+  /* render units */
+  for(const auto& unit : ctx->units)
+    unit->mod_run(MOD_ID_VISU, MOD_TYPE_ANY);
+  
+  /* render gui */
+  if(ctx->sel_en)
+  {
+    float mouse_x, mouse_y;
+    SDL_GetMouseState(&mouse_x, &mouse_y);
+    gui_sel_rect_draw(ctx->sel_x, ctx->sel_y, mouse_x, mouse_y);
+  }
+   
+  SDL_RenderPresent(ctx->renderer);
+
+  #if STEP_MODE
+    SDL_Delay(1000);
+  #endif
+
+  return SDL_APP_CONTINUE;
+}
+
+// ------------------------------------------------------------- //
+
+SDL_AppResult game_c::event(SDL_Event *event)
+{
+  LOG_TRACE("event[%d]\n", event->type);
+
+  Uint8 exit = 0;
+  const bool *keys = SDL_GetKeyboardState(NULL);
+
+  if(event->type == SDL_EVENT_MOUSE_BUTTON_DOWN)
+  {
+    if(event->button.button == SDL_BUTTON_MIDDLE)
+      worm_spawn(event->button.x, event->button.y);
+    else if(event->button.button == SDL_BUTTON_LEFT)
+      sel_start(event->button.x, event->button.y);
+    else if(event->button.button == SDL_BUTTON_RIGHT)
+      units_move(event->button.x, event->button.y, !keys[SDL_SCANCODE_LSHIFT]);
+  }
+  else if(event->type == SDL_EVENT_MOUSE_BUTTON_UP)
+  {
+    if(event->button.button == SDL_BUTTON_LEFT)
+      sel_finish(event->button.x, event->button.y);
+  }
+  else if(event->type == SDL_EVENT_KEY_DOWN)
+  {
+    if(keys[SDL_SCANCODE_SPACE])
+      units_kill(!keys[SDL_SCANCODE_LSHIFT]);
+    
+    if(keys[SDL_SCANCODE_ESCAPE])
+      exit = 1;
+  }
+  else if(event->type == SDL_EVENT_QUIT)
+  {
+    exit = 1;
+  }
+
+  if(exit)
+  {
+    SDL_Quit();
+    return SDL_APP_SUCCESS;
+  }
+
+  return SDL_APP_CONTINUE;
+}
+
+// ------------------------------------------------------------- //
+
+void game_c::deinit()
+{
+  LOG_INFO("deinitializing game\n");
+
+  if(ctx->renderer) SDL_DestroyRenderer(ctx->renderer);
+  if(ctx->window) SDL_DestroyWindow(ctx->window);
+
+  for(const auto& tex : ctx->textures)
+    delete tex;
+  ctx->textures.clear();
+
+  for(const auto& anim : ctx->anims)
+    delete anim;
+  ctx->anims.clear();
+
+  for(const auto& unit : ctx->units)
+    delete unit;
+  ctx->units.clear();
+
+  LOG_INFO("finished\n");
+}
+
+// ------------------------------------------------------------- //
+
+ret_e game_c::assets_load()
 {
   LOG_DEBUG("loading textures\n");
 
@@ -80,7 +262,7 @@ static ret_e game_assets_load()
 
 // ------------------------------------------------------------- //
 
-static void game_ticks_update()
+void game_c::ticks_update()
 {
   Uint64 ticks_ms = SDL_GetTicksNS() / 1000000;
   ctx->ticks_delta_ms = ticks_ms - ctx->ticks_total_ms;
@@ -90,31 +272,7 @@ static void game_ticks_update()
 
 // ------------------------------------------------------------- //
 
-static void game_deinit()
-{
-  LOG_INFO("deinitializing game\n");
-
-  if(ctx->renderer) SDL_DestroyRenderer(ctx->renderer);
-  if(ctx->window) SDL_DestroyWindow(ctx->window);
-
-  for(const auto& tex : ctx->textures)
-    delete tex;
-  ctx->textures.clear();
-
-  for(const auto& anim : ctx->anims)
-    delete anim;
-  ctx->anims.clear();
-
-  for(const auto& unit : ctx->units)
-    delete unit;
-  ctx->units.clear();
-
-  LOG_INFO("finished\n");
-}
-
-// ------------------------------------------------------------- //
-
-static void game_sel_start(float pos_x, float pos_y)
+void game_c::sel_start(float pos_x, float pos_y)
 {
   ctx->sel_x = pos_x;
   ctx->sel_y = pos_y;
@@ -123,7 +281,7 @@ static void game_sel_start(float pos_x, float pos_y)
 
 // ------------------------------------------------------------- //
 
-static void game_sel_mult_finish(float pos_x, float pos_y)
+void game_c::sel_mult_finish(float pos_x, float pos_y)
 {
   for(const auto& unit : ctx->units)
   {
@@ -137,7 +295,7 @@ static void game_sel_mult_finish(float pos_x, float pos_y)
 
 // ------------------------------------------------------------- //
 
-static void game_sel_single(float mouse_x, float mouse_y)
+void game_c::sel_single(float mouse_x, float mouse_y)
 {
   bool found;
   for(const auto& unit : ctx->units)
@@ -159,19 +317,19 @@ static void game_sel_single(float mouse_x, float mouse_y)
 
 // ------------------------------------------------------------- //
 
-static void game_sel_finish(float pos_x, float pos_y)
+void game_c::sel_finish(float pos_x, float pos_y)
 {
   if(ctx->sel_en)
     if(ABS(ctx->sel_x, pos_x) < SINGLE_SEL_MARGIN && ABS(ctx->sel_y, pos_y) < SINGLE_SEL_MARGIN)
-      game_sel_single(pos_x, pos_y);
+      sel_single(pos_x, pos_y);
     else
-      game_sel_mult_finish(pos_x, pos_y);
+      sel_mult_finish(pos_x, pos_y);
   ctx->sel_en = 0;       
 }
 
 // ------------------------------------------------------------- //
 
-static void game_units_move(float dst_x, float dst_y, Uint8 clear_cmd_queue)
+void game_c::units_move(float dst_x, float dst_y, bool clear_cmd_queue)
 {
   for(const auto& unit : ctx->units)
     if(unit->selected)
@@ -184,7 +342,7 @@ static void game_units_move(float dst_x, float dst_y, Uint8 clear_cmd_queue)
 
 // ------------------------------------------------------------- //
 
-static void game_units_kill(Uint8 clear_cmd_queue)
+void game_c::units_kill(bool clear_cmd_queue)
 {
   for(const auto& unit : ctx->units)
     if(unit->selected)
@@ -193,7 +351,7 @@ static void game_units_kill(Uint8 clear_cmd_queue)
 
 // ------------------------------------------------------------- //
 
-static void game_worm_spawn(float pos_x, float pos_y)
+void game_c::worm_spawn(float pos_x, float pos_y)
 {
   LOG_DEBUG("spawning worm\n");
   unit_c *unit = unit_worm_new(pos_x, pos_y);
@@ -203,157 +361,4 @@ static void game_worm_spawn(float pos_x, float pos_y)
 
 // ======================== GLOBAL FUNC ======================== //
 
-SDL_AppResult game_init()
-{
-  LOG_INFO("%s\n", APPNAME);
-  LOG_INFO("initializing\n");
 
-  ctx = game_ctx_c::get();
-  ctx->win_x = WINX;
-  ctx->win_y = WINY;
-  ctx->app_name = APPNAME;
-  
-  const char *fps_limit;
-  #if STEP_MODE  
-    fps_limit = "1";
-  #else
-    fps_limit = FPS_LIMIT;
-  #endif
-
-  LOG_INFO("fps limit: %s\n", fps_limit);
-  SDL_SetHint(SDL_HINT_MAIN_CALLBACK_RATE, fps_limit);
-
-  LOG_INFO("initializing SDL\n");
-  if(!SDL_Init(SDL_INIT_VIDEO))
-  {
-    LOG_ERROR("SDL: %s\n", SDL_GetError());
-    return SDL_APP_FAILURE;
-  }
-
-  LOG_INFO("creating window x[%d] y[%d]\n", ctx->win_x, ctx->win_y);
-  if(!SDL_CreateWindowAndRenderer(APPNAME, ctx->win_x, ctx->win_y, 0, &ctx->window, &ctx->renderer))
-  { 
-    LOG_ERROR("SDL: %s\n", SDL_GetError());
-    return SDL_APP_FAILURE;
-  }
-
-  if(!game_assets_load())
-  {
-    LOG_ERROR("failed to load assets\n");
-    return SDL_APP_FAILURE; 
-  }
-
-  ctx->ticks_total_ms = SDL_GetTicksNS() / 1000000;
-
-  LOG_INFO("finished\n");
-
-  return SDL_APP_CONTINUE;
-}
-
-// ------------------------------------------------------------- //
-
-SDL_AppResult game_update()
-{
-  LOG_TRACE("update\n");
-
-  game_ticks_update();
-  gui_bg_draw();
-
-  /* run clean functions */
-  for(const auto& unit : ctx->units)
-    unit->mod_clean(MOD_ID_ANY, MOD_TYPE_ANY);
-
-  /* remove dead units */
-  for(auto it = ctx->units.begin(); it != ctx->units.end();)
-  {
-    unit_c *unit = *it;
-    if(unit->dead)
-    {
-      delete unit;
-      it = ctx->units.erase(it);
-      continue;
-    }
-    it++;
-  }
-
-  /* run commands */
-  for(const auto& unit : ctx->units)
-    unit->cmd_run();
-
-  /* run wanderer */
-  for(const auto& unit : ctx->units)
-    unit->mod_run(MOD_ID_WANDER, MOD_TYPE_ANY);
-
-  /* render units */
-  for(const auto& unit : ctx->units)
-    unit->mod_run(MOD_ID_VISU, MOD_TYPE_ANY);
-  
-  /* render gui */
-  if(ctx->sel_en)
-  {
-    float mouse_x, mouse_y;
-    SDL_GetMouseState(&mouse_x, &mouse_y);
-    gui_sel_rect_draw(ctx->sel_x, ctx->sel_y, mouse_x, mouse_y);
-  }
-   
-  SDL_RenderPresent(ctx->renderer);
-
-  #if STEP_MODE
-    SDL_Delay(1000);
-  #endif
-
-  return SDL_APP_CONTINUE;
-}
-
-// ------------------------------------------------------------- //
-
-SDL_AppResult game_event(SDL_Event *event)
-{
-  LOG_TRACE("event[%d]\n", event->type);
-
-  Uint8 exit = 0;
-  const bool *keys = SDL_GetKeyboardState(NULL);
-
-  if(event->type == SDL_EVENT_MOUSE_BUTTON_DOWN)
-  {
-    if(event->button.button == SDL_BUTTON_MIDDLE)
-      game_worm_spawn(event->button.x, event->button.y);
-    else if(event->button.button == SDL_BUTTON_LEFT)
-      game_sel_start(event->button.x, event->button.y);
-    else if(event->button.button == SDL_BUTTON_RIGHT)
-      game_units_move(event->button.x, event->button.y, !keys[SDL_SCANCODE_LSHIFT]);
-  }
-  else if(event->type == SDL_EVENT_MOUSE_BUTTON_UP)
-  {
-    if(event->button.button == SDL_BUTTON_LEFT)
-      game_sel_finish(event->button.x, event->button.y);
-  }
-  else if(event->type == SDL_EVENT_KEY_DOWN)
-  {
-    if(keys[SDL_SCANCODE_SPACE])
-      game_units_kill(!keys[SDL_SCANCODE_LSHIFT]);
-    
-    if(keys[SDL_SCANCODE_ESCAPE])
-      exit = 1;
-  }
-  else if(event->type == SDL_EVENT_QUIT)
-  {
-    exit = 1;
-  }
-
-  if(exit)
-  {
-    SDL_Quit();
-    return SDL_APP_SUCCESS;
-  }
-
-  return SDL_APP_CONTINUE;
-}
-
-// ------------------------------------------------------------- //
-
-void game_exit()
-{
-  LOG_INFO("exit\n");
-  game_deinit();
-}
