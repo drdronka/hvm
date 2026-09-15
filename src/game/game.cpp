@@ -14,6 +14,10 @@
 #include "cmd_basic.h"
 #include "asset.h"
 #include "gui.h"
+#include "toml.h"
+
+#include <filesystem>
+#include <iostream>
 
 // ------------------------------------------------------------- //
 
@@ -206,21 +210,15 @@ void game_c::deinit()
 
 ret_e game_c::assets_load()
 {
-  LOG_DEBUG("loading textures\n");
+  LOG_DEBUG("loading textures: dir[%s]\n", TEXTURES_DIR);
 
-  ctx->textures.push_back(new asset_tex_c("square", "assets/img/black_square.png", ctx->renderer));
-  ctx->textures.push_back(new asset_tex_c("worm_enter_0", "assets/img/worm_enter_0.png", ctx->renderer));
-  ctx->textures.push_back(new asset_tex_c("worm_enter_1", "assets/img/worm_enter_1.png", ctx->renderer));
-  ctx->textures.push_back(new asset_tex_c("worm_enter_2", "assets/img/worm_enter_2.png", ctx->renderer));
-  ctx->textures.push_back(new asset_tex_c("worm_enter_3", "assets/img/worm_enter_3.png", ctx->renderer));
-  ctx->textures.push_back(new asset_tex_c("worm_idle_0", "assets/img/worm_idle_0.png", ctx->renderer));
-  ctx->textures.push_back(new asset_tex_c("worm_idle_1", "assets/img/worm_idle_1.png", ctx->renderer));
-  ctx->textures.push_back(new asset_tex_c("worm_move_0", "assets/img/worm_move_0.png", ctx->renderer));
-  ctx->textures.push_back(new asset_tex_c("worm_move_1", "assets/img/worm_move_1.png", ctx->renderer));
-  ctx->textures.push_back(new asset_tex_c("worm_death_0", "assets/img/worm_death_0.png", ctx->renderer));
-  ctx->textures.push_back(new asset_tex_c("worm_death_1", "assets/img/worm_death_1.png", ctx->renderer));
-  ctx->textures.push_back(new asset_tex_c("worm_death_2", "assets/img/worm_death_2.png", ctx->renderer));
-  ctx->textures.push_back(new asset_tex_c("worm_death_3", "assets/img/worm_death_3.png", ctx->renderer));
+  for(const auto& entry : std::filesystem::directory_iterator(TEXTURES_DIR)) 
+    if(entry.is_regular_file() && entry.path().extension() == ".png") 
+      ctx->textures.push_back(
+        new asset_tex_c(
+          entry.path().stem().string().c_str(), 
+          entry.path().string().c_str(), 
+          ctx->renderer));
 
   for(const auto& tex : ctx->textures)
     if(!tex->verify())

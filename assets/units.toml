@@ -1,0 +1,22 @@
+title = "units"
+
+[worm]
+size = 64
+
+[worm.idle]
+anim = [
+  ["worm_idle_0", 600], 
+  ["worm_idle_1", 600]]
+
+[worm.move]
+anim = [
+  ["worm_move_0", 150],
+  ["worm_move_1", 150]]
+
+[worm.death]
+anim = [
+  ["worm_death_0", 100],
+  ["worm_death_0", 150],
+  ["worm_death_0", 60],
+  ["worm_death_0", 60]]
+
