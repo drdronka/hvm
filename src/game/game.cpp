@@ -14,13 +14,11 @@
 #include "cmd_basic.h"
 #include "asset.h"
 #include "gui.h"
+#include "json.hpp"
 
 #include <filesystem>
 #include <iostream>
 #include <fstream>
-#include "json.hpp"
-
-using json = nlohmann::json;
 
 // ------------------------------------------------------------- //
 
@@ -49,11 +47,11 @@ SDL_AppResult game_c::init()
   ctx->app_name = APPNAME;
   
   const char *fps_limit;
-  #if STEP_MODE  
-    fps_limit = "1";
-  #else
-    fps_limit = FPS_LIMIT;
-  #endif
+#if STEP_MODE  
+  fps_limit = "1";
+#else
+  fps_limit = FPS_LIMIT;
+#endif
 
   LOG_INFO("fps limit: %s\n", fps_limit);
   SDL_SetHint(SDL_HINT_MAIN_CALLBACK_RATE, fps_limit);
@@ -229,7 +227,7 @@ ret_e game_c::assets_load()
 
   LOG_DEBUG("composing animations: file[%s]\n", ANIMS_FILE);
   std::ifstream anims_json_file(ANIMS_FILE);
-  json anims_json = json::parse(anims_json_file);
+  nlohmann::json anims_json = nlohmann::json::parse(anims_json_file);
 
   if(anims_json.size() == 0)
   {
