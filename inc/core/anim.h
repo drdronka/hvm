@@ -23,7 +23,7 @@ public:
 class anim_stage_c
 {
 public:
-  const char *name;
+  char *name;
   std::vector<anim_step_c*> steps;
   Uint32 ticks_total_ms;
 
@@ -38,7 +38,7 @@ public:
 class anim_c
 {
 public:
-  const char *name;
+  char *name;
   std::vector<anim_stage_c*> stages;
 
   anim_c(const char *name);

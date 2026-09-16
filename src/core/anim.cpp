@@ -30,8 +30,10 @@ ret_e anim_step_c::verify()
 // ------------------------------------------------------------- //
 
 anim_stage_c::anim_stage_c(const char *name)
-  : ticks_total_ms(0), name(name)
+  : ticks_total_ms(0)
 {
+  this->name = (char*)malloc(strlen(name) + 1);
+  memcpy(this->name, name, strlen(name) + 1);
   LOG_DEBUG("name[%s]\n", name);
 }
 
@@ -40,6 +42,7 @@ anim_stage_c::~anim_stage_c()
   for(const auto& step : steps)
     delete step;
   steps.clear();
+  free(name);
 }
 
 void anim_stage_c::step_add(anim_step_c *step)
@@ -65,8 +68,10 @@ ret_e anim_stage_c::verify()
 
 // ------------------------------------------------------------- //
 
-anim_c::anim_c(const char *name) : name(name)
+anim_c::anim_c(const char *name)
 {
+  this->name = (char*)malloc(strlen(name) + 1);
+  memcpy(this->name, name, strlen(name) + 1);
   LOG_DEBUG("name[%s]\n", name);
 }
 
@@ -75,6 +80,7 @@ anim_c::~anim_c()
   for(const auto& stage : stages)
     delete stage;
   stages.clear();
+  free(name);
 }
 
 void anim_c::stage_add(anim_stage_c *stage)

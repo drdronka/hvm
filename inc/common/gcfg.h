@@ -25,4 +25,5 @@
   #define FPS_LIMIT "120"
 #endif
 
-#define TEXTURES_DIR "assets/img"
+#define TEXTURES_DIR "assets/img/"
+#define ANIMS_FILE   "assets/anims.json"

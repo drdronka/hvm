@@ -1,0 +1,12 @@
+{
+  "anims" : [
+    ["worm", "idle", "worm_idle_0", 600],
+    ["worm", "idle", "worm_idle_1", 600],
+    ["worm", "move", "worm_move_0", 150],
+    ["worm", "move", "worm_move_1", 150],
+    ["worm", "death", "worm_death_0", 100],
+    ["worm", "death", "worm_death_1", 150],
+    ["worm", "death", "worm_death_2", 60],
+    ["worm", "death", "worm_death_3", 60]
+  ]
+}

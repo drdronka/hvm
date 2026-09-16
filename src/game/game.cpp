@@ -14,10 +14,13 @@
 #include "cmd_basic.h"
 #include "asset.h"
 #include "gui.h"
-#include "toml.h"
 
 #include <filesystem>
 #include <iostream>
+#include <fstream>
+#include "json.hpp"
+
+using json = nlohmann::json;
 
 // ------------------------------------------------------------- //
 
@@ -224,31 +227,47 @@ ret_e game_c::assets_load()
     if(!tex->verify())
       return RET_ERR;
 
-  LOG_DEBUG("composing animations\n");
-  anim_c *anim;
-  anim_stage_c *stage;
-  anim_step_c *step;
+  LOG_DEBUG("composing animations: file[%s]\n", ANIMS_FILE);
+  std::ifstream anims_json_file(ANIMS_FILE);
+  json anims_json = json::parse(anims_json_file);
 
-  anim = new anim_c("worm");
-  stage = new anim_stage_c("enter");
-  stage->step_add(new anim_step_c(asset_tex_get(ctx->textures, "worm_enter_0"), 25));
-  stage->step_add(new anim_step_c(asset_tex_get(ctx->textures, "worm_enter_1"), 25));
-  stage->step_add(new anim_step_c(asset_tex_get(ctx->textures, "worm_enter_2"), 25));
-  stage->step_add(new anim_step_c(asset_tex_get(ctx->textures, "worm_enter_3"), 25));
-  anim->stage_add(stage);
-  stage = new anim_stage_c("idle");
-  stage->step_add(new anim_step_c(asset_tex_get(ctx->textures, "worm_idle_0"), 600));
-  stage->step_add(new anim_step_c(asset_tex_get(ctx->textures, "worm_idle_1"), 600));
-  anim->stage_add(stage);
-  stage = new anim_stage_c("move");
-  stage->step_add(new anim_step_c(asset_tex_get(ctx->textures, "worm_move_0"), 150));
-  stage->step_add(new anim_step_c(asset_tex_get(ctx->textures, "worm_move_1"), 150));
-  anim->stage_add(stage);
-  stage = new anim_stage_c("death");
-  stage->step_add(new anim_step_c(asset_tex_get(ctx->textures, "worm_death_0"), 100));
-  stage->step_add(new anim_step_c(asset_tex_get(ctx->textures, "worm_death_1"), 150));
-  stage->step_add(new anim_step_c(asset_tex_get(ctx->textures, "worm_death_2"), 60));
-  stage->step_add(new anim_step_c(asset_tex_get(ctx->textures, "worm_death_3"), 60));
+  if(anims_json.size() == 0)
+  {
+    LOG_ERROR("failed to load json: file[%s]\n", ANIMS_FILE);
+    return RET_ERR;
+  }
+
+  anim_c *anim = NULL;
+  anim_stage_c *stage = NULL;
+  std::string last_anim_name = std::string("");
+  std::string last_stage_name = std::string("");
+
+  for (const auto& entry : anims_json["anims"]) 
+  {
+    std::string anim_name = entry[0];
+    std::string stage_name = entry[1];
+    std::string tex_name = entry[2];
+    Uint32 ticks = entry[3].get<int>();
+
+    if(anim_name != last_anim_name)
+    {
+      if(anim)
+        ctx->anims.push_back(anim);
+      anim = new anim_c(anim_name.c_str());
+    }
+    
+    if(stage_name != last_stage_name)
+    {
+      if(stage)
+        anim->stage_add(stage);
+      stage = new anim_stage_c(stage_name.c_str());
+    }
+
+    stage->step_add(new anim_step_c(asset_tex_get(ctx->textures, tex_name.c_str()), ticks));
+
+    last_anim_name = anim_name;
+    last_stage_name = stage_name;
+  }
   anim->stage_add(stage);
   ctx->anims.push_back(anim);
 
