@@ -1,7 +1,7 @@
 #include <malloc.h>
 #include <math.h>
 
-#include "game_ctx.h"
+#include "game.h"
 #include "log.h"
 #include "util.h"
 #include "core_def.h"
@@ -28,6 +28,7 @@ void cmd_move_c::run()
   if(!psyh)
   {
     LOG_ERROR("no psyh mod");
+    
     return;
   }
   
@@ -69,7 +70,7 @@ void cmd_death_c::run()
     ticks_limit = visu->anim_ticks_get("death");
   }
   
-  ticks += game_ctx_c::get()->ticks_delta_ms;
+  ticks += game_c::get()->ticks_delta_ms;
   if(ticks > ticks_limit)
   {
     unit->dead = 1;

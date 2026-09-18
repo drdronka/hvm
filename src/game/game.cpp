@@ -1,4 +1,8 @@
+#include <filesystem>
+#include <iostream>
+#include <fstream>
 #include <math.h>
+
 #include <SDL3/SDL_init.h>
 #include <SDL3/SDL_render.h>
 #include <SDL3/SDL_timer.h>
@@ -7,7 +11,6 @@
 #include "gcfg.h"
 #include "log.h"
 #include "util.h"
-#include "game_ctx.h"
 #include "game.h"
 #include "unit_basic.h"
 #include "mod_basic.h"
@@ -16,23 +19,14 @@
 #include "gui.h"
 #include "json.hpp"
 
-#include <filesystem>
-#include <iostream>
-#include <fstream>
+using json = nlohmann::json;
 
 // ------------------------------------------------------------- //
 
-game_c::game_c()
+game_c *game_c::get()
 {
-  ctx = game_ctx_c::get();
-  gui = gui_c::get();
-}
-
-// ------------------------------------------------------------- //
-
-game_c::~game_c()
-{
-  deinit();
+  static game_c game;
+  return &game;
 }
 
 // ------------------------------------------------------------- //
@@ -42,9 +36,11 @@ SDL_AppResult game_c::init()
   LOG_INFO("%s\n", APPNAME);
   LOG_INFO("initializing\n");
 
-  ctx->win_x = WINX;
-  ctx->win_y = WINY;
-  ctx->app_name = APPNAME;
+  gui = gui_c::get();
+
+  win_x = WINX;
+  win_y = WINY;
+  app_name = APPNAME;
   
   const char *fps_limit;
 #if STEP_MODE  
@@ -63,8 +59,8 @@ SDL_AppResult game_c::init()
     return SDL_APP_FAILURE;
   }
 
-  LOG_INFO("creating window x[%d] y[%d]\n", ctx->win_x, ctx->win_y);
-  if(!SDL_CreateWindowAndRenderer(APPNAME, ctx->win_x, ctx->win_y, 0, &ctx->window, &ctx->renderer))
+  LOG_INFO("creating window x[%d] y[%d]\n", win_x, win_y);
+  if(!SDL_CreateWindowAndRenderer(APPNAME, win_x, win_y, 0, &window, &renderer))
   { 
     LOG_ERROR("SDL: %s\n", SDL_GetError());
     return SDL_APP_FAILURE;
@@ -76,7 +72,7 @@ SDL_AppResult game_c::init()
     return SDL_APP_FAILURE; 
   }
 
-  ctx->ticks_total_ms = SDL_GetTicksNS() / 1000000;
+  ticks_total_ms = SDL_GetTicksNS() / 1000000;
 
   LOG_INFO("finished\n");
 
@@ -93,43 +89,38 @@ SDL_AppResult game_c::update()
   gui->bg_draw();
 
   /* run clean functions */
-  for(const auto& unit : ctx->units)
+  for(const auto& unit : units)
     unit->mod_clean(MOD_ID_ANY, MOD_TYPE_ANY);
 
   /* remove dead units */
-  for(auto it = ctx->units.begin(); it != ctx->units.end();)
+  for(auto it = units.begin(); it != units.end();)
   {
     unit_c *unit = *it;
     if(unit->dead)
     {
       delete unit;
-      it = ctx->units.erase(it);
+      it = units.erase(it);
       continue;
     }
     it++;
   }
 
   /* run commands */
-  for(const auto& unit : ctx->units)
+  for(const auto& unit : units)
     unit->cmd_run();
 
   /* run wanderer */
-  for(const auto& unit : ctx->units)
+  for(const auto& unit : units)
     unit->mod_run(MOD_ID_WANDER, MOD_TYPE_ANY);
 
   /* render units */
-  for(const auto& unit : ctx->units)
+  for(const auto& unit : units)
     unit->mod_run(MOD_ID_VISU, MOD_TYPE_ANY);
   
   /* render gui */
-  if(ctx->sel_en)
-  {
-    float mouse_x, mouse_y;
-    SDL_GetMouseState(&mouse_x, &mouse_y);
-    gui->draw_sel_rect(ctx->sel_x, ctx->sel_y, mouse_x, mouse_y);
-  }
+  gui->render();
    
-  SDL_RenderPresent(ctx->renderer);
+  SDL_RenderPresent(renderer);
 
   #if STEP_MODE
     SDL_Delay(1000);
@@ -140,69 +131,24 @@ SDL_AppResult game_c::update()
 
 // ------------------------------------------------------------- //
 
-SDL_AppResult game_c::event(SDL_Event *event)
-{
-  LOG_TRACE("event[%d]\n", event->type);
-
-  Uint8 exit = 0;
-  const bool *keys = SDL_GetKeyboardState(NULL);
-
-  if(event->type == SDL_EVENT_MOUSE_BUTTON_DOWN)
-  {
-    if(event->button.button == SDL_BUTTON_MIDDLE)
-      worm_spawn(event->button.x, event->button.y);
-    else if(event->button.button == SDL_BUTTON_LEFT)
-      sel_start(event->button.x, event->button.y);
-    else if(event->button.button == SDL_BUTTON_RIGHT)
-      units_move(event->button.x, event->button.y, !keys[SDL_SCANCODE_LSHIFT]);
-  }
-  else if(event->type == SDL_EVENT_MOUSE_BUTTON_UP)
-  {
-    if(event->button.button == SDL_BUTTON_LEFT)
-      sel_finish(event->button.x, event->button.y);
-  }
-  else if(event->type == SDL_EVENT_KEY_DOWN)
-  {
-    if(keys[SDL_SCANCODE_SPACE])
-      units_kill(!keys[SDL_SCANCODE_LSHIFT]);
-    
-    if(keys[SDL_SCANCODE_ESCAPE])
-      exit = 1;
-  }
-  else if(event->type == SDL_EVENT_QUIT)
-  {
-    exit = 1;
-  }
-
-  if(exit)
-  {
-    SDL_Quit();
-    return SDL_APP_SUCCESS;
-  }
-
-  return SDL_APP_CONTINUE;
-}
-
-// ------------------------------------------------------------- //
-
 void game_c::deinit()
 {
   LOG_INFO("deinitializing game\n");
 
-  if(ctx->renderer) SDL_DestroyRenderer(ctx->renderer);
-  if(ctx->window) SDL_DestroyWindow(ctx->window);
+  if(renderer) SDL_DestroyRenderer(renderer);
+  if(window) SDL_DestroyWindow(window);
 
-  for(const auto& tex : ctx->textures)
+  for(const auto& tex : textures)
     delete tex;
-  ctx->textures.clear();
+  textures.clear();
 
-  for(const auto& anim : ctx->anims)
+  for(const auto& anim : anims)
     delete anim;
-  ctx->anims.clear();
+  anims.clear();
 
-  for(const auto& unit : ctx->units)
+  for(const auto& unit : units)
     delete unit;
-  ctx->units.clear();
+  units.clear();
 
   LOG_INFO("finished\n");
 }
@@ -215,19 +161,19 @@ ret_e game_c::assets_load()
 
   for(const auto& entry : std::filesystem::directory_iterator(TEXTURES_DIR)) 
     if(entry.is_regular_file() && entry.path().extension() == ".png") 
-      ctx->textures.push_back(
+      textures.push_back(
         new asset_tex_c(
           entry.path().stem().string().c_str(), 
           entry.path().string().c_str(), 
-          ctx->renderer));
+          renderer));
 
-  for(const auto& tex : ctx->textures)
+  for(const auto& tex : textures)
     if(!tex->verify())
       return RET_ERR;
 
   LOG_DEBUG("composing animations: file[%s]\n", ANIMS_FILE);
   std::ifstream anims_json_file(ANIMS_FILE);
-  nlohmann::json anims_json = nlohmann::json::parse(anims_json_file);
+  json anims_json = json::parse(anims_json_file);
 
   if(anims_json.size() == 0)
   {
@@ -250,7 +196,7 @@ ret_e game_c::assets_load()
     if(anim_name != last_anim_name)
     {
       if(anim)
-        ctx->anims.push_back(anim);
+        anims.push_back(anim);
       anim = new anim_c(anim_name.c_str());
     }
     
@@ -261,15 +207,15 @@ ret_e game_c::assets_load()
       stage = new anim_stage_c(stage_name.c_str());
     }
 
-    stage->step_add(new anim_step_c(asset_tex_get(ctx->textures, tex_name.c_str()), ticks));
+    stage->step_add(new anim_step_c(asset_tex_get(textures, tex_name.c_str()), ticks));
 
     last_anim_name = anim_name;
     last_stage_name = stage_name;
   }
   anim->stage_add(stage);
-  ctx->anims.push_back(anim);
+  anims.push_back(anim);
 
-  for(const auto& anim : ctx->anims)
+  for(const auto& anim : anims)
     if(!anim->verify())
       return RET_ERR;
 
@@ -281,73 +227,16 @@ ret_e game_c::assets_load()
 void game_c::ticks_update()
 {
   Uint64 ticks_ms = SDL_GetTicksNS() / 1000000;
-  ctx->ticks_delta_ms = ticks_ms - ctx->ticks_total_ms;
-  ctx->ticks_total_ms = ticks_ms;
-  ctx->move_mult = (float)ctx->ticks_delta_ms / 10;
-}
-
-// ------------------------------------------------------------- //
-
-void game_c::sel_start(float pos_x, float pos_y)
-{
-  ctx->sel_x = pos_x;
-  ctx->sel_y = pos_y;
-  ctx->sel_en = 1;
-}
-
-// ------------------------------------------------------------- //
-
-void game_c::sel_mult_finish(float pos_x, float pos_y)
-{
-  for(const auto& unit : ctx->units)
-  {
-    mod_psyh_c *psyh = (mod_psyh_c*)unit->mod_get(MOD_ID_PSYH);
-    if(psyh)
-      unit->selected = 
-        IS_BETWEEN(psyh->pos_x, ctx->sel_x, pos_x) &&
-        IS_BETWEEN(psyh->pos_y, ctx->sel_y, pos_y);
-  }
-}
-
-// ------------------------------------------------------------- //
-
-void game_c::sel_single(float mouse_x, float mouse_y)
-{
-  bool found;
-  for(const auto& unit : ctx->units)
-  {
-    mod_psyh_c *psyh = (mod_psyh_c*)unit->mod_get(MOD_ID_PSYH);
-    if(psyh)
-    {
-      unit->selected = 
-        IS_BETWEEN(mouse_x, psyh->pos_x - (psyh->size_x / 2),  psyh->pos_x + (psyh->size_x / 2)) &&
-        IS_BETWEEN(mouse_y, psyh->pos_y - (psyh->size_y / 2),  psyh->pos_y + (psyh->size_y / 2))
-        && !found;
-                  
-      if(unit->selected) 
-        found = 1;
-    }
-  }
-  ctx->sel_en = 0;
-}
-
-// ------------------------------------------------------------- //
-
-void game_c::sel_finish(float pos_x, float pos_y)
-{
-  if(ctx->sel_en)
-    if(ABS(ctx->sel_x, pos_x) < SINGLE_SEL_MARGIN && ABS(ctx->sel_y, pos_y) < SINGLE_SEL_MARGIN)
-      sel_single(pos_x, pos_y);
-    else
-      sel_mult_finish(pos_x, pos_y);
-  ctx->sel_en = 0;       
+  ticks_delta_ms = ticks_ms - ticks_total_ms;
+  ticks_total_ms = ticks_ms;
+  move_mult = (float)ticks_delta_ms / 10;
 }
 
 // ------------------------------------------------------------- //
 
 void game_c::units_move(float dst_x, float dst_y, bool clear_cmd_queue)
 {
-  for(const auto& unit : ctx->units)
+  for(const auto& unit : units)
     if(unit->selected)
     {
       mod_psyh_c *psyh = (mod_psyh_c*)unit->mod_get(MOD_ID_PSYH);
@@ -360,7 +249,7 @@ void game_c::units_move(float dst_x, float dst_y, bool clear_cmd_queue)
 
 void game_c::units_kill(bool clear_cmd_queue)
 {
-  for(const auto& unit : ctx->units)
+  for(const auto& unit : units)
     if(unit->selected)
         unit->cmd_add(new cmd_death_c(), clear_cmd_queue);
 }
@@ -371,10 +260,9 @@ void game_c::worm_spawn(float pos_x, float pos_y)
 {
   LOG_DEBUG("spawning worm\n");
   unit_c *unit = unit_worm_new(pos_x, pos_y);
-  ctx->units.push_back(unit);
+  units.push_back(unit);
   //unit_attr_add(unit, attr_enter_new()); //TBD
 }
 
-// ======================== GLOBAL FUNC ======================== //
 
 

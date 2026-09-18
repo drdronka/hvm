@@ -4,7 +4,7 @@
 #include <math.h>
 
 #include "gcfg.h"
-#include "game_ctx.h"
+#include "game.h"
 #include "log.h"
 #include "util.h"
 #include "mod_basic.h"
@@ -28,7 +28,7 @@ mod_psyh_c::~mod_psyh_c()
 
 ret_e mod_psyh_c::move(float dst_x, float dst_y, move_type_e type, bool temporary)
 {
-  game_ctx_c *ctx = game_ctx_c::get();
+  game_c *game = game_c::get();
 
   if(pos_x == dst_x && pos_y == dst_y)
     return RET_OK;
@@ -47,9 +47,9 @@ ret_e mod_psyh_c::move(float dst_x, float dst_y, move_type_e type, bool temporar
   // calculate destination
   float rel_x = speed * cos(dir);
   float rel_y = speed * sin(dir);
-  float step_dst_x = pos_x + (rel_x * ctx->move_mult);
-  float step_dst_y = pos_y + (rel_y * ctx->move_mult);
-  float dist = speed * ctx->move_mult;
+  float step_dst_x = pos_x + (rel_x * game->move_mult);
+  float step_dst_y = pos_y + (rel_y * game->move_mult);
+  float dist = speed * game->move_mult;
 
   if(ABS_DIST(dst_x, dst_y, step_dst_x, step_dst_y) < dist)
   {
@@ -95,7 +95,7 @@ mod_visu_c::~mod_visu_c()
 void mod_visu_c::run()
 {
   mod_psyh_c *psyh = (mod_psyh_c*)unit->mod_get(MOD_ID_PSYH);
-  game_ctx_c *ctx = game_ctx_c::get();
+  game_c *game = game_c::get();
   gui_c *gui = gui_c::get();
 
   if(!psyh || !visible)
@@ -107,7 +107,7 @@ void mod_visu_c::run()
   rect.w = psyh->size_x;
   rect.h = psyh->size_y;
 
-  anim_ticks += ctx->ticks_delta_ms;
+  anim_ticks += game->ticks_delta_ms;
 
   SDL_Texture *texture;
   texture = anim->tex_get(anim_stage_name, &anim_ticks, anim_cycle);
@@ -115,7 +115,7 @@ void mod_visu_c::run()
   if(!texture) 
     texture = anim->tex_get("idle", &anim_ticks, anim_cycle);
 
-  if(!SDL_RenderTextureRotated(ctx->renderer, texture, NULL, &rect, 
+  if(!SDL_RenderTextureRotated(game->renderer, texture, NULL, &rect, 
     (psyh->dir + (M_PI / 2)) * 180.0 / M_PI, NULL, SDL_FLIP_NONE))
   {
     LOG_ERROR("failed to render texture[0x%x]\n", texture);
@@ -169,7 +169,7 @@ void mod_wander_c::run()
     }
   }
 
-  ticks += game_ctx_c::get()->ticks_delta_ms;
+  ticks += game_c::get()->ticks_delta_ms;
   if(ticks > ticks_next)
   {
     if(unit->cmd_size() == 0)

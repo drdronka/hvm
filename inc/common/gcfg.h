@@ -4,7 +4,7 @@
 #define LOG_LEVEL 4 // 0 none, 1 error, 2 warning, 3 info, 4 debug, 5 trace
 #define LOG_FORCE_STDERR 0
 
-#define APPNAME "MAD RAIDER"
+#define APPNAME "EVIL CORE"
 #define WINX 1920
 #define WINY 1024
 #define FWINX ((float)(WINX))
