@@ -6,7 +6,6 @@
 #include "mod_basic.h"
 #include "unit_basic.h"
 #include "core_def.h"
-#include "asset.h"
 #include "anim.h"
 
 // ------------------------------------------------------------- //

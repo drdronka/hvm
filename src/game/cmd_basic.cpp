@@ -1,6 +1,3 @@
-#include <malloc.h>
-#include <math.h>
-
 #include "game.h"
 #include "log.h"
 #include "util.h"

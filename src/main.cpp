@@ -2,6 +2,7 @@
 #include <SDL3/SDL_main.h>
 
 #include "game.h"
+#include "gui.h"
 
 game_c *game;
 gui_c *gui;

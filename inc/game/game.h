@@ -8,7 +8,6 @@
 #include "unit.h"
 #include "asset.h"
 #include "anim.h"
-#include "gui.h"
 #include "util.h"
 
 class gui_c;

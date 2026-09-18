@@ -1,12 +1,8 @@
 #pragma once
 
-#include <SDL3/SDL_render.h>
-
 #include "core_def.h"
 #include "unit.h"
-#include "asset.h"
 #include "anim.h"
-#include "unit.h"
 
 // ------------------------------------------------------------- //
 

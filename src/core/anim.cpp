@@ -2,7 +2,6 @@
 #include <string.h>
 
 #include "anim.h"
-#include "asset.h"
 #include "log.h"
 
 // ------------------------------------------------------------- //

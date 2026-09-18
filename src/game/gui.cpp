@@ -2,10 +2,8 @@
 #include <SDL3/SDL_init.h>
 
 #include "gcfg.h"
-#include "log.h"
 #include "gui.h"
 #include "game.h"
-#include "unit_basic.h"
 #include "mod_basic.h"
 #include "util.h"
 

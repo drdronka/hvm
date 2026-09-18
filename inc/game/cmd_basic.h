@@ -1,7 +1,5 @@
 #pragma once
 
-#include <SDL3/SDL_render.h>
-
 #include "unit.h"
 #include "core_def.h"
 #include "mod_basic.h"

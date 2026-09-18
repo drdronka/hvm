@@ -1,6 +1,3 @@
-#include <malloc.h>
-#include <string.h>
-
 #include "log.h"
 #include "unit.h"
 #include "core_def.h"

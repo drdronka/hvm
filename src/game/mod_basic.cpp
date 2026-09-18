@@ -1,9 +1,6 @@
-#include <malloc.h>
-#include <string.h>
 #include <SDL3/SDL_render.h>
 #include <math.h>
 
-#include "gcfg.h"
 #include "game.h"
 #include "log.h"
 #include "util.h"
