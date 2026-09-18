@@ -1,9 +1,9 @@
 #pragma once
 
+#include <vector>
 #include <SDL3/SDL_stdinc.h>
 
 #include "core_def.h"
-#include <vector>
 
 // ------------------------------------------------------------- //
 

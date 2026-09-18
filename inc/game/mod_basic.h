@@ -24,8 +24,6 @@ public:
 
   mod_psyh_c(float pos_x, float pos_y, float size_x, float size_y, float speed, float dir);
   ~mod_psyh_c();
-  //void run();
-  //void clean();
   ret_e move(float dst_x, float dst_y, move_type_e type, bool temporary);
   void pos_rel_to_abs(float *x, float *y);
 };
@@ -44,7 +42,6 @@ public:
   mod_visu_c(anim_c *anim, const char *stage_name, bool cycle);
   ~mod_visu_c();
   void run();
-  //void clean();
   void anim_stage_set(const char *stage_name, bool cycle, bool reset);
   Uint32 anim_ticks_get(const char *stage_name);
 };

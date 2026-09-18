@@ -1,9 +1,9 @@
 #pragma once
 
+#include <vector>
 #include <SDL3/SDL_render.h>
 
 #include "util.h"
-#include <vector>
 
 class asset_tex_c
 {

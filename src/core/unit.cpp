@@ -1,7 +1,8 @@
+#include <algorithm>
+
 #include "log.h"
 #include "unit.h"
 #include "core_def.h"
-#include <algorithm>
 
 // ------------------------------------------------------------- //
 
