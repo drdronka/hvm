@@ -70,7 +70,15 @@ SDL_AppResult gui_c::event(SDL_Event *event)
 
 // ------------------------------------------------------------- //
 
-void gui_c::render()
+void gui_c::render_back()
+{
+  SDL_SetRenderDrawColor(game->renderer, COLOR_BG_R, COLOR_BG_G, COLOR_BG_B, 0);
+  SDL_RenderFillRect(game->renderer, NULL);
+}
+
+// ------------------------------------------------------------- //
+
+void gui_c::render_front()
 {
   if(sel_en)
   {
@@ -135,14 +143,6 @@ void gui_c::sel_finish_single(float mouse_x, float mouse_y)
     }
   }
   sel_en = 0;
-}
-
-// ------------------------------------------------------------- //
-
-void gui_c::draw_bg()
-{
-  SDL_SetRenderDrawColor(game->renderer, COLOR_BG_R, COLOR_BG_G, COLOR_BG_B, 0);
-  SDL_RenderFillRect(game->renderer, NULL);  
 }
 
 // ------------------------------------------------------------- //

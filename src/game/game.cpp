@@ -86,7 +86,9 @@ SDL_AppResult game_c::update()
   LOG_TRACE("update\n");
 
   ticks_update();
-  gui->bg_draw();
+
+  /* render background */
+  gui->render_back();
 
   /* run clean functions */
   for(const auto& unit : units)
@@ -118,7 +120,7 @@ SDL_AppResult game_c::update()
     unit->mod_run(MOD_ID_VISU, MOD_TYPE_ANY);
   
   /* render gui */
-  gui->render();
+  gui->render_front();
    
   SDL_RenderPresent(renderer);
 
