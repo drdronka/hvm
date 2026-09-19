@@ -6,6 +6,24 @@
 
 class game_c;
 
+/* visual object */
+typedef struct vob
+{
+  const char *tex_name;
+  SDL_FRect pos;
+} vob_t;
+
+typedef struct ui
+{
+
+  vob_t map_frame;
+  vob_t map;
+  vob_t select_frame;
+  vob_t portrait;
+  vob_t stats;
+  vob_t action_frame;
+} ui_t;
+
 class gui_c
 {
 public:  

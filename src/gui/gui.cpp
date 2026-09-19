@@ -7,6 +7,17 @@
 #include "mod_basic.h"
 #include "util.h"
 
+static vob_t ui_static[] = 
+{
+  {"map_frame", {0, 664, 360, 360}}, // map frame
+  {"map_dummy", {20, 684, 320, 320}}, // map
+  {"select_frame", {360, 784, 1200, 240}}, // select frame
+  {"portrait_dummy", {380, 804, 200, 200}}, // portrait
+  {"stats_dummy", {600, 804, 108, 200}}, // stats
+  {"action_frame", {1560, 664, 360, 360}}, // action frame
+};
+Uint32 ui_static_size = sizeof(ui_static) / sizeof(vob_t);
+
 // ------------------------------------------------------------- //
 gui_c *gui_c::get()
 {
@@ -78,12 +89,21 @@ void gui_c::render_back()
 
 void gui_c::render_front()
 {
+  /* render selection rectangle */
   if(sel_en)
   {
     float mouse_x, mouse_y;
     SDL_GetMouseState(&mouse_x, &mouse_y);
     draw_sel_rect(sel_x, sel_y, mouse_x, mouse_y);
   }
+
+  /* render static frame */
+  for(Uint32 n = 0; n < ui_static_size; n++)
+    SDL_RenderTexture(
+      game->renderer, 
+      asset_tex_get(game->textures, ui_static[n].tex_name), 
+      NULL, 
+      &ui_static[n].pos);
 }
 
 // ------------------------------------------------------------- //

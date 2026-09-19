@@ -24,7 +24,7 @@ add_executable(hvm WIN32
     src/game/mod_basic.cpp
     src/game/cmd_basic.cpp
     src/game/unit_basic.cpp
-    src/game/gui.cpp
+    src/gui/gui.cpp
     src/core/unit.cpp
     src/core/asset.cpp
     src/core/anim.cpp
@@ -36,6 +36,7 @@ target_include_directories(hvm
     inc/common
     inc/game
     inc/core
+    inc/gui
 )
 
 # Link to the actual SDL3 library.

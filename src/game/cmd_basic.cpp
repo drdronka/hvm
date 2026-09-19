@@ -25,7 +25,6 @@ void cmd_move_c::run()
   if(!psyh)
   {
     LOG_ERROR("no psyh mod");
-    
     return;
   }
   
